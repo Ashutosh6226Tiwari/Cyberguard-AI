@@ -24,6 +24,7 @@ import { X402PaymentModal } from './components/X402PaymentModal';
 import { ReportExportModal } from './components/ReportExportModal';
 import { AboutModal } from './components/AboutModal';
 import { WalletModal } from './components/WalletModal';
+import { HackerTransitionOverlay } from './components/HackerTransitionOverlay';
 import { AlgorandWalletProvider } from './context/AlgorandWalletContext';
 
 import type {
@@ -58,7 +59,7 @@ const DEFAULT_PIPELINE_STEPS: PipelineStep[] = [
 ];
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<string>('scanner');
+  const [activeTab, setActiveTab] = useState<string>('overview');
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     return (localStorage.getItem('cyberguard_theme') as 'dark' | 'light') || 'dark';
   });
@@ -75,6 +76,9 @@ export function App() {
   const [currentAgentStage, setCurrentAgentStage] = useState<number>(-1);
   const [agentIsPaid, setAgentIsPaid] = useState<boolean>(false);
 
+  // Cinematic hacker transition overlay state
+  const [showHackerOverlay, setShowHackerOverlay] = useState<boolean>(false);
+
   // x402 Payment state
   const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false);
   const [activeChallenge, setActiveChallenge] = useState<PaymentChallenge | null>(null);
@@ -83,6 +87,10 @@ export function App() {
   const [showAboutModal, setShowAboutModal] = useState<boolean>(false);
   const [showWalletModal, setShowWalletModal] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleLaunchScanner = () => {
+    setShowHackerOverlay(true);
+  };
 
   // Apply theme to DOM
   useEffect(() => {
@@ -310,6 +318,7 @@ export function App() {
           toggleTheme={toggleTheme}
           onOpenAbout={() => setShowAboutModal(true)}
           onOpenWalletModal={() => setShowWalletModal(true)}
+          onLaunchScanner={handleLaunchScanner}
           hasActiveReport={!!report}
         />
 
@@ -326,7 +335,7 @@ export function App() {
         {/* Page 1: Overview & Product Landing */}
         {activeTab === 'overview' && (
           <LandingPage
-            onLaunchScanner={() => setActiveTab('scanner')}
+            onLaunchScanner={handleLaunchScanner}
             onOpenExtension={() => setActiveTab('extension')}
             onOpenDiscovery={() => setActiveTab('discovery')}
           />
@@ -434,7 +443,7 @@ export function App() {
               <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
                 <p>No active security scan loaded. Go to the Live Scanner to audit a URL.</p>
                 <button
-                  onClick={() => setActiveTab('scanner')}
+                  onClick={handleLaunchScanner}
                   style={{
                     marginTop: '16px',
                     background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
@@ -456,14 +465,14 @@ export function App() {
         {/* Page 4: Premium Audit & x402 Algorand Protocol */}
         {activeTab === 'x402' && (
           <PremiumAuditPage
-            onLaunchScanner={() => setActiveTab('scanner')}
+            onLaunchScanner={handleLaunchScanner}
             onOpenPaymentModal={() => setShowPaymentModal(true)}
           />
         )}
 
         {/* Page 5: Chrome Extension */}
         {activeTab === 'extension' && (
-          <ChromeExtensionPage onLaunchScanner={() => setActiveTab('scanner')} />
+          <ChromeExtensionPage onLaunchScanner={handleLaunchScanner} />
         )}
 
         {/* Page 6: Reports / Scan History */}
@@ -471,13 +480,13 @@ export function App() {
           <ScanHistoryPage
             cases={cases}
             onSelectCase={handleSelectCase}
-            onLaunchScanner={() => setActiveTab('scanner')}
+            onLaunchScanner={handleLaunchScanner}
           />
         )}
 
         {/* Page 7: About / How It Works */}
         {activeTab === 'about' && (
-          <AboutPage onLaunchScanner={() => setActiveTab('scanner')} />
+          <AboutPage onLaunchScanner={handleLaunchScanner} />
         )}
 
         {/* Discovery Feed (Live CT Stream) */}
@@ -491,6 +500,18 @@ export function App() {
             </motion.div>
           </AnimatePresence>
         </main>
+
+        {/* Cinematic Matrix Hacker Transition Overlay */}
+        <AnimatePresence>
+          {showHackerOverlay && (
+            <HackerTransitionOverlay
+              onComplete={() => {
+                setShowHackerOverlay(false);
+                setActiveTab('scanner');
+              }}
+            />
+          )}
+        </AnimatePresence>
 
         {/* Algorand Wallet Connection & Account Management Modal */}
         <WalletModal

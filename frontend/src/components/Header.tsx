@@ -11,6 +11,7 @@ interface HeaderProps {
   toggleTheme: () => void;
   onOpenAbout: () => void;
   onOpenWalletModal?: () => void;
+  onLaunchScanner?: () => void;
   hasActiveReport?: boolean;
 }
 
@@ -22,6 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
   toggleTheme,
   onOpenAbout,
   onOpenWalletModal,
+  onLaunchScanner,
   hasActiveReport = false
 }) => {
   const { isConnected, address, balanceAlgo } = useAlgorandWallet();
@@ -87,7 +89,13 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           <button
-            onClick={() => setActiveTab('scanner')}
+            onClick={() => {
+              if (activeTab !== 'scanner' && onLaunchScanner) {
+                onLaunchScanner();
+              } else {
+                setActiveTab('scanner');
+              }
+            }}
             style={{
               padding: '7px 11px',
               borderRadius: '8px',
