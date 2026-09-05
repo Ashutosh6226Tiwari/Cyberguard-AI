@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { MatrixBackground } from './components/MatrixBackground';
 import { Header } from './components/Header';
 import { LandingPage } from './components/LandingPage';
@@ -22,6 +23,8 @@ import { FreeScanDetailedCard } from './components/FreeScanDetailedCard';
 import { X402PaymentModal } from './components/X402PaymentModal';
 import { ReportExportModal } from './components/ReportExportModal';
 import { AboutModal } from './components/AboutModal';
+import { WalletModal } from './components/WalletModal';
+import { AlgorandWalletProvider } from './context/AlgorandWalletContext';
 
 import type {
   RiskScoreReport,
@@ -78,6 +81,7 @@ export function App() {
 
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
   const [showAboutModal, setShowAboutModal] = useState<boolean>(false);
+  const [showWalletModal, setShowWalletModal] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Apply theme to DOM
@@ -293,22 +297,32 @@ export function App() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', paddingBottom: '40px', position: 'relative' }}>
-      {/* Subtle Background Matrix Canvas */}
-      <MatrixBackground opacity={0.22} themeMode={theme} />
+    <AlgorandWalletProvider>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', paddingBottom: '40px', position: 'relative' }}>
+        {/* Subtle Background Matrix Canvas */}
+        <MatrixBackground opacity={0.22} themeMode={theme} />
 
-      <Header
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        caseCount={cases.length}
-        theme={theme}
-        toggleTheme={toggleTheme}
-        onOpenAbout={() => setShowAboutModal(true)}
-        hasActiveReport={!!report}
-      />
+        <Header
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          caseCount={cases.length}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          onOpenAbout={() => setShowAboutModal(true)}
+          onOpenWalletModal={() => setShowWalletModal(true)}
+          hasActiveReport={!!report}
+        />
 
-      {/* Main Content Area */}
-      <main style={{ flex: 1, position: 'relative', zIndex: 1 }}>
+        {/* Main Content Area */}
+        <main style={{ flex: 1, position: 'relative', zIndex: 1 }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2 }}
+            >
         {/* Page 1: Overview & Product Landing */}
         {activeTab === 'overview' && (
           <LandingPage
@@ -474,35 +488,44 @@ export function App() {
             isLoading={isLoading}
           />
         )}
-      </main>
+            </motion.div>
+          </AnimatePresence>
+        </main>
 
-      {/* x402 Algorand Testnet Payment Modal */}
-      <X402PaymentModal
-        isOpen={showPaymentModal}
-        onClose={() => setShowPaymentModal(false)}
-        challenge={activeChallenge}
-        targetUrl={currentScanningUrl || 'https://campuskart.shop'}
-        caseId={freeScanResult?.case_id || 'case-live'}
-        onPaymentSuccess={handlePaymentSuccess}
-      />
-
-      {/* Export Forensic Report Modal */}
-      {showExportModal && report && (
-        <ReportExportModal
-          isOpen={showExportModal}
-          onClose={() => setShowExportModal(false)}
-          report={report}
+        {/* Algorand Wallet Connection & Account Management Modal */}
+        <WalletModal
+          isOpen={showWalletModal}
+          onClose={() => setShowWalletModal(false)}
         />
-      )}
 
-      {/* About & Technical Spec Modal */}
-      {showAboutModal && (
-        <AboutModal
-          isOpen={showAboutModal}
-          onClose={() => setShowAboutModal(false)}
+        {/* x402 Algorand Testnet Payment Modal */}
+        <X402PaymentModal
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          challenge={activeChallenge}
+          targetUrl={currentScanningUrl || 'https://campuskart.shop'}
+          caseId={freeScanResult?.case_id || 'case-live'}
+          onPaymentSuccess={handlePaymentSuccess}
         />
-      )}
-    </div>
+
+        {/* Export Forensic Report Modal */}
+        {showExportModal && report && (
+          <ReportExportModal
+            isOpen={showExportModal}
+            onClose={() => setShowExportModal(false)}
+            report={report}
+          />
+        )}
+
+        {/* About & Technical Spec Modal */}
+        {showAboutModal && (
+          <AboutModal
+            isOpen={showAboutModal}
+            onClose={() => setShowAboutModal(false)}
+          />
+        )}
+      </div>
+    </AlgorandWalletProvider>
   );
 }
 

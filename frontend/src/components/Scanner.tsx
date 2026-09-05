@@ -158,7 +158,7 @@ export const Scanner: React.FC<ScannerProps> = ({ onScan, isLoading, benchmarkSa
             </div>
 
             {/* Benchmark Samples Selector */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
                 Demo Target:
               </span>
@@ -185,6 +185,36 @@ export const Scanner: React.FC<ScannerProps> = ({ onScan, isLoading, benchmarkSa
                 ))}
               </select>
             </div>
+          </div>
+
+          {/* Quick 1-Tap Target Benchmark Pills */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', paddingTop: '4px' }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>Quick Targets:</span>
+            {[
+              { label: 'campuskart.shop (43d NRD)', url: 'https://campuskart.shop' },
+              { label: 'psit.ac.in (Edu 8142d)', url: 'https://psit.ac.in' },
+              { label: 'zeyotech.in (380d)', url: 'https://zeyotech.in' },
+              { label: 'PayPal Lookalike (.xyz)', url: 'http://login-paypal-security-verification.xyz/auth/signin' },
+              { label: 'github.com (Benign)', url: 'https://github.com' }
+            ].map((tgt, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => { setUrl(tgt.url); }}
+                style={{
+                  background: url === tgt.url ? 'rgba(6, 182, 212, 0.25)' : 'rgba(255, 255, 255, 0.04)',
+                  border: url === tgt.url ? '1px solid #38bdf8' : '1px solid var(--border-color)',
+                  color: url === tgt.url ? '#38bdf8' : 'var(--text-secondary)',
+                  borderRadius: '16px',
+                  padding: '3px 10px',
+                  fontSize: '0.7rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s'
+                }}
+              >
+                {tgt.label}
+              </button>
+            ))}
           </div>
         </div>
       </form>

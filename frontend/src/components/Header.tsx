@@ -1,6 +1,7 @@
 import React from 'react';
-import { Shield, Activity, Database, Radar, Home, Puzzle, Sun, Moon, HelpCircle, Coins, History, LayoutDashboard, Terminal } from 'lucide-react';
+import { Shield, Activity, Database, Radar, Home, Puzzle, Sun, Moon, HelpCircle, Coins, History, LayoutDashboard, Terminal, Wallet } from 'lucide-react';
 import { InfoTooltip } from './InfoTooltip';
+import { useAlgorandWallet } from '../context/AlgorandWalletContext';
 
 interface HeaderProps {
   activeTab: string;
@@ -9,6 +10,7 @@ interface HeaderProps {
   theme: 'dark' | 'light';
   toggleTheme: () => void;
   onOpenAbout: () => void;
+  onOpenWalletModal?: () => void;
   hasActiveReport?: boolean;
 }
 
@@ -19,8 +21,10 @@ export const Header: React.FC<HeaderProps> = ({
   theme,
   toggleTheme,
   onOpenAbout,
+  onOpenWalletModal,
   hasActiveReport = false
 }) => {
+  const { isConnected, address, balanceAlgo } = useAlgorandWallet();
   return (
     <header className="glass-panel" style={{ margin: '16px 24px', padding: '16px 20px', position: 'relative', zIndex: 100 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px' }}>
@@ -213,6 +217,39 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Global Controls & Theme Toggle */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Algorand Wallet Connection Button */}
+          <button
+            onClick={onOpenWalletModal}
+            style={{
+              padding: '7px 14px',
+              borderRadius: '8px',
+              border: isConnected ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid #38bdf8',
+              background: isConnected ? 'rgba(16, 185, 129, 0.12)' : 'linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(37, 99, 235, 0.2) 100%)',
+              color: isConnected ? '#10b981' : '#38bdf8',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: isConnected ? '0 0 12px rgba(16, 185, 129, 0.2)' : '0 0 15px rgba(6, 182, 212, 0.3)',
+              transition: 'all 0.15s'
+            }}
+            title={isConnected && address ? `Connected: ${address}` : 'Connect Algorand Testnet Wallet'}
+          >
+            <Wallet size={14} />
+            {isConnected && address ? (
+              <>
+                <span className="mono">{address.slice(0, 5)}...{address.slice(-4)}</span>
+                <span style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '1px 6px', borderRadius: '4px', fontSize: '0.68rem' }}>
+                  {balanceAlgo.toFixed(1)} ALGO
+                </span>
+              </>
+            ) : (
+              <span>Connect Wallet</span>
+            )}
+          </button>
+
           <button
             onClick={() => setActiveTab('discovery')}
             style={{

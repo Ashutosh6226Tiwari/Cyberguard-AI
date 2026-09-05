@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, Coins, ShieldCheck, ExternalLink, Zap, Lock, CheckCircle2, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
+import { X, Coins, ShieldCheck, ExternalLink, Zap, Lock, CheckCircle2, AlertCircle, Loader2, ArrowRight, Wallet, ArrowDown } from 'lucide-react';
 import type { PaymentChallenge, PaymentVerificationResponse } from '../types';
 import { verifyAlgorandPayment, executeDemoFaucetPayment } from '../services/api';
+import { useAlgorandWallet } from '../context/AlgorandWalletContext';
 
 interface X402PaymentModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
   caseId,
   onPaymentSuccess
 }) => {
+  const { isConnected, address, balanceAlgo, balanceUsdc, deductBalance, connectDemoWallet } = useAlgorandWallet();
   const [selectedCurrency, setSelectedCurrency] = useState<'ALGO' | 'USDC'>('ALGO');
   const [activeMode, setActiveMode] = useState<'instant' | 'manual'>('instant');
   const [manualTxId, setManualTxId] = useState('');
@@ -33,9 +35,14 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
     setIsProcessing(true);
     setErrorMessage(null);
     try {
+      if (!isConnected) {
+        connectDemoWallet();
+      }
+
       // Execute 1-Click Algorand Testnet Dispenser
       const result = await executeDemoFaucetPayment(caseId, targetUrl);
       if (result.verified) {
+        deductBalance(selectedCurrency === 'ALGO' ? 0.1 : 0, selectedCurrency === 'USDC' ? 0.01 : 0);
         setVerificationResult(result);
         setTimeout(() => {
           onPaymentSuccess(result);
@@ -188,41 +195,58 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
           </button>
         </div>
 
-        {/* HTTP 402 Protocol Challenge Box */}
-        <div style={{ background: 'var(--code-box-bg)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '14px', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#38bdf8' }}>
-              ⚡ x402 CHALLENGE DETAILS
+        {/* HTTP 402 Protocol Challenge & Escrow Transfer Route Box */}
+        <div style={{ background: 'var(--code-box-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.05em' }}>
+              ⚡ x402 MICROPAYMENT ROUTING
             </span>
-            <span className="mono" style={{ fontSize: '0.68rem', color: '#10b981' }}>
+            <span className="mono" style={{ fontSize: '0.68rem', color: '#10b981', background: 'rgba(16, 185, 129, 0.12)', padding: '2px 8px', borderRadius: '8px' }}>
               Facilitator: GoPlausible (Online)
             </span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.75rem' }}>
-            <div>
-              <span style={{ color: 'var(--text-secondary)' }}>Amount Due: </span>
-              <strong style={{ color: '#10b981', fontSize: '0.85rem' }}>
-                {selectedCurrency === 'ALGO' ? '0.1 ALGO' : '$0.01 USDC'}
-              </strong>
-              <span className="mono" style={{ color: 'var(--text-muted)', fontSize: '0.68rem' }}>
-                {selectedCurrency === 'ALGO' ? ' (100k μALGO)' : ' (ASA #10458941)'}
+          {/* Transfer Route Visualizer */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.75rem', background: 'rgba(0, 0, 0, 0.25)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(75, 85, 99, 0.3)' }}>
+            {/* Sender */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ color: 'var(--text-secondary)' }}>From (Payer Wallet): </span>
+                <span className="mono" style={{ color: '#38bdf8', fontWeight: 600 }}>
+                  {address ? `${address.slice(0, 10)}...${address.slice(-6)}` : 'Demo Testnet Wallet'}
+                </span>
+              </div>
+              <span className="mono" style={{ color: '#10b981', fontWeight: 700, fontSize: '0.72rem' }}>
+                Bal: {balanceAlgo.toFixed(2)} ALGO
               </span>
             </div>
-            <div>
-              <span style={{ color: 'var(--text-secondary)' }}>Network: </span>
-              <strong style={{ color: 'var(--text-primary)' }}>Algorand Testnet</strong>
+
+            {/* Transfer arrow & amount */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '4px 0' }}>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(56, 189, 248, 0.3)' }} />
+              <div style={{ background: 'rgba(6, 182, 212, 0.2)', border: '1px solid #38bdf8', padding: '2px 10px', borderRadius: '12px', color: '#38bdf8', fontWeight: 800, fontSize: '0.72rem' }}>
+                Transfer: {selectedCurrency === 'ALGO' ? '0.10 ALGO' : '$0.01 USDC'}
+              </div>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(56, 189, 248, 0.3)' }} />
+            </div>
+
+            {/* Recipient Treasury Escrow */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <span style={{ color: 'var(--text-secondary)' }}>To (CyberGuard Escrow): </span>
+                <span className="mono" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
+                  {challenge.recipient_address.slice(0, 12)}...{challenge.recipient_address.slice(-6)}
+                </span>
+              </div>
+              <span className="mono" style={{ color: 'var(--text-muted)', fontSize: '0.68rem' }}>
+                Algorand Testnet
+              </span>
             </div>
           </div>
 
-          <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(75, 85, 99, 0.2)', fontSize: '0.7rem' }}>
-            <span style={{ color: 'var(--text-secondary)' }}>Target URL: </span>
-            <span className="mono" style={{ color: '#38bdf8' }}>{targetUrl}</span>
-          </div>
-
-          <div style={{ marginTop: '4px', fontSize: '0.68rem' }}>
-            <span style={{ color: 'var(--text-secondary)' }}>Recipient Escrow: </span>
-            <span className="mono" style={{ color: 'var(--text-muted)' }}>{challenge.recipient_address.slice(0, 24)}...</span>
+          <div style={{ marginTop: '10px', fontSize: '0.7rem', display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
+            <span>Target Forensic URL: <strong style={{ color: '#38bdf8' }}>{targetUrl}</strong></span>
+            <span className="mono">CAIP-2: algorand:testnet</span>
           </div>
         </div>
 
