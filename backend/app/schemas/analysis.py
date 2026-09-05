@@ -151,7 +151,7 @@ class RiskScoreReport(BaseModel):
     payment_amount_algo: Optional[float] = None
     explorer_url: Optional[str] = None
 
-# Free Quick Scan Result (Stage 1 & Basic Stage 2)
+# Free Quick Scan Result (Rich Stage 1, Stage 2 & TLS/DNS Intelligence)
 class FreeScanResult(BaseModel):
     case_id: str
     target_url: str
@@ -161,10 +161,19 @@ class FreeScanResult(BaseModel):
     verdict: str  # BENIGN, SUSPICIOUS, PHISHING
     confidence: float
     lexical_score: float
-    is_newly_registered: bool
+    entropy_score: float = 0.0
+    is_newly_registered: bool = False
     domain_age_days: Optional[int] = None
+    creation_date: Optional[str] = None
     registrar: Optional[str] = None
+    dns_a_records: List[str] = Field(default_factory=list)
+    dns_ns_records: List[str] = Field(default_factory=list)
+    has_spf: bool = False
+    has_dmarc: bool = False
+    tls_valid: bool = True
+    tls_issuer: Optional[str] = None
     triage_reason: str
+    feature_attributions: Dict[str, float] = Field(default_factory=dict)
     deep_audit_locked: bool = True
     x402_challenge: Optional[Dict[str, Any]] = None
 

@@ -17,6 +17,8 @@ import { ScanHistoryPage } from './components/ScanHistoryPage';
 import { PremiumAuditPage } from './components/PremiumAuditPage';
 import { AboutPage } from './components/AboutPage';
 import { AgenticWorkflowHUD } from './components/AgenticWorkflowHUD';
+import { ScanningTelemetryHUD } from './components/ScanningTelemetryHUD';
+import { FreeScanDetailedCard } from './components/FreeScanDetailedCard';
 import { X402PaymentModal } from './components/X402PaymentModal';
 import { ReportExportModal } from './components/ReportExportModal';
 import { AboutModal } from './components/AboutModal';
@@ -308,8 +310,13 @@ export function App() {
               benchmarkSamples={benchmarkSamples}
             />
 
+            {/* Real-time Scanning Telemetry HUD with Animation */}
+            {isLoading && currentScanningUrl && (
+              <ScanningTelemetryHUD targetUrl={currentScanningUrl} isDeep={agentIsPaid} />
+            )}
+
             {/* Pipeline Stepper (Active during scan or when target URL is entered) */}
-            {(isLoading || currentScanningUrl) && (
+            {!isLoading && currentScanningUrl && (
               <PipelineStepper steps={pipelineSteps} />
             )}
 
@@ -341,63 +348,12 @@ export function App() {
               </div>
             )}
 
-            {/* Free Scan Result Preview (with x402 Deep Audit CTA) */}
+            {/* Comprehensive Free Quick Scan Breakdown (Stages 1-2 & Lexical ML + DNS/TLS) */}
             {freeScanResult && !report && !isLoading && (
-              <div className="glass-panel" style={{ padding: '24px', margin: '0 24px 24px 24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '14px', marginBottom: '18px', flexWrap: 'wrap', gap: '12px' }}>
-                  <div>
-                    <span style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      ✓ FREE QUICK SCAN COMPLETE (STAGE 1 &amp; 2)
-                    </span>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '4px' }}>
-                      Initial Assessment: {freeScanResult.canonical_domain}
-                    </h3>
-                  </div>
-
-                  <button
-                    onClick={handleOpenPaymentForFreeScan}
-                    style={{
-                      background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '10px',
-                      padding: '10px 20px',
-                      fontWeight: 700,
-                      fontSize: '0.88rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      boxShadow: '0 0 20px rgba(2, 132, 199, 0.5)'
-                    }}
-                  >
-                    <span>Unlock Premium Deep Audit (0.1 ALGO via x402)</span>
-                  </button>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', fontSize: '0.82rem' }}>
-                  <div style={{ background: 'var(--code-box-bg)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-                    <div style={{ color: 'var(--text-secondary)', marginBottom: '4px' }}>Basic Risk Score</div>
-                    <div className="mono" style={{ fontSize: '1.4rem', fontWeight: 900, color: freeScanResult.basic_risk_score >= 70 ? '#ef4444' : freeScanResult.basic_risk_score >= 35 ? '#f59e0b' : '#10b981' }}>
-                      {freeScanResult.basic_risk_score.toFixed(1)} / 100
-                    </div>
-                  </div>
-
-                  <div style={{ background: 'var(--code-box-bg)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-                    <div style={{ color: 'var(--text-secondary)', marginBottom: '4px' }}>Verdict</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: freeScanResult.verdict === 'PHISHING' ? '#ef4444' : freeScanResult.verdict === 'SUSPICIOUS' ? '#f59e0b' : '#10b981' }}>
-                      {freeScanResult.verdict}
-                    </div>
-                  </div>
-
-                  <div style={{ background: 'var(--code-box-bg)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-                    <div style={{ color: 'var(--text-secondary)', marginBottom: '4px' }}>Domain Age Profile</div>
-                    <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                      {freeScanResult.domain_age_days !== undefined ? `${freeScanResult.domain_age_days} Days Old` : 'N/A'}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <FreeScanDetailedCard
+                result={freeScanResult}
+                onUnlockDeepAudit={handleOpenPaymentForFreeScan}
+              />
             )}
 
             {/* Complete Real Live Scan Report (Displayed directly on Scanner page) */}

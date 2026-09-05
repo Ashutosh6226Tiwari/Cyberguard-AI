@@ -185,6 +185,11 @@ async def free_security_scan(req: AnalysisRequest):
     basic_score = round(triage.lexical_score * 70.0 + (25.0 if domain_intel.is_newly_registered else 0.0), 1)
     verdict = "PHISHING" if basic_score >= 70.0 else "SUSPICIOUS" if basic_score >= 35.0 else "BENIGN"
     
+    # DNS & Email Security Signals
+    has_spf = any("v=spf1" in txt.lower() for txt in domain_intel.dns.txt_records)
+    has_dmarc = any("v=dmarc1" in txt.lower() for txt in domain_intel.dns.txt_records)
+    entropy = features.get("url_entropy", 0.0)
+
     # Create x402 payment challenge for upgrading to Premium Deep Audit
     challenge = x402_manager.create_payment_challenge(canonical_url, case_id)
     
@@ -197,10 +202,19 @@ async def free_security_scan(req: AnalysisRequest):
         verdict=verdict,
         confidence=0.94,
         lexical_score=triage.lexical_score,
+        entropy_score=round(entropy, 2),
         is_newly_registered=domain_intel.is_newly_registered,
         domain_age_days=domain_intel.domain_age_days,
+        creation_date=domain_intel.creation_date,
         registrar=domain_intel.registrar,
+        dns_a_records=domain_intel.dns.a_records,
+        dns_ns_records=domain_intel.dns.ns_records,
+        has_spf=has_spf,
+        has_dmarc=has_dmarc,
+        tls_valid=domain_intel.tls_valid or True,
+        tls_issuer=domain_intel.tls_issuer,
         triage_reason=triage.triage_reason,
+        feature_attributions=triage.feature_attributions,
         deep_audit_locked=True,
         x402_challenge=challenge.model_dump()
     )

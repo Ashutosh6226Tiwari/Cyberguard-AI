@@ -172,10 +172,19 @@ export interface FreeScanResult {
   verdict: 'PHISHING' | 'SUSPICIOUS' | 'BENIGN' | 'UNKNOWN';
   confidence: number;
   lexical_score: number;
+  entropy_score?: number;
   is_newly_registered: boolean;
   domain_age_days?: number;
+  creation_date?: string;
   registrar?: string;
+  dns_a_records?: string[];
+  dns_ns_records?: string[];
+  has_spf?: boolean;
+  has_dmarc?: boolean;
+  tls_valid?: boolean;
+  tls_issuer?: string;
   triage_reason: string;
+  feature_attributions?: Record<string, number>;
   deep_audit_locked: boolean;
   x402_challenge?: PaymentChallenge;
 }
