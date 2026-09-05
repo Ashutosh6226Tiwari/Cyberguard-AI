@@ -20,6 +20,7 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
   caseId,
   onPaymentSuccess
 }) => {
+  const [selectedCurrency, setSelectedCurrency] = useState<'ALGO' | 'USDC'>('ALGO');
   const [activeMode, setActiveMode] = useState<'instant' | 'manual'>('instant');
   const [manualTxId, setManualTxId] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -128,7 +129,7 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
                 </span>
               </div>
               <div className="mono" style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
-                Algorand Testnet Micro-Payment Engine
+                Algorand Testnet (CAIP-2: algorand:testnet)
               </div>
             </div>
           </div>
@@ -141,22 +142,72 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
           </button>
         </div>
 
+        {/* Currency Selector (ALGO vs USDC) */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+          <button
+            type="button"
+            onClick={() => setSelectedCurrency('ALGO')}
+            style={{
+              flex: 1,
+              background: selectedCurrency === 'ALGO' ? 'rgba(6, 182, 212, 0.25)' : 'var(--code-box-bg)',
+              border: selectedCurrency === 'ALGO' ? '1px solid #38bdf8' : '1px solid var(--border-color)',
+              color: selectedCurrency === 'ALGO' ? '#38bdf8' : 'var(--text-secondary)',
+              borderRadius: '8px',
+              padding: '8px',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px'
+            }}
+          >
+            <span>⚡ 0.1 ALGO (Native)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedCurrency('USDC')}
+            style={{
+              flex: 1,
+              background: selectedCurrency === 'USDC' ? 'rgba(6, 182, 212, 0.25)' : 'var(--code-box-bg)',
+              border: selectedCurrency === 'USDC' ? '1px solid #38bdf8' : '1px solid var(--border-color)',
+              color: selectedCurrency === 'USDC' ? '#38bdf8' : 'var(--text-secondary)',
+              borderRadius: '8px',
+              padding: '8px',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px'
+            }}
+          >
+            <span>💵 $0.01 USDC (ASA #10458941)</span>
+          </button>
+        </div>
+
         {/* HTTP 402 Protocol Challenge Box */}
         <div style={{ background: 'var(--code-box-bg)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '14px', marginBottom: '20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
             <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#38bdf8' }}>
               ⚡ x402 CHALLENGE DETAILS
             </span>
-            <span className="mono" style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-              Facilitator: GoPlausible
+            <span className="mono" style={{ fontSize: '0.68rem', color: '#10b981' }}>
+              Facilitator: GoPlausible (Online)
             </span>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.75rem' }}>
             <div>
               <span style={{ color: 'var(--text-secondary)' }}>Amount Due: </span>
-              <strong style={{ color: '#10b981', fontSize: '0.85rem' }}>0.1 ALGO</strong>
-              <span className="mono" style={{ color: 'var(--text-muted)', fontSize: '0.68rem' }}> (100k μALGO)</span>
+              <strong style={{ color: '#10b981', fontSize: '0.85rem' }}>
+                {selectedCurrency === 'ALGO' ? '0.1 ALGO' : '$0.01 USDC'}
+              </strong>
+              <span className="mono" style={{ color: 'var(--text-muted)', fontSize: '0.68rem' }}>
+                {selectedCurrency === 'ALGO' ? ' (100k μALGO)' : ' (ASA #10458941)'}
+              </span>
             </div>
             <div>
               <span style={{ color: 'var(--text-secondary)' }}>Network: </span>
@@ -171,7 +222,7 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
 
           <div style={{ marginTop: '4px', fontSize: '0.68rem' }}>
             <span style={{ color: 'var(--text-secondary)' }}>Recipient Escrow: </span>
-            <span className="mono" style={{ color: 'var(--text-muted)' }}>{challenge.recipient_address.slice(0, 20)}...</span>
+            <span className="mono" style={{ color: 'var(--text-muted)' }}>{challenge.recipient_address.slice(0, 24)}...</span>
           </div>
         </div>
 
@@ -245,7 +296,7 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
         {activeMode === 'instant' ? (
           <div>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '18px' }}>
-              Broadcasts a real micro-transaction of <strong>0.1 ALGO</strong> directly to the <strong>Algorand Testnet Node</strong> via the <strong>GoPlausible Facilitator</strong> to instantly verify and unlock the full deep audit report.
+              Broadcasts an exact micro-transaction of <strong>{selectedCurrency === 'ALGO' ? '0.1 ALGO' : '$0.01 USDC (ASA #10458941)'}</strong> directly to the <strong>Algorand Testnet Node</strong> via the <strong>GoPlausible Facilitator</strong> to instantly verify and unlock the full deep audit report.
             </p>
 
             <button
@@ -277,7 +328,7 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
               ) : (
                 <>
                   <ShieldCheck size={18} />
-                  <span>Pay 0.1 ALGO &amp; Unlock Premium Deep Audit</span>
+                  <span>Pay {selectedCurrency === 'ALGO' ? '0.1 ALGO' : '$0.01 USDC'} &amp; Unlock Premium Deep Audit</span>
                   <ArrowRight size={16} />
                 </>
               )}
@@ -286,7 +337,7 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
         ) : (
           <form onSubmit={handleManualVerification}>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '14px' }}>
-              If you submitted a 0.1 ALGO transaction via Pera, Defly, or Algorand CLI, paste the transaction hash below:
+              If you submitted a {selectedCurrency === 'ALGO' ? '0.1 ALGO' : '0.01 USDC'} transaction via Pera, Defly, or Algorand CLI, paste the transaction hash below:
             </p>
 
             <div style={{ marginBottom: '16px' }}>
@@ -307,6 +358,19 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
                   outline: 'none'
                 }}
               />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', fontSize: '0.72rem' }}>
+              <a
+                href="https://dispenser.testnet.algorand.network"
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: '#38bdf8', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+              >
+                <span>Get Free Testnet ALGO/USDC</span>
+                <ExternalLink size={12} />
+              </a>
+              <span className="mono" style={{ color: 'var(--text-muted)' }}>Pera / Defly Compatible</span>
             </div>
 
             <button

@@ -220,12 +220,18 @@ async def free_security_scan(req: AnalysisRequest):
     )
 
 # -----------------------------------------------------------------------------------
-# 2. x402 Payment Challenge Endpoint
+# 2. x402 Payment Challenge & Discovery Endpoints
 # -----------------------------------------------------------------------------------
 @router.post("/payment/challenge", response_model=PaymentChallengeResponse)
 def get_payment_challenge(req: PaymentChallengeRequest):
     challenge = x402_manager.create_payment_challenge(req.target_url, req.case_id)
     return PaymentChallengeResponse(**challenge.model_dump())
+
+@router.get("/x402/discovery")
+@router.get("/x402/endpoints")
+def get_x402_discovery_config():
+    """Returns endpoint configuration and pricing following the x402 AVM starter kit standard."""
+    return x402_manager.get_discovery_config()
 
 # -----------------------------------------------------------------------------------
 # 3. x402 Algorand Testnet Verification Endpoint

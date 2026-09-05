@@ -11,6 +11,10 @@ ALGOD_TESTNET_SERVER = os.getenv("ALGOD_TESTNET_SERVER", "https://testnet-api.al
 ALGOD_TESTNET_INDEXER = os.getenv("ALGOD_TESTNET_INDEXER", "https://testnet-idx.algonode.cloud")
 ALGOD_TOKEN = "" # AlgoNode requires no auth token for public testnet access
 
+# CAIP-2 Standard Algorand Testnet Identifier & ASA IDs (x402 Hackathon Starter Kit standard)
+ALGORAND_TESTNET_CAIP2 = "algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI="
+USDC_TESTNET_ASA_ID = 10458941 # Testnet USDC Asset ID
+
 # CyberGuard AI Testnet Escrow / Receiver Address
 CYBERGUARD_TESTNET_RECEIVER = os.getenv(
     "CYBERGUARD_TESTNET_RECEIVER",
@@ -20,20 +24,24 @@ CYBERGUARD_TESTNET_RECEIVER = os.getenv(
 # GoPlausible x402 Facilitator Configuration
 GOPLAUSIBLE_FACILITATOR_URL = os.getenv(
     "GOPLAUSIBLE_FACILITATOR_URL",
-    "https://x402-facilitator.goplausible.xyz"
+    "https://facilitator.goplausible.xyz"
 )
 
-# Price for Premium Deep Audit (in microAlgos: 100,000 microAlgos = 0.1 ALGO)
+# Price for Premium Deep Audit (in microAlgos: 100,000 microAlgos = 0.1 ALGO or $0.01 USDC)
 PREMIUM_AUDIT_PRICE_MICROALGOS = 100000 
 PREMIUM_AUDIT_PRICE_ALGO = 0.1
+PREMIUM_AUDIT_PRICE_USDC = "$0.01"
 
 class X402Challenge(BaseModel):
     challenge_id: str
     network: str = "algorand-testnet"
+    caip2_network: str = ALGORAND_TESTNET_CAIP2
     recipient_address: str
     amount_microalgos: int
     amount_algo: float
     token_symbol: str = "ALGO"
+    usdc_asset_id: int = USDC_TESTNET_ASA_ID
+    usdc_price: str = PREMIUM_AUDIT_PRICE_USDC
     target_url: str
     case_id: str
     created_at: int
@@ -245,5 +253,51 @@ class X402Manager:
 
     def get_payment_details(self, case_id: str) -> Optional[Dict[str, Any]]:
         return self._verified_sessions.get(case_id)
+
+    def get_discovery_config(self) -> Dict[str, Any]:
+        """
+        Returns endpoint configuration schema matching the official x402 AVM starter kit standard.
+        """
+        return {
+            "version": "1.0",
+            "facilitator": GOPLAUSIBLE_FACILITATOR_URL,
+            "network": ALGORAND_TESTNET_CAIP2,
+            "payTo": CYBERGUARD_TESTNET_RECEIVER,
+            "endpoints": {
+                "POST /api/analyze": {
+                    "accepts": [
+                        {
+                            "scheme": "exact",
+                            "price": "0.1 ALGO",
+                            "amount_microalgos": PREMIUM_AUDIT_PRICE_MICROALGOS,
+                            "network": ALGORAND_TESTNET_CAIP2,
+                            "payTo": CYBERGUARD_TESTNET_RECEIVER,
+                            "token": "ALGO"
+                        },
+                        {
+                            "scheme": "exact",
+                            "price": PREMIUM_AUDIT_PRICE_USDC,
+                            "network": ALGORAND_TESTNET_CAIP2,
+                            "payTo": CYBERGUARD_TESTNET_RECEIVER,
+                            "extra": { "asset": USDC_TESTNET_ASA_ID }
+                        }
+                    ],
+                    "description": "CyberGuard AI Multi-Modal Deep Phishing & Vulnerability Forensic Audit",
+                    "extensions": {
+                        "discovery": {
+                            "output": {
+                                "schema": "RiskScoreReport",
+                                "example": {
+                                    "target_url": "https://campuskart.shop",
+                                    "overall_risk_score": 4.4,
+                                    "verdict": "BENIGN",
+                                    "paid_via": "x402 / Algorand Testnet (GoPlausible Facilitator)"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
 x402_manager = X402Manager()

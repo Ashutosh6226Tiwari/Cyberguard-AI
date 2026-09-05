@@ -99,16 +99,20 @@ export const PremiumAuditPage: React.FC<PremiumAuditPageProps> = ({
               <span className="mono" style={{ color: '#38bdf8' }}>{testnetStatus.node_server || 'https://testnet-api.algonode.cloud'}</span>
             </div>
             <div>
+              <span style={{ color: 'var(--text-secondary)' }}>CAIP-2 Network: </span>
+              <span className="mono" style={{ color: '#38bdf8' }}>algorand:testnet</span>
+            </div>
+            <div>
               <span style={{ color: 'var(--text-secondary)' }}>Current Consensus Round: </span>
               <span className="mono" style={{ color: '#10b981', fontWeight: 700 }}>#{testnetStatus.last_round || 66997726}</span>
             </div>
             <div>
               <span style={{ color: 'var(--text-secondary)' }}>x402 Facilitator: </span>
-              <span className="mono" style={{ color: 'var(--text-muted)' }}>GoPlausible x402 Facilitator v1.0</span>
+              <span className="mono" style={{ color: 'var(--text-muted)' }}>GoPlausible x402 Facilitator (facilitator.goplausible.xyz)</span>
             </div>
             <div>
-              <span style={{ color: 'var(--text-secondary)' }}>Standard Fee: </span>
-              <span className="mono" style={{ color: '#f59e0b', fontWeight: 700 }}>0.1 ALGO (100,000 microAlgos)</span>
+              <span style={{ color: 'var(--text-secondary)' }}>Accepted Pricing: </span>
+              <span className="mono" style={{ color: '#f59e0b', fontWeight: 700 }}>0.1 ALGO / $0.01 USDC (ASA #10458941)</span>
             </div>
           </div>
         </div>
