@@ -412,7 +412,7 @@ export function App() {
 
                 {/* Brand Contradiction & Exploitability Grid */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '24px' }}>
-                  <BrandContradictionCard brand={report.brand_analysis} />
+                  <BrandContradictionCard brand={report.brand_analysis} domainIntel={report.domain_intel} />
                   <SecurityPostureCard audit={report.security_audit} />
                 </div>
 
@@ -436,7 +436,7 @@ export function App() {
                   onSubmitFeedback={handleSubmitFeedback}
                 />
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '24px' }}>
-                  <BrandContradictionCard brand={report.brand_analysis} />
+                  <BrandContradictionCard brand={report.brand_analysis} domainIntel={report.domain_intel} />
                   <SecurityPostureCard audit={report.security_audit} />
                 </div>
                 <AttackChainVisualizer nodes={report.attack_chain} />
