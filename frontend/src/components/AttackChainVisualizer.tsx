@@ -4,11 +4,12 @@ import type { AttackChainNode } from '../types';
 import { InfoTooltip } from './InfoTooltip';
 
 interface AttackChainVisualizerProps {
-  nodes: AttackChainNode[];
+  nodes?: AttackChainNode[];
 }
 
-export const AttackChainVisualizer: React.FC<AttackChainVisualizerProps> = ({ nodes }) => {
-  const [selectedNode, setSelectedNode] = useState<AttackChainNode | null>(nodes.length > 0 ? nodes[0] : null);
+export const AttackChainVisualizer: React.FC<AttackChainVisualizerProps> = ({ nodes = [] }) => {
+  const safeNodes = nodes || [];
+  const [selectedNode, setSelectedNode] = useState<AttackChainNode | null>(safeNodes.length > 0 ? safeNodes[0] : null);
 
   const getCategoryIcon = (category: string, severity: string) => {
     const color = severity === 'danger' ? '#ef4444' : severity === 'warning' ? '#f97316' : severity === 'safe' ? '#10b981' : '#38bdf8';

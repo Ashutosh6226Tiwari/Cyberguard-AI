@@ -223,13 +223,30 @@ export function App() {
     }
   };
 
-  const handlePaymentSuccess = (verification: PaymentVerificationResponse) => {
+  const handlePaymentSuccess = async (verification: PaymentVerificationResponse) => {
     setAgentIsPaid(true);
     setCurrentAgentStage(6);
+    setPipelineSteps(DEFAULT_PIPELINE_STEPS.map((s) => ({ ...s, status: 'completed' })));
+
     if (verification.report) {
       setReport(verification.report);
       setFreeScanResult(null);
       loadInitialData();
+    } else {
+      const urlToAudit = currentScanningUrl || freeScanResult?.target_url || '';
+      if (urlToAudit) {
+        try {
+          setIsLoading(true);
+          const fullReport = await analyzeDomain(urlToAudit, true, false, verification.tx_id);
+          setReport(fullReport);
+          setFreeScanResult(null);
+          loadInitialData();
+        } catch (e: any) {
+          console.error('Error fetching full report after payment verification:', e);
+        } finally {
+          setIsLoading(false);
+        }
+      }
     }
   };
 
@@ -369,7 +386,7 @@ export function App() {
                 {/* Brand Contradiction & Exploitability Grid */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '24px' }}>
                   <BrandContradictionCard brand={report.brand_analysis} domainIntel={report.domain_intel} />
-                  <SecurityPostureCard audit={report.security_audit} />
+                  <SecurityPostureCard audit={report.security_audit} aiInsights={report.ai_insights} domain={report.canonical_domain} />
                 </div>
 
                 {/* Attack Chain & Forensic Evidence */}
@@ -393,7 +410,7 @@ export function App() {
                 />
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '24px' }}>
                   <BrandContradictionCard brand={report.brand_analysis} domainIntel={report.domain_intel} />
-                  <SecurityPostureCard audit={report.security_audit} />
+                  <SecurityPostureCard audit={report.security_audit} aiInsights={report.ai_insights} domain={report.canonical_domain} />
                 </div>
                 <AttackChainVisualizer nodes={report.attack_chain} />
                 <EvidenceTable evidence={report.evidence_breakdown} />

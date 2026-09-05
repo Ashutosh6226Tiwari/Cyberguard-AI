@@ -5,10 +5,18 @@ import { InfoTooltip } from './InfoTooltip';
 
 interface RiskSummaryCardProps {
   report: RiskScoreReport;
-  onOpenExport: () => void;
+  onOpenExport?: () => void;
+  onExportClick?: () => void;
+  onSubmitFeedback?: (caseId: string, verdict: string, notes?: string) => void;
 }
 
-export const RiskSummaryCard: React.FC<RiskSummaryCardProps> = ({ report, onOpenExport }) => {
+export const RiskSummaryCard: React.FC<RiskSummaryCardProps> = ({
+  report,
+  onOpenExport,
+  onExportClick,
+  onSubmitFeedback
+}) => {
+  const handleExport = onExportClick || onOpenExport || (() => {});
   const isCritical = report.overall_risk_score >= 70;
   const isSuspicious = report.overall_risk_score >= 40 && report.overall_risk_score < 70;
 
@@ -182,7 +190,7 @@ export const RiskSummaryCard: React.FC<RiskSummaryCardProps> = ({ report, onOpen
         {/* Action Button */}
         <div>
           <button
-            onClick={onOpenExport}
+            onClick={handleExport}
             style={{
               background: 'linear-gradient(135deg, #0284c7 0%, #1e1b4b 100%)',
               color: '#ffffff',

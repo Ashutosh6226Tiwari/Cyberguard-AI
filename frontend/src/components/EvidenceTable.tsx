@@ -4,10 +4,13 @@ import type { EvidenceItem } from '../types';
 import { InfoTooltip } from './InfoTooltip';
 
 interface EvidenceTableProps {
-  evidenceList: EvidenceItem[];
+  evidenceList?: EvidenceItem[];
+  evidence?: EvidenceItem[];
 }
 
-export const EvidenceTable: React.FC<EvidenceTableProps> = ({ evidenceList }) => {
+export const EvidenceTable: React.FC<EvidenceTableProps> = ({ evidenceList, evidence }) => {
+  const items = evidence || evidenceList || [];
+
   return (
     <div className="glass-panel" style={{ padding: '24px', margin: '0 24px 20px 24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
@@ -34,7 +37,7 @@ export const EvidenceTable: React.FC<EvidenceTableProps> = ({ evidenceList }) =>
         </div>
 
         <span className="mono" style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-          {evidenceList.length} Extracted Signals
+          {items.length} Extracted Signals
         </span>
       </div>
 
@@ -51,7 +54,7 @@ export const EvidenceTable: React.FC<EvidenceTableProps> = ({ evidenceList }) =>
             </tr>
           </thead>
           <tbody>
-            {evidenceList.map((ev, idx) => {
+            {items.map((ev, idx) => {
               const isPositive = ev.contribution > 0;
               const isSafe = ev.severity === 'SAFE';
 

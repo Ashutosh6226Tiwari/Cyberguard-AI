@@ -6,10 +6,10 @@ import { InfoTooltip } from './InfoTooltip';
 interface SecurityPostureCardProps {
   audit?: SecurityPostureAudit;
   aiInsights?: GeminiAIInsight;
-  domain: string;
+  domain?: string;
 }
 
-export const SecurityPostureCard: React.FC<SecurityPostureCardProps> = ({ audit, aiInsights, domain }) => {
+export const SecurityPostureCard: React.FC<SecurityPostureCardProps> = ({ audit, aiInsights, domain = 'Target Domain' }) => {
   const [selectedSnippetTab, setSelectedSnippetTab] = useState<'nginx' | 'apache' | 'nextjs' | 'dns' | 'node'>('nginx');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
