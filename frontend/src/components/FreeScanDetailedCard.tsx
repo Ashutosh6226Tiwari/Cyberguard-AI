@@ -11,9 +11,10 @@ export const FreeScanDetailedCard: React.FC<FreeScanDetailedCardProps> = ({
   result,
   onUnlockDeepAudit
 }) => {
+  const isUnregistered = result.verdict === 'UNREGISTERED' || result.is_registered === false;
   const isPhishing = result.verdict === 'PHISHING';
   const isSuspicious = result.verdict === 'SUSPICIOUS';
-  const scoreColor = isPhishing ? '#ef4444' : isSuspicious ? '#f59e0b' : '#10b981';
+  const scoreColor = isUnregistered ? '#38bdf8' : isPhishing ? '#ef4444' : isSuspicious ? '#f59e0b' : '#10b981';
 
   return (
     <div style={{ margin: '0 24px 24px 24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -22,8 +23,8 @@ export const FreeScanDetailedCard: React.FC<FreeScanDetailedCardProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '0.7rem', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#10b981', padding: '2px 8px', borderRadius: '12px', fontWeight: 800 }}>
-                FREE QUICK SCAN REPORT (STAGES 1 &amp; 2)
+              <span style={{ fontSize: '0.7rem', background: isUnregistered ? 'rgba(56, 189, 248, 0.15)' : 'rgba(16, 185, 129, 0.15)', border: isUnregistered ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid rgba(16, 185, 129, 0.4)', color: isUnregistered ? '#38bdf8' : '#10b981', padding: '2px 8px', borderRadius: '12px', fontWeight: 800 }}>
+                {isUnregistered ? 'UNREGISTERED DOMAIN INTEL' : 'FREE QUICK SCAN REPORT (STAGES 1 & 2)'}
               </span>
               <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
                 {new Date(result.timestamp).toLocaleTimeString()}
@@ -74,7 +75,7 @@ export const FreeScanDetailedCard: React.FC<FreeScanDetailedCardProps> = ({
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>/ 100</span>
             </div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-              Lexical &amp; Infrastructure Triage
+              {isUnregistered ? 'Unregistered Domain Profile' : 'Lexical & Infrastructure Triage'}
             </div>
           </div>
 
@@ -84,8 +85,8 @@ export const FreeScanDetailedCard: React.FC<FreeScanDetailedCardProps> = ({
               Threat Verdict
             </div>
             <div style={{ fontSize: '1.4rem', fontWeight: 900, color: scoreColor, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {isPhishing ? <ShieldAlert size={22} /> : <ShieldCheck size={22} />}
-              <span>{result.verdict}</span>
+              {isUnregistered ? <Globe size={22} color="#38bdf8" /> : isPhishing ? <ShieldAlert size={22} /> : <ShieldCheck size={22} />}
+              <span>{isUnregistered ? 'UNREGISTERED' : result.verdict}</span>
             </div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
               Confidence: <strong>{(result.confidence * 100).toFixed(0)}%</strong>
@@ -97,11 +98,11 @@ export const FreeScanDetailedCard: React.FC<FreeScanDetailedCardProps> = ({
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px', fontWeight: 600, textTransform: 'uppercase' }}>
               Authoritative Domain Age
             </div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 900, color: result.is_newly_registered ? '#ef4444' : '#10b981' }}>
-              {result.domain_age_days !== undefined ? `${result.domain_age_days} Days` : 'Verified'}
+            <div style={{ fontSize: '1.4rem', fontWeight: 900, color: isUnregistered ? '#9ca3af' : result.is_newly_registered ? '#ef4444' : '#10b981' }}>
+              {isUnregistered ? 'NOT REGISTERED' : result.domain_age_days !== undefined && result.domain_age_days !== null ? `${result.domain_age_days} Days` : 'Verified Standing'}
             </div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-              Registered: <strong style={{ color: 'var(--text-primary)' }}>{result.creation_date || 'N/A'}</strong>
+              Registered: <strong style={{ color: 'var(--text-primary)' }}>{isUnregistered ? 'Domain Available (NXDOMAIN)' : (result.creation_date || 'Active')}</strong>
             </div>
           </div>
         </div>
@@ -154,20 +155,22 @@ export const FreeScanDetailedCard: React.FC<FreeScanDetailedCardProps> = ({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.78rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Sponsoring Registrar:</span>
-              <strong style={{ color: 'var(--text-primary)' }}>{result.registrar || 'ICANN Accredited Registrar'}</strong>
+              <strong style={{ color: isUnregistered ? '#9ca3af' : 'var(--text-primary)' }}>
+                {isUnregistered ? 'None (Unregistered Domain)' : (result.registrar || 'ICANN Accredited Registrar')}
+              </strong>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Newly Registered Domain (NRD):</span>
-              <strong style={{ color: result.is_newly_registered ? '#ef4444' : '#10b981' }}>
-                {result.is_newly_registered ? 'YES (< 30 Days Old)' : 'NO (Established Standing)'}
+              <span style={{ color: 'var(--text-secondary)' }}>Registration Standing:</span>
+              <strong style={{ color: isUnregistered ? '#38bdf8' : result.is_newly_registered ? '#ef4444' : '#10b981' }}>
+                {isUnregistered ? 'UNREGISTERED / AVAILABLE' : result.is_newly_registered ? 'YES (NRD < 30 Days Old)' : 'NO (Established Standing)'}
               </strong>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Resolved Host IP (A Record):</span>
-              <span className="mono" style={{ color: '#38bdf8' }}>
-                {result.dns_a_records && result.dns_a_records[0] ? result.dns_a_records[0] : '104.21.32.1'}
+              <span className="mono" style={{ color: isUnregistered ? '#9ca3af' : '#38bdf8' }}>
+                {result.dns_a_records && result.dns_a_records.length > 0 ? result.dns_a_records.join(', ') : 'NXDOMAIN (No Host IP Assigned)'}
               </span>
             </div>
           </div>
@@ -185,21 +188,24 @@ export const FreeScanDetailedCard: React.FC<FreeScanDetailedCardProps> = ({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.78rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: 'var(--text-secondary)' }}>HTTPS Transport Security:</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#10b981', fontWeight: 700 }}>
-                <CheckCircle2 size={14} /> ENFORCED
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: isUnregistered ? '#9ca3af' : result.tls_valid ? '#10b981' : '#ef4444', fontWeight: 700 }}>
+                {isUnregistered ? <AlertTriangle size={14} /> : result.tls_valid ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+                {isUnregistered ? 'NO HOST / UNRESOLVED' : result.tls_valid ? 'ENFORCED' : 'NOT CONFIGURED'}
               </span>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: 'var(--text-secondary)' }}>TLS Certificate Status:</span>
-              <strong style={{ color: result.tls_valid !== false ? '#10b981' : '#ef4444' }}>
-                {result.tls_valid !== false ? 'VALID & TRUSTED' : 'INVALID / UNTRUSTED'}
+              <strong style={{ color: isUnregistered ? '#9ca3af' : result.tls_valid ? '#10b981' : '#ef4444' }}>
+                {isUnregistered ? 'NO CERTIFICATE (UNREGISTERED)' : result.tls_valid ? 'VALID & TRUSTED' : 'INVALID / UNTRUSTED'}
               </strong>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Certificate Authority (CA):</span>
-              <span style={{ color: 'var(--text-primary)' }}>{result.tls_issuer || "Let's Encrypt / Cloudflare Edge CA"}</span>
+              <span style={{ color: isUnregistered ? '#9ca3af' : 'var(--text-primary)' }}>
+                {isUnregistered ? 'None (Host Inactive)' : (result.tls_issuer || 'Public CA')}
+              </span>
             </div>
           </div>
         </div>
@@ -216,24 +222,24 @@ export const FreeScanDetailedCard: React.FC<FreeScanDetailedCardProps> = ({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.78rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: 'var(--text-secondary)' }}>SPF Policy in DNS:</span>
-              <span style={{ color: result.has_spf ? '#10b981' : '#f59e0b', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                {result.has_spf ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}
-                {result.has_spf ? 'PUBLISHED (v=spf1)' : 'NOT FOUND'}
+              <span style={{ color: isUnregistered ? '#9ca3af' : result.has_spf ? '#10b981' : '#f59e0b', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                {isUnregistered ? <AlertTriangle size={14} /> : result.has_spf ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}
+                {isUnregistered ? 'NXDOMAIN' : result.has_spf ? 'PUBLISHED (v=spf1)' : 'NOT FOUND'}
               </span>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: 'var(--text-secondary)' }}>DMARC Enforcement:</span>
-              <span style={{ color: result.has_dmarc ? '#10b981' : '#ef4444', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                {result.has_dmarc ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-                {result.has_dmarc ? 'ENFORCED (p=reject)' : 'MISSING (Vulnerable to Spoofing)'}
+              <span style={{ color: isUnregistered ? '#9ca3af' : result.has_dmarc ? '#10b981' : '#ef4444', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                {isUnregistered ? <AlertTriangle size={14} /> : result.has_dmarc ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+                {isUnregistered ? 'NXDOMAIN' : result.has_dmarc ? 'ENFORCED (p=reject)' : 'MISSING (Vulnerable to Spoofing)'}
               </span>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Email Impersonation Risk:</span>
-              <strong style={{ color: result.has_dmarc ? '#10b981' : '#ef4444' }}>
-                {result.has_dmarc ? 'PROTECTED' : 'HIGH RISK'}
+              <strong style={{ color: isUnregistered ? '#9ca3af' : result.has_dmarc ? '#10b981' : '#ef4444' }}>
+                {isUnregistered ? 'INACTIVE (NO MX)' : result.has_dmarc ? 'PROTECTED' : 'HIGH RISK'}
               </strong>
             </div>
           </div>

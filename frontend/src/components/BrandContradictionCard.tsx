@@ -13,9 +13,14 @@ export const BrandContradictionCard: React.FC<BrandContradictionCardProps> = ({ 
   const isContradiction = !!brand?.is_contradiction;
 
   const targetDomain = domainIntel?.registrable_domain || 'Target Domain';
-  const domainAge = domainIntel?.domain_age_days !== undefined ? `${domainIntel.domain_age_days} days` : 'Verified';
+  const isUnregistered = domainIntel?.is_registered === false;
+  const domainAge = isUnregistered
+    ? 'Unregistered / Available'
+    : domainIntel?.domain_age_days !== undefined && domainIntel?.domain_age_days !== null
+    ? `${domainIntel.domain_age_days} days`
+    : 'Verified';
   const isNrd = !!domainIntel?.is_newly_registered;
-  const registrar = domainIntel?.registrar || 'ICANN Accredited Registrar';
+  const registrar = isUnregistered ? 'None (Unregistered Domain)' : (domainIntel?.registrar || 'ICANN Accredited Registrar');
   const tld = domainIntel?.tld || targetDomain.split('.').pop() || 'com';
 
   return (

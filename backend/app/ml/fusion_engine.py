@@ -56,61 +56,80 @@ def calculate_multi_signal_fusion(
 
     # 2. Domain & Infrastructure Signals
     infra_risk = 0.0
-    if domain_intel.is_newly_registered:
-        infra_risk += 0.45
+    if not domain_intel.is_registered:
         evidence_list.append(EvidenceItem(
-            category="Domain Intelligence",
-            name="Newly Registered Domain (NRD)",
+            category="Domain Standing",
+            name="Unregistered Domain (NXDOMAIN)",
+            weight=0.35,
+            contribution=0.0,
+            summary=f"Domain '{canonical_domain}' is not registered with any ICANN accredited registrar and has no active DNS infrastructure.",
+            severity="SAFE"
+        ))
+        evidence_list.append(EvidenceItem(
+            category="Infrastructure",
+            name="No Active Host Server",
             weight=0.25,
-            contribution=+25.0,
-            summary=f"Domain registered recently ({domain_intel.domain_age_days} days ago). Early registration is a key phishing precursor.",
-            severity="HIGH"
+            contribution=0.0,
+            summary="No A/AAAA IP records or SSL/TLS certificate detected. Domain cannot execute web exploits in its current unregistered state.",
+            severity="SAFE"
         ))
     else:
-        evidence_list.append(EvidenceItem(
-            category="Domain Intelligence",
-            name="Established Domain Age",
-            weight=0.15,
-            contribution=-15.0,
-            summary=f"Domain has an established registration history (> {domain_intel.domain_age_days} days).",
-            severity="SAFE"
-        ))
+        if domain_intel.is_newly_registered:
+            infra_risk += 0.45
+            evidence_list.append(EvidenceItem(
+                category="Domain Intelligence",
+                name="Newly Registered Domain (NRD)",
+                weight=0.25,
+                contribution=+25.0,
+                summary=f"Domain registered recently ({domain_intel.domain_age_days} days ago). Early registration is a key phishing precursor.",
+                severity="HIGH"
+            ))
+        elif domain_intel.domain_age_days is not None:
+            evidence_list.append(EvidenceItem(
+                category="Domain Intelligence",
+                name="Established Domain Age",
+                weight=0.15,
+                contribution=-15.0,
+                summary=f"Domain has an established registration history ({domain_intel.domain_age_days} days).",
+                severity="SAFE"
+            ))
 
-    if domain_intel.tls_is_self_signed:
-        infra_risk += 0.30
-        evidence_list.append(EvidenceItem(
-            category="Infrastructure",
-            name="Self-Signed / Untrusted Certificate",
-            weight=0.15,
-            contribution=+15.0,
-            summary="TLS certificate is self-signed or issuer is untrusted.",
-            severity="HIGH"
-        ))
-    elif domain_intel.tls_valid:
-        evidence_list.append(EvidenceItem(
-            category="Infrastructure",
-            name="Valid TLS Encryption",
-            weight=0.05,
-            contribution=-5.0,
-            summary=f"Valid TLS certificate issued by {domain_intel.tls_issuer or 'Trusted CA'}.",
-            severity="SAFE"
-        ))
+        if domain_intel.tls_is_self_signed:
+            infra_risk += 0.30
+            evidence_list.append(EvidenceItem(
+                category="Infrastructure",
+                name="Self-Signed / Untrusted Certificate",
+                weight=0.15,
+                contribution=+15.0,
+                summary="TLS certificate is self-signed or issuer is untrusted.",
+                severity="HIGH"
+            ))
+        elif domain_intel.tls_valid:
+            evidence_list.append(EvidenceItem(
+                category="Infrastructure",
+                name="Valid TLS Encryption",
+                weight=0.05,
+                contribution=-5.0,
+                summary=f"Valid TLS certificate issued by {domain_intel.tls_issuer or 'Trusted CA'}.",
+                severity="SAFE"
+            ))
 
-    if not domain_intel.dns.mx_records and not domain_intel.dns.a_records:
-        infra_risk += 0.20
-        evidence_list.append(EvidenceItem(
-            category="DNS Intelligence",
-            name="Incomplete DNS Hierarchy",
-            weight=0.10,
-            contribution=+10.0,
-            summary="Domain lacks standard MX/A DNS records.",
-            severity="MEDIUM"
-        ))
+        if not domain_intel.dns.mx_records and not domain_intel.dns.a_records:
+            infra_risk += 0.20
+            evidence_list.append(EvidenceItem(
+                category="DNS Intelligence",
+                name="Incomplete DNS Hierarchy",
+                weight=0.10,
+                contribution=+10.0,
+                summary="Domain lacks standard MX/A DNS records.",
+                severity="MEDIUM"
+            ))
+
     score_infrastructure = min(1.0, infra_risk)
 
     # 3. Content & DOM Behavior Signals
     content_risk = 0.0
-    if crawl_artifacts:
+    if crawl_artifacts and domain_intel.is_registered:
         if len(crawl_artifacts.redirect_chain) > 2:
             content_risk += 0.25
             evidence_list.append(EvidenceItem(
@@ -157,51 +176,58 @@ def calculate_multi_signal_fusion(
             ))
     score_content = min(1.0, content_risk)
 
-    # 4. Visual & Brand Contradiction Signals (The Major Differentiator)
+    # 4. Visual & Brand Contradiction Signals
     score_visual = brand_match.combined_brand_confidence
-    has_contradiction, contra_ev = evaluate_brand_contradiction(brand_match, domain_intel, target_url)
-    if contra_ev:
-        evidence_list.append(contra_ev)
+    has_contradiction = False
+    if domain_intel.is_registered:
+        has_contradiction, contra_ev = evaluate_brand_contradiction(brand_match, domain_intel, target_url)
+        if contra_ev:
+            evidence_list.append(contra_ev)
 
     # 5. Reputation Score
-    score_reputation = 0.0 # Pluggable threat intel
+    score_reputation = 0.0
 
     # Calibrated Risk Aggregation
-    # Formula: Baseline weighted sum + Contradiction escalation
-    raw_score = (
-        0.25 * (score_lexical * 100.0) +
-        0.20 * (score_infrastructure * 100.0) +
-        0.25 * (score_content * 100.0) +
-        0.30 * (score_visual * 100.0 if has_contradiction else 0.0)
-    )
-
-    # If severe brand contradiction + password field detected, force critical risk
-    if has_contradiction and crawl_artifacts and crawl_artifacts.has_password_field:
-        raw_score = max(raw_score, 88.0)
-    elif has_contradiction and domain_intel.is_newly_registered:
-        raw_score = max(raw_score, 82.0)
-    elif not has_contradiction and brand_match.matched_brand and not domain_intel.is_newly_registered:
-        # Verified authentic brand
-        raw_score = min(raw_score, 12.0)
-
-    # Clean benign site adjustment
-    if score_lexical < 0.15 and not domain_intel.is_newly_registered and not has_contradiction:
-        raw_score = min(raw_score, 10.0)
-
-    overall_risk_score = round(max(0.0, min(100.0, raw_score)), 1)
-
-    # Verdict & Recommended Action
-    if overall_risk_score >= 70.0:
-        verdict = "PHISHING"
-        recommended_action = "CRITICAL: Isolate host, block domain at DNS/Gateway level, and alert affected users."
-    elif overall_risk_score >= 40.0:
-        verdict = "SUSPICIOUS"
-        recommended_action = "WARNING: Flag for tier-2 SOC analyst inspection; monitor incoming traffic."
+    if not domain_intel.is_registered:
+        verdict = "UNREGISTERED"
+        recommended_action = "INACTIVE: Domain is currently unregistered and has no active host server. If this is a trademark lookalike, consider defensively registering it."
+        overall_risk_score = round(min(15.0, score_lexical * 15.0), 1)
+        confidence = 0.98
     else:
-        verdict = "BENIGN"
-        recommended_action = "SAFE: Domain matches legitimate baseline; allow traffic."
+        raw_score = (
+            0.25 * (score_lexical * 100.0) +
+            0.20 * (score_infrastructure * 100.0) +
+            0.25 * (score_content * 100.0) +
+            0.30 * (score_visual * 100.0 if has_contradiction else 0.0)
+        )
 
-    confidence = round(0.70 + (0.28 * abs(overall_risk_score - 50.0) / 50.0), 2)
+        # If severe brand contradiction + password field detected, force critical risk
+        if has_contradiction and crawl_artifacts and crawl_artifacts.has_password_field:
+            raw_score = max(raw_score, 88.0)
+        elif has_contradiction and domain_intel.is_newly_registered:
+            raw_score = max(raw_score, 82.0)
+        elif not has_contradiction and brand_match.matched_brand and not domain_intel.is_newly_registered:
+            # Verified authentic brand
+            raw_score = min(raw_score, 12.0)
+
+        # Clean benign site adjustment
+        if score_lexical < 0.15 and not domain_intel.is_newly_registered and not has_contradiction:
+            raw_score = min(raw_score, 10.0)
+
+        overall_risk_score = round(max(0.0, min(100.0, raw_score)), 1)
+
+        # Verdict & Recommended Action
+        if overall_risk_score >= 70.0:
+            verdict = "PHISHING"
+            recommended_action = "CRITICAL: Isolate host, block domain at DNS/Gateway level, and alert affected users."
+        elif overall_risk_score >= 40.0:
+            verdict = "SUSPICIOUS"
+            recommended_action = "WARNING: Flag for tier-2 SOC analyst inspection; monitor incoming traffic."
+        else:
+            verdict = "BENIGN"
+            recommended_action = "SAFE: Domain matches legitimate baseline; allow traffic."
+
+        confidence = round(0.70 + (0.28 * abs(overall_risk_score - 50.0) / 50.0), 2)
 
     # Reconstruct explainable attack chain
     attack_chain = reconstruct_attack_chain(

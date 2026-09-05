@@ -36,17 +36,20 @@ def reconstruct_attack_chain(
     step += 1
 
     # Node 2: Infrastructure Resolution & DNS/TLS
-    infra_sev = "warning" if domain_intel.is_newly_registered else "safe"
-    tls_desc = f"TLS Issuer: {domain_intel.tls_issuer or 'None'} (Valid: {domain_intel.tls_valid})"
-    age_desc = f"Domain Age: {domain_intel.domain_age_days} days (Newly registered: {domain_intel.is_newly_registered})"
-    
-    if domain_intel.is_newly_registered:
+    if not domain_intel.is_registered:
+        infra_sev = "info"
+        infra_title = "Domain Not Registered (NXDOMAIN)"
+        infra_desc = f"Target domain '{domain_intel.registrable_domain}' is not registered in IANA/ICANN RDAP registries. DNS query returned NXDOMAIN."
+    elif domain_intel.is_newly_registered:
         infra_sev = "danger"
         infra_title = "Suspicious Early-Warning Infrastructure"
+        tls_desc = f"TLS Issuer: {domain_intel.tls_issuer or 'None'} (Valid: {domain_intel.tls_valid})"
         infra_desc = f"Newly registered domain ({domain_intel.domain_age_days}d old) resolved to {len(domain_intel.dns.a_records)} IP(s). {tls_desc}."
     else:
+        infra_sev = "safe"
         infra_title = "DNS & Infrastructure Resolution"
-        infra_desc = f"Established domain resolved across {len(domain_intel.dns.a_records)} A records, {len(domain_intel.dns.ns_records)} NS records. {tls_desc}."
+        tls_desc = f"TLS Issuer: {domain_intel.tls_issuer or 'None'} (Valid: {domain_intel.tls_valid})"
+        infra_desc = f"Established domain ({domain_intel.domain_age_days or 'Verified'}d) resolved across {len(domain_intel.dns.a_records)} A records, {len(domain_intel.dns.ns_records)} NS records. {tls_desc}."
 
     nodes.append(AttackChainNode(
         id=f"node-{step}",
@@ -56,6 +59,8 @@ def reconstruct_attack_chain(
         description=infra_desc,
         severity=infra_sev,
         metadata={
+            "is_registered": domain_intel.is_registered,
+            "registration_status": domain_intel.registration_status,
             "a_records": domain_intel.dns.a_records,
             "ns_records": domain_intel.dns.ns_records,
             "domain_age_days": domain_intel.domain_age_days,
@@ -80,7 +85,11 @@ def reconstruct_attack_chain(
         step += 1
 
     # Node 4: Landing Page & Brand Simulation
-    if brand.matched_brand:
+    if not domain_intel.is_registered:
+        landing_sev = "safe"
+        landing_title = "Host Inactive (No Landing Server)"
+        landing_desc = "Domain is not active on any web server. Browser crawl was skipped safely."
+    elif brand.matched_brand:
         if brand.is_contradiction:
             landing_sev = "danger"
             landing_title = f"Lookalike Visual Spoofing ({brand.brand_display_name})"
@@ -106,73 +115,48 @@ def reconstruct_attack_chain(
         severity=landing_sev,
         metadata={
             "matched_brand": brand.matched_brand,
-            "visual_similarity": brand.visual_similarity,
             "is_contradiction": brand.is_contradiction,
-            "page_title": crawl.title if crawl else None
+            "brand_confidence": brand.combined_brand_confidence
         }
     ))
     step += 1
 
-    # Node 5: Credential / Information Harvesting Hooks
-    if crawl and crawl.forms:
-        pw_forms = [f for f in crawl.forms if f.has_password or f.has_credit_card]
+    # Node 5: Credential Forms & Exfiltration Hooks (Only if crawl ran)
+    if crawl and crawl.has_password_field:
         cross_origin_forms = [f for f in crawl.forms if f.is_cross_origin]
-        
-        if pw_forms:
-            hook_sev = "danger" if brand.is_contradiction else ("warning" if domain_intel.is_newly_registered else "info")
-            hook_title = "Credential Harvesting Form Detected"
-            hook_desc = f"Identified form with password/security input fields targeting: {pw_forms[0].action}"
-        elif cross_origin_forms:
-            hook_sev = "warning"
-            hook_title = "Cross-Origin Form Action"
-            hook_desc = f"Form submissions dispatched across origins to external endpoint: {cross_origin_forms[0].action}"
+        if cross_origin_forms:
+            form_desc = f"Detected password entry form posting credentials to external third-party endpoint: {cross_origin_forms[0].action}"
         else:
-            hook_sev = "info"
-            hook_title = "Standard Interaction Forms"
-            hook_desc = f"Page contains {len(crawl.forms)} standard web form(s)."
-
+            form_desc = "Detected interactive password login form on page."
+            
         nodes.append(AttackChainNode(
             id=f"node-{step}",
             step_number=step,
             category="form_hook",
-            title=hook_title,
-            description=hook_desc,
-            severity=hook_sev,
-            metadata={"form_count": len(crawl.forms), "has_password": bool(pw_forms)}
+            title="Credential Harvesting Hook Active",
+            description=form_desc,
+            severity="danger",
+            metadata={"forms_count": len(crawl.forms)}
         ))
         step += 1
 
-    # Node 6: External Requests & Exfiltration Channels
-    if crawl and crawl.external_domains:
-        ext_count = len(crawl.external_domains)
-        ext_sev = "warning" if (crawl.has_obfuscated_js or ext_count > 5) else "info"
-        nodes.append(AttackChainNode(
-            id=f"node-{step}",
-            step_number=step,
-            category="exfiltration",
-            title=f"External Asset & Script Connections ({ext_count} remote hosts)",
-            description=f"Observed background calls to {ext_count} third-party hosts. Obfuscated JS detected: {crawl.has_obfuscated_js}.",
-            severity=ext_sev,
-            metadata={
-                "external_domains": crawl.external_domains[:6],
-                "has_obfuscated_js": crawl.has_obfuscated_js
-            }
-        ))
-        step += 1
-
-    # Node 7: Risk Verdict & Policy Conclusion
-    if overall_risk >= 65.0:
+    # Node Final: Calibrated Verdict & Action
+    if not domain_intel.is_registered:
+        verdict_sev = "safe"
+        verdict_title = "Verdict: UNREGISTERED DOMAIN (INACTIVE)"
+        verdict_desc = "Domain is not registered with any registrar. No active cyber threat or phishing server is present."
+    elif overall_risk >= 70.0:
         verdict_sev = "danger"
-        verdict_title = f"High Risk Phishing Attack Vector ({overall_risk:.0f}/100)"
-        verdict_desc = "Multi-signal fusion confirms high-confidence credential phishing. Recommend immediate quarantine or DNS block."
-    elif overall_risk >= 35.0:
+        verdict_title = "Verdict: MALICIOUS PHISHING CAMPAIGN"
+        verdict_desc = "High-confidence adversary operation detecting brand imitation, credential harvesting, or deceptive infrastructure."
+    elif overall_risk >= 40.0:
         verdict_sev = "warning"
-        verdict_title = f"Suspicious Activity Detected ({overall_risk:.0f}/100)"
-        verdict_desc = "Anomalous indicators detected; further analyst inspection or automated sandboxing advised."
+        verdict_title = "Verdict: SUSPICIOUS ACTIVITY UNDER REVIEW"
+        verdict_desc = "Multi-signal heuristics identified anomalous attributes (NRD / unusual lexical entropy). Requires analyst triage."
     else:
         verdict_sev = "safe"
-        verdict_title = f"Low Risk / Benign Destination ({overall_risk:.0f}/100)"
-        verdict_desc = "No high-risk brand contradiction or credential theft heuristics identified."
+        verdict_title = "Verdict: VERIFIED BENIGN / CLEAN POSTURE"
+        verdict_desc = "Infrastructure and content signatures match authentic operating baselines with no credential risks."
 
     nodes.append(AttackChainNode(
         id=f"node-{step}",

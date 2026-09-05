@@ -63,6 +63,23 @@ def test_brand_contradiction():
     assert ev.severity == "CRITICAL"
     assert ev.contribution > 0
 
+def test_unregistered_domain_handling():
+    unregistered_intel = DomainIntel(
+        registrable_domain="nonexistent-test-123499.xyz",
+        tld="xyz",
+        is_registered=False,
+        registration_status="UNREGISTERED",
+        domain_age_days=None,
+        registrar="None (Unregistered Domain)",
+        creation_date="Not Registered (Domain Available / Inactive)",
+        dns=DNSRecords(dns_status="NXDOMAIN"),
+        tls_valid=False
+    )
+    assert unregistered_intel.is_registered is False
+    assert unregistered_intel.registration_status == "UNREGISTERED"
+    assert unregistered_intel.domain_age_days is None
+    assert unregistered_intel.tls_valid is False
+
 if __name__ == "__main__":
     test_entropy()
     print("✓ test_entropy passed")
@@ -72,4 +89,6 @@ if __name__ == "__main__":
     print("✓ test_triage_classifier passed")
     test_brand_contradiction()
     print("✓ test_brand_contradiction passed")
+    test_unregistered_domain_handling()
+    print("✓ test_unregistered_domain_handling passed")
     print("ALL BACKEND UNIT TESTS PASSED!")

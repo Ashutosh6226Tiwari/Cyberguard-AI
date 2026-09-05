@@ -20,11 +20,14 @@ class DNSRecords(BaseModel):
     ns_records: List[str] = Field(default_factory=list)
     txt_records: List[str] = Field(default_factory=list)
     ttl_average: Optional[int] = None
+    dns_status: str = "RESOLVED"  # RESOLVED, NXDOMAIN, NO_RECORDS, TIMEOUT
 
 class DomainIntel(BaseModel):
     registrable_domain: str
     subdomain: Optional[str] = None
     tld: str
+    is_registered: bool = True
+    registration_status: str = "REGISTERED"  # REGISTERED, UNREGISTERED, UNKNOWN
     domain_age_days: Optional[int] = None
     is_newly_registered: bool = False
     registrar: Optional[str] = None
@@ -158,10 +161,12 @@ class FreeScanResult(BaseModel):
     canonical_domain: str
     timestamp: str
     basic_risk_score: float
-    verdict: str  # BENIGN, SUSPICIOUS, PHISHING
+    verdict: str  # BENIGN, SUSPICIOUS, PHISHING, UNREGISTERED
     confidence: float
     lexical_score: float
     entropy_score: float = 0.0
+    is_registered: bool = True
+    registration_status: str = "REGISTERED"
     is_newly_registered: bool = False
     domain_age_days: Optional[int] = None
     creation_date: Optional[str] = None
@@ -170,7 +175,7 @@ class FreeScanResult(BaseModel):
     dns_ns_records: List[str] = Field(default_factory=list)
     has_spf: bool = False
     has_dmarc: bool = False
-    tls_valid: bool = True
+    tls_valid: Optional[bool] = None
     tls_issuer: Optional[str] = None
     triage_reason: str
     feature_attributions: Dict[str, float] = Field(default_factory=dict)

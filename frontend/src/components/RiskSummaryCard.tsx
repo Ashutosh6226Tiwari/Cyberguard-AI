@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertOctagon, AlertTriangle, CheckCircle, FileText } from 'lucide-react';
+import { AlertOctagon, AlertTriangle, CheckCircle, FileText, Globe } from 'lucide-react';
 import type { RiskScoreReport } from '../types';
 import { InfoTooltip } from './InfoTooltip';
 
@@ -17,15 +17,21 @@ export const RiskSummaryCard: React.FC<RiskSummaryCardProps> = ({
   onSubmitFeedback
 }) => {
   const handleExport = onExportClick || onOpenExport || (() => {});
+  const isUnregistered = report.verdict === 'UNREGISTERED' || report.domain_intel?.is_registered === false;
   const isCritical = report.overall_risk_score >= 70;
   const isSuspicious = report.overall_risk_score >= 40 && report.overall_risk_score < 70;
 
   let glowClass = 'glow-safe';
   let badgeClass = 'badge-safe';
   let verdictColor = '#10b981';
-  let VerdictIcon = CheckCircle;
+  let VerdictIcon: any = CheckCircle;
 
-  if (isCritical) {
+  if (isUnregistered) {
+    glowClass = 'glow-info';
+    badgeClass = 'badge-info';
+    verdictColor = '#38bdf8';
+    VerdictIcon = Globe;
+  } else if (isCritical) {
     glowClass = 'glow-danger';
     badgeClass = 'badge-critical';
     verdictColor = '#ef4444';

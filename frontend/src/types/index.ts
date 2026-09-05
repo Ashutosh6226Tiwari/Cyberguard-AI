@@ -12,12 +12,15 @@ export interface DNSRecords {
   ns_records: string[];
   txt_records: string[];
   ttl_average?: number;
+  dns_status?: string;
 }
 
 export interface DomainIntel {
   registrable_domain: string;
   subdomain?: string;
   tld: string;
+  is_registered?: boolean;
+  registration_status?: string;
   domain_age_days?: number;
   is_newly_registered: boolean;
   registrar?: string;
@@ -125,7 +128,7 @@ export interface RiskScoreReport {
   canonical_domain: string;
   timestamp: string;
   overall_risk_score: number;
-  verdict: 'PHISHING' | 'SUSPICIOUS' | 'BENIGN' | 'UNKNOWN';
+  verdict: 'PHISHING' | 'SUSPICIOUS' | 'BENIGN' | 'UNREGISTERED' | 'UNKNOWN';
   confidence: number;
   recommended_action: string;
   score_lexical: number;
@@ -169,10 +172,12 @@ export interface FreeScanResult {
   canonical_domain: string;
   timestamp: string;
   basic_risk_score: number;
-  verdict: 'PHISHING' | 'SUSPICIOUS' | 'BENIGN' | 'UNKNOWN';
+  verdict: 'PHISHING' | 'SUSPICIOUS' | 'BENIGN' | 'UNREGISTERED' | 'UNKNOWN';
   confidence: number;
   lexical_score: number;
   entropy_score?: number;
+  is_registered?: boolean;
+  registration_status?: string;
   is_newly_registered: boolean;
   domain_age_days?: number;
   creation_date?: string;

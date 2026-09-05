@@ -329,22 +329,34 @@ export const TechnicalInspector: React.FC<TechnicalInspectorProps> = ({ report }
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.78rem' }}>
               <div>
                 <span style={{ color: 'var(--text-secondary)' }}>A Records (IPv4): </span>
-                <span className="mono" style={{ color: '#10b981' }}>{domain?.dns?.a_records?.join(', ') || '104.21.32.1'}</span>
+                <span className="mono" style={{ color: domain?.dns?.a_records && domain.dns.a_records.length > 0 ? '#10b981' : '#9ca3af' }}>
+                  {domain?.dns?.a_records && domain.dns.a_records.length > 0
+                    ? domain.dns.a_records.join(', ')
+                    : (domain?.is_registered === false ? 'NXDOMAIN (No IP Assigned)' : 'No A Records Found')}
+                </span>
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)' }}>Nameservers (NS): </span>
-                <span className="mono" style={{ color: '#38bdf8' }}>{domain?.dns?.ns_records?.join(', ') || 'ns1.dns-parking.com'}</span>
+                <span className="mono" style={{ color: domain?.dns?.ns_records && domain.dns.ns_records.length > 0 ? '#38bdf8' : '#9ca3af' }}>
+                  {domain?.dns?.ns_records && domain.dns.ns_records.length > 0
+                    ? domain.dns.ns_records.join(', ')
+                    : (domain?.is_registered === false ? 'None (Unregistered Domain)' : 'No Nameservers Configured')}
+                </span>
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)' }}>Mail Servers (MX): </span>
-                <span className="mono" style={{ color: '#f59e0b' }}>{domain?.dns?.mx_records?.join(', ') || 'No MX Configured'}</span>
+                <span className="mono" style={{ color: domain?.dns?.mx_records && domain.dns.mx_records.length > 0 ? '#f59e0b' : '#9ca3af' }}>
+                  {domain?.dns?.mx_records && domain.dns.mx_records.length > 0
+                    ? domain.dns.mx_records.join(', ')
+                    : 'No MX Configured'}
+                </span>
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)' }}>TXT Records (SPF/DMARC): </span>
                 <span className="mono" style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>
                   {domain?.dns?.txt_records && domain.dns.txt_records.length > 0
                     ? domain.dns.txt_records.slice(0, 2).join(' | ')
-                    : 'No TXT records found in DNS'}
+                    : (domain?.is_registered === false ? 'NXDOMAIN (No TXT Records)' : 'No TXT records found in DNS')}
                 </span>
               </div>
             </div>
@@ -357,21 +369,27 @@ export const TechnicalInspector: React.FC<TechnicalInspectorProps> = ({ report }
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.78rem' }}>
               <div>
                 <span style={{ color: 'var(--text-secondary)' }}>Certificate Status: </span>
-                <span style={{ color: '#10b981', fontWeight: 600 }}>Valid & Active</span>
+                <span style={{ color: domain?.tls_valid ? '#10b981' : '#9ca3af', fontWeight: 600 }}>
+                  {domain?.tls_valid ? 'Valid & Active' : domain?.is_registered === false ? 'No Certificate (Host Inactive)' : 'Untrusted / Missing'}
+                </span>
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)' }}>Issuer: </span>
-                <span style={{ color: 'var(--text-primary)' }}>{domain?.tls_issuer || "Let's Encrypt Authority X3"}</span>
+                <span style={{ color: 'var(--text-primary)' }}>
+                  {domain?.tls_issuer || (domain?.is_registered === false ? 'None (Unregistered Host)' : 'None Detected')}
+                </span>
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)' }}>Self-Signed: </span>
                 <span style={{ color: domain?.tls_is_self_signed ? '#ef4444' : '#10b981' }}>
-                  {domain?.tls_is_self_signed ? 'YES (High Risk)' : 'No (Trusted CA)'}
+                  {domain?.tls_is_self_signed ? 'YES (High Risk)' : domain?.tls_valid ? 'No (Trusted CA)' : 'N/A'}
                 </span>
               </div>
               <div>
                 <span style={{ color: 'var(--text-secondary)' }}>Days Remaining: </span>
-                <span className="mono" style={{ color: 'var(--text-primary)' }}>{domain?.tls_days_remaining || 89} days</span>
+                <span className="mono" style={{ color: 'var(--text-primary)' }}>
+                  {domain?.tls_days_remaining !== undefined && domain?.tls_days_remaining !== null ? `${domain.tls_days_remaining} days` : 'N/A'}
+                </span>
               </div>
             </div>
           </div>

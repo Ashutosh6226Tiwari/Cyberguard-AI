@@ -98,50 +98,88 @@ async def _execute_full_deep_audit(
         tld=tld
     )
     
-    # 3. Safe Browser Sandbox Crawl
-    crawl_artifacts = await execute_safe_browser_crawl(canonical_url, case_id)
+    if not domain_intel.is_registered:
+        # Domain is Unregistered: Skip live crawl & audit
+        crawl_artifacts = CrawlArtifacts(
+            final_url=canonical_url,
+            status_code=0,
+            error_message="Domain is not registered in IANA/ICANN RDAP registries (NXDOMAIN). Host inactive.",
+            crawl_time_ms=0
+        )
+        brand_match = match_brand(
+            target_url=canonical_url,
+            registrable_domain=registrable_domain,
+            crawl_artifacts=crawl_artifacts
+        )
+        report = calculate_multi_signal_fusion(
+            case_id=case_id,
+            target_url=canonical_url,
+            canonical_domain=registrable_domain,
+            triage=triage,
+            domain_intel=domain_intel,
+            crawl_artifacts=crawl_artifacts,
+            brand_match=brand_match
+        )
+        report.security_audit = None
+        ai_insights = await generate_gemini_insights(
+            domain=registrable_domain,
+            verdict="UNREGISTERED",
+            risk_score=report.overall_risk_score,
+            domain_age=0,
+            is_newly_registered=False,
+            brand_matched=brand_match.brand_display_name,
+            is_contradiction=False,
+            security_grade="N/A",
+            is_clickjackable=False,
+            is_email_spoofable=False,
+            missing_headers=[]
+        )
+        report.ai_insights = ai_insights
+    else:
+        # 3. Safe Browser Sandbox Crawl
+        crawl_artifacts = await execute_safe_browser_crawl(canonical_url, case_id)
+            
+        # 4. Visual & Brand Matcher (pHash Logo Vision)
+        brand_match = match_brand(
+            target_url=canonical_url,
+            registrable_domain=registrable_domain,
+            crawl_artifacts=crawl_artifacts
+        )
         
-    # 4. Visual & Brand Matcher (pHash Logo Vision)
-    brand_match = match_brand(
-        target_url=canonical_url,
-        registrable_domain=registrable_domain,
-        crawl_artifacts=crawl_artifacts
-    )
-    
-    # 5. Multi-Signal Risk Fusion Engine & Attack Chain
-    report = calculate_multi_signal_fusion(
-        case_id=case_id,
-        target_url=canonical_url,
-        canonical_domain=registrable_domain,
-        triage=triage,
-        domain_intel=domain_intel,
-        crawl_artifacts=crawl_artifacts,
-        brand_match=brand_match
-    )
-    
-    # 6. Website Security Posture & Exploitability Audit
-    security_audit = await audit_security_headers_and_dns(
-        url=canonical_url,
-        txt_records=domain_intel.dns.txt_records
-    )
-    report.security_audit = security_audit
+        # 5. Multi-Signal Risk Fusion Engine & Attack Chain
+        report = calculate_multi_signal_fusion(
+            case_id=case_id,
+            target_url=canonical_url,
+            canonical_domain=registrable_domain,
+            triage=triage,
+            domain_intel=domain_intel,
+            crawl_artifacts=crawl_artifacts,
+            brand_match=brand_match
+        )
+        
+        # 6. Website Security Posture & Exploitability Audit
+        security_audit = await audit_security_headers_and_dns(
+            url=canonical_url,
+            txt_records=domain_intel.dns.txt_records
+        )
+        report.security_audit = security_audit
 
-    # 7. Gemini AI Explainable Insights
-    missing_headers = [f.name for f in security_audit.findings if f.status == "FAIL"]
-    ai_insights = await generate_gemini_insights(
-        domain=registrable_domain,
-        verdict=report.verdict,
-        risk_score=report.overall_risk_score,
-        domain_age=domain_intel.domain_age_days or 365,
-        is_newly_registered=domain_intel.is_newly_registered,
-        brand_matched=brand_match.brand_display_name,
-        is_contradiction=brand_match.is_contradiction,
-        security_grade=security_audit.security_grade,
-        is_clickjackable=security_audit.is_clickjackable,
-        is_email_spoofable=security_audit.is_email_spoofable,
-        missing_headers=missing_headers
-    )
-    report.ai_insights = ai_insights
+        # 7. Gemini AI Explainable Insights
+        missing_headers = [f.name for f in security_audit.findings if f.status == "FAIL"]
+        ai_insights = await generate_gemini_insights(
+            domain=registrable_domain,
+            verdict=report.verdict,
+            risk_score=report.overall_risk_score,
+            domain_age=domain_intel.domain_age_days or 365,
+            is_newly_registered=domain_intel.is_newly_registered,
+            brand_matched=brand_match.brand_display_name,
+            is_contradiction=brand_match.is_contradiction,
+            security_grade=security_audit.security_grade,
+            is_clickjackable=security_audit.is_clickjackable,
+            is_email_spoofable=security_audit.is_email_spoofable,
+            missing_headers=missing_headers
+        )
+        report.ai_insights = ai_insights
 
     # 8. Add Payment & Algorand Testnet Verification Metadata
     if tx_id:
@@ -181,14 +219,22 @@ async def free_security_scan(req: AnalysisRequest):
         tld=tld
     )
     
-    # Compute basic risk score (0-100)
-    basic_score = round(triage.lexical_score * 70.0 + (25.0 if domain_intel.is_newly_registered else 0.0), 1)
-    verdict = "PHISHING" if basic_score >= 70.0 else "SUSPICIOUS" if basic_score >= 35.0 else "BENIGN"
-    
     # DNS & Email Security Signals
     has_spf = any("v=spf1" in txt.lower() for txt in domain_intel.dns.txt_records)
     has_dmarc = any("v=dmarc1" in txt.lower() for txt in domain_intel.dns.txt_records)
     entropy = features.get("url_entropy", 0.0)
+
+    # Compute basic risk score (0-100) & Verdict
+    if not domain_intel.is_registered:
+        basic_score = round(min(15.0, triage.lexical_score * 15.0), 1)
+        verdict = "UNREGISTERED"
+        confidence = 0.98
+        triage_msg = "Domain is not registered in global RDAP / DNS registries. Host is inactive."
+    else:
+        basic_score = round(triage.lexical_score * 70.0 + (25.0 if domain_intel.is_newly_registered else 0.0), 1)
+        verdict = "PHISHING" if basic_score >= 70.0 else "SUSPICIOUS" if basic_score >= 35.0 else "BENIGN"
+        confidence = 0.94
+        triage_msg = triage.triage_reason
 
     # Create x402 payment challenge for upgrading to Premium Deep Audit
     challenge = x402_manager.create_payment_challenge(canonical_url, case_id)
@@ -200,9 +246,11 @@ async def free_security_scan(req: AnalysisRequest):
         timestamp=datetime.now(timezone.utc).isoformat(),
         basic_risk_score=basic_score,
         verdict=verdict,
-        confidence=0.94,
+        confidence=confidence,
         lexical_score=triage.lexical_score,
         entropy_score=round(entropy, 2),
+        is_registered=domain_intel.is_registered,
+        registration_status=domain_intel.registration_status,
         is_newly_registered=domain_intel.is_newly_registered,
         domain_age_days=domain_intel.domain_age_days,
         creation_date=domain_intel.creation_date,
@@ -211,9 +259,9 @@ async def free_security_scan(req: AnalysisRequest):
         dns_ns_records=domain_intel.dns.ns_records,
         has_spf=has_spf,
         has_dmarc=has_dmarc,
-        tls_valid=domain_intel.tls_valid or True,
+        tls_valid=domain_intel.tls_valid,
         tls_issuer=domain_intel.tls_issuer,
-        triage_reason=triage.triage_reason,
+        triage_reason=triage_msg,
         feature_attributions=triage.feature_attributions,
         deep_audit_locked=True,
         x402_challenge=challenge.model_dump()
