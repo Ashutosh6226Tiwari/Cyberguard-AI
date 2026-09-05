@@ -1,11 +1,11 @@
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
-from datetime import datetime
 
 class AnalysisRequest(BaseModel):
     url: str = Field(..., description="Target URL or domain to analyze")
     deep_analysis: bool = Field(True, description="Whether to execute browser sandbox and visual matching")
     force_refresh: bool = Field(False, description="Bypass cache and force re-crawling")
+    payment_tx_id: Optional[str] = Field(None, description="Optional Algorand Testnet Transaction ID if unlocking premium deep audit")
 
 class TriageScore(BaseModel):
     lexical_score: float = Field(..., description="0.0 to 1.0 fast triage probability")
@@ -143,6 +143,66 @@ class RiskScoreReport(BaseModel):
     # Security Posture & Gemini AI
     security_audit: Optional[SecurityPostureAudit] = None
     ai_insights: Optional[GeminiAIInsight] = None
+
+    # x402 & Algorand Testnet Verification
+    is_premium: bool = True
+    tx_id: Optional[str] = None
+    payment_timestamp: Optional[str] = None
+    payment_amount_algo: Optional[float] = None
+    explorer_url: Optional[str] = None
+
+# Free Quick Scan Result (Stage 1 & Basic Stage 2)
+class FreeScanResult(BaseModel):
+    case_id: str
+    target_url: str
+    canonical_domain: str
+    timestamp: str
+    basic_risk_score: float
+    verdict: str  # BENIGN, SUSPICIOUS, PHISHING
+    confidence: float
+    lexical_score: float
+    is_newly_registered: bool
+    domain_age_days: Optional[int] = None
+    registrar: Optional[str] = None
+    triage_reason: str
+    deep_audit_locked: bool = True
+    x402_challenge: Optional[Dict[str, Any]] = None
+
+# x402 Challenge & Payment Schemas
+class PaymentChallengeRequest(BaseModel):
+    target_url: str
+    case_id: str
+
+class PaymentChallengeResponse(BaseModel):
+    challenge_id: str
+    network: str = "algorand-testnet"
+    recipient_address: str
+    amount_microalgos: int
+    amount_algo: float
+    token_symbol: str = "ALGO"
+    target_url: str
+    case_id: str
+    created_at: int
+    expires_at: int
+    facilitator_url: str
+    x402_header: str
+
+class PaymentVerificationRequest(BaseModel):
+    tx_id: str
+    case_id: str
+    target_url: str
+    challenge_id: Optional[str] = None
+
+class PaymentVerificationResponse(BaseModel):
+    verified: bool
+    tx_id: Optional[str] = None
+    sender_address: Optional[str] = None
+    amount_algo: Optional[float] = None
+    block_round: Optional[int] = None
+    confirmed_at: Optional[str] = None
+    explorer_url: Optional[str] = None
+    error_message: Optional[str] = None
+    report: Optional[RiskScoreReport] = None
 
 class AnalystFeedback(BaseModel):
     case_id: str

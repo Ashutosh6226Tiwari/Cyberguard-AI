@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Activity, Database, Radar, Home, Puzzle, Sun, Moon, HelpCircle } from 'lucide-react';
+import { Shield, Activity, Database, Radar, Home, Puzzle, Sun, Moon, HelpCircle, Coins, History, LayoutDashboard, Terminal } from 'lucide-react';
 import { InfoTooltip } from './InfoTooltip';
 
 interface HeaderProps {
@@ -9,6 +9,7 @@ interface HeaderProps {
   theme: 'dark' | 'light';
   toggleTheme: () => void;
   onOpenAbout: () => void;
+  hasActiveReport?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -17,7 +18,8 @@ export const Header: React.FC<HeaderProps> = ({
   caseCount,
   theme,
   toggleTheme,
-  onOpenAbout
+  onOpenAbout,
+  hasActiveReport = false
 }) => {
   return (
     <header className="glass-panel" style={{ margin: '16px 24px', padding: '16px 20px', position: 'relative', zIndex: 100 }}>
@@ -41,41 +43,40 @@ export const Header: React.FC<HeaderProps> = ({
                 CYBERGUARD AI
               </h1>
               <span className="badge-info mono" style={{ fontSize: '0.65rem', padding: '2px 6px', borderRadius: '10px', fontWeight: 800 }}>
-                v2.0-SOC PRO
+                x402 ALGORAND
               </span>
               <InfoTooltip
                 title="CyberGuard AI Platform"
-                description="Zero-trust autonomous threat intelligence system that reconstructs full phishing attack chains, detects brand lookalikes, and audits web infrastructure exploitability."
-                securityImpact="Protects enterprise employees and consumers against credential harvesting and malicious brand spoofs."
+                description="Zero-trust autonomous threat intelligence system that reconstructs full phishing attack chains, detects brand lookalikes, and audits web infrastructure exploitability with x402 Algorand micropayments."
+                securityImpact="Protects enterprise employees, website owners, and security teams against credential harvesting and malicious brand spoofs."
                 goodVsBad="Green scores (<30) indicate verified safety; high scores (>70) indicate malicious attack campaigns."
                 position="bottom"
               />
             </div>
             <p className="mono" style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-              [CYBER THREAT INTELLIGENCE &amp; VULNERABILITY AUDITOR]
+              [AI-POWERED WEBSITE SECURITY &amp; THREAT INTELLIGENCE]
             </p>
           </div>
         </div>
 
-        {/* Navigation Tabs (Mobile Horizontally Scrollable) */}
-        <div className="nav-tabs-container" style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--nav-bar-bg)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border-color)', flexWrap: 'nowrap', overflowX: 'auto' }}>
+        {/* Navigation Tabs (All 7 Required Pages) */}
+        <div className="nav-tabs-container" style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--nav-bar-bg)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border-color)', flexWrap: 'nowrap', overflowX: 'auto' }}>
           <button
             onClick={() => setActiveTab('overview')}
             style={{
-              padding: '7px 12px',
+              padding: '7px 11px',
               borderRadius: '8px',
               border: 'none',
               background: activeTab === 'overview' ? '#0284c7' : 'transparent',
               color: activeTab === 'overview' ? '#ffffff' : 'var(--text-secondary)',
               fontWeight: 600,
-              fontSize: '0.8rem',
+              fontSize: '0.78rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '5px',
               whiteSpace: 'nowrap',
-              flexShrink: 0,
-              transition: 'all 0.15s'
+              flexShrink: 0
             }}
           >
             <Home size={14} /> Overview
@@ -84,154 +85,172 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={() => setActiveTab('scanner')}
             style={{
-              padding: '7px 12px',
+              padding: '7px 11px',
               borderRadius: '8px',
               border: 'none',
               background: activeTab === 'scanner' ? '#0284c7' : 'transparent',
               color: activeTab === 'scanner' ? '#ffffff' : 'var(--text-secondary)',
               fontWeight: 600,
-              fontSize: '0.8rem',
+              fontSize: '0.78rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '5px',
               whiteSpace: 'nowrap',
-              flexShrink: 0,
-              transition: 'all 0.15s'
+              flexShrink: 0
             }}
           >
             <Radar size={14} /> Live Scanner
           </button>
 
+          {hasActiveReport && (
+            <button
+              onClick={() => setActiveTab('results')}
+              style={{
+                padding: '7px 11px',
+                borderRadius: '8px',
+                border: 'none',
+                background: activeTab === 'results' ? '#0284c7' : 'transparent',
+                color: activeTab === 'results' ? '#ffffff' : 'var(--text-secondary)',
+                fontWeight: 600,
+                fontSize: '0.78rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                whiteSpace: 'nowrap',
+                flexShrink: 0
+              }}
+            >
+              <LayoutDashboard size={14} /> Results
+            </button>
+          )}
+
           <button
-            onClick={() => setActiveTab('discovery')}
+            onClick={() => setActiveTab('x402')}
             style={{
-              padding: '7px 12px',
+              padding: '7px 11px',
               borderRadius: '8px',
               border: 'none',
-              background: activeTab === 'discovery' ? '#0284c7' : 'transparent',
-              color: activeTab === 'discovery' ? '#ffffff' : 'var(--text-secondary)',
+              background: activeTab === 'x402' ? '#0284c7' : 'transparent',
+              color: activeTab === 'x402' ? '#ffffff' : 'var(--text-secondary)',
               fontWeight: 600,
-              fontSize: '0.8rem',
+              fontSize: '0.78rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '5px',
               whiteSpace: 'nowrap',
-              flexShrink: 0,
-              transition: 'all 0.15s'
+              flexShrink: 0
             }}
           >
-            <Activity size={14} /> NRD Feed
+            <Coins size={14} /> x402 / Premium
           </button>
 
           <button
             onClick={() => setActiveTab('extension')}
             style={{
-              padding: '7px 12px',
+              padding: '7px 11px',
               borderRadius: '8px',
               border: 'none',
               background: activeTab === 'extension' ? '#0284c7' : 'transparent',
               color: activeTab === 'extension' ? '#ffffff' : 'var(--text-secondary)',
               fontWeight: 600,
-              fontSize: '0.8rem',
+              fontSize: '0.78rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '5px',
               whiteSpace: 'nowrap',
-              flexShrink: 0,
-              transition: 'all 0.15s'
+              flexShrink: 0
             }}
           >
             <Puzzle size={14} /> Extension
           </button>
 
           <button
-            onClick={() => setActiveTab('cases')}
+            onClick={() => setActiveTab('history')}
             style={{
-              padding: '7px 12px',
+              padding: '7px 11px',
               borderRadius: '8px',
               border: 'none',
-              background: activeTab === 'cases' ? '#0284c7' : 'transparent',
-              color: activeTab === 'cases' ? '#ffffff' : 'var(--text-secondary)',
+              background: activeTab === 'history' ? '#0284c7' : 'transparent',
+              color: activeTab === 'history' ? '#ffffff' : 'var(--text-secondary)',
               fontWeight: 600,
-              fontSize: '0.8rem',
+              fontSize: '0.78rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '5px',
               whiteSpace: 'nowrap',
-              flexShrink: 0,
-              transition: 'all 0.15s'
+              flexShrink: 0
             }}
           >
-            <Database size={14} /> Cases ({caseCount})
+            <History size={14} /> Reports ({caseCount})
+          </button>
+
+          <button
+            onClick={() => setActiveTab('about')}
+            style={{
+              padding: '7px 11px',
+              borderRadius: '8px',
+              border: 'none',
+              background: activeTab === 'about' ? '#0284c7' : 'transparent',
+              color: activeTab === 'about' ? '#ffffff' : 'var(--text-secondary)',
+              fontWeight: 600,
+              fontSize: '0.78rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0
+            }}
+          >
+            <HelpCircle size={14} /> How It Works
           </button>
         </div>
 
-        {/* Live System Status Badges, About Guide & Light/Dark Theme Switcher */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          {/* About & Guide Modal Button */}
+        {/* Global Controls & Theme Toggle */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button
-            onClick={onOpenAbout}
+            onClick={() => setActiveTab('discovery')}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              background: 'rgba(6, 182, 212, 0.15)',
-              color: 'var(--accent-cyan)',
-              border: `1px solid var(--border-focus)`,
+              padding: '7px 12px',
               borderRadius: '8px',
-              padding: '6px 10px',
-              fontSize: '0.74rem',
+              border: '1px solid var(--border-color)',
+              background: activeTab === 'discovery' ? 'rgba(6, 182, 212, 0.2)' : 'transparent',
+              color: activeTab === 'discovery' ? '#38bdf8' : 'var(--text-secondary)',
+              fontSize: '0.75rem',
               fontWeight: 700,
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
             }}
-            title="Open Feature & Telemetry Guide"
+            title="Discovery Feed - Real-time Certificate Transparency stream"
           >
-            <HelpCircle size={14} />
-            <span className="mono">ABOUT</span>
+            <Activity size={14} color="#10b981" />
+            <span>NRD Feed</span>
           </button>
 
-          {/* Light / Dark Mode Toggle Button */}
           <button
             onClick={toggleTheme}
             style={{
+              padding: '8px',
+              borderRadius: '8px',
+              border: '1px solid var(--border-color)',
+              background: 'transparent',
+              color: 'var(--text-secondary)',
+              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              background: theme === 'light' ? '#e2e8f0' : 'rgba(255, 255, 255, 0.08)',
-              color: theme === 'light' ? '#0f172a' : '#f3f4f6',
-              border: `1px solid var(--border-color)`,
-              borderRadius: '8px',
-              padding: '6px 10px',
-              fontSize: '0.74rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              justifyContent: 'center'
             }}
-            title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
           >
-            {theme === 'dark' ? (
-              <>
-                <Sun size={14} color="#f59e0b" />
-                <span className="mono">LIGHT</span>
-              </>
-            ) : (
-              <>
-                <Moon size={14} color="#0284c7" />
-                <span className="mono">DARK</span>
-              </>
-            )}
+            {theme === 'dark' ? <Sun size={15} color="#f59e0b" /> : <Moon size={15} color="#38bdf8" />}
           </button>
-
-          {/* SOC Online Status */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem', color: theme === 'light' ? '#16a34a' : '#00ff88', background: theme === 'light' ? '#dcfce7' : 'rgba(0, 255, 136, 0.12)', padding: '5px 10px', borderRadius: '8px', border: `1px solid ${theme === 'light' ? '#86efac' : 'rgba(0, 255, 136, 0.3)'}` }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: theme === 'light' ? '#16a34a' : '#00ff88', display: 'inline-block', boxShadow: '0 0 6px #00ff88' }}></span>
-            <span className="mono" style={{ fontWeight: 700 }}>SOC: ON</span>
-          </div>
         </div>
       </div>
     </header>

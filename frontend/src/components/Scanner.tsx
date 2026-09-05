@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Play, RefreshCw, Sparkles } from 'lucide-react';
+import { Search, Play, RefreshCw, Sparkles, Zap, Shield, Coins } from 'lucide-react';
 import type { BenchmarkSample } from '../types';
 import { InfoTooltip } from './InfoTooltip';
 
@@ -11,14 +11,14 @@ interface ScannerProps {
 
 export const Scanner: React.FC<ScannerProps> = ({ onScan, isLoading, benchmarkSamples }) => {
   const [url, setUrl] = useState('');
-  const [deepAnalysis, setDeepAnalysis] = useState(true);
+  const [scanMode, setScanMode] = useState<'free' | 'deep'>('deep');
   const [forceRefresh, setForceRefresh] = useState(false);
   const [selectedSample, setSelectedSample] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!url.trim()) return;
-    onScan(url.trim(), deepAnalysis, forceRefresh);
+    onScan(url.trim(), scanMode === 'deep', forceRefresh);
   };
 
   const handleSelectSample = (sampleId: string) => {
@@ -48,7 +48,7 @@ export const Scanner: React.FC<ScannerProps> = ({ onScan, isLoading, benchmarkSa
               <Search size={18} color="var(--text-muted)" />
               <input
                 type="text"
-                placeholder="Enter domain to audit (e.g. campuskart.shop or login-paypal.xyz)"
+                placeholder="Enter domain or URL (e.g. campuskart.shop, github.com, login-paypal.xyz)"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 disabled={isLoading}
@@ -99,76 +99,91 @@ export const Scanner: React.FC<ScannerProps> = ({ onScan, isLoading, benchmarkSa
             >
               {isLoading ? (
                 <>
-                  <RefreshCw size={17} className="radar-spinner" />
-                  <span>Auditing Security...</span>
+                  <RefreshCw size={16} className="animate-spin" />
+                  <span>Auditing...</span>
                 </>
               ) : (
                 <>
-                  <Play size={17} fill="#ffffff" />
-                  <span>Execute Inspection</span>
+                  <Play size={16} fill="currentColor" />
+                  <span>{scanMode === 'deep' ? 'Execute Deep Audit (x402)' : 'Run Free Quick Scan'}</span>
                 </>
               )}
             </button>
           </div>
 
-          {/* Options & Benchmark Dropdown Bar */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', paddingTop: '4px' }}>
-            {/* Quick Benchmark Presets */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.78rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
-                <Sparkles size={14} />
-                <span>Presets:</span>
-                <InfoTooltip
-                  title="Benchmark Scenarios"
-                  description="Pre-configured high-fidelity test samples showcasing various attack archetypes (Credential harvesters, O365 portals, Punycode Cyrillic attacks, Legitimate infrastructure)."
-                  goodVsBad="Click any scenario to evaluate how the multi-signal AI handles specific attack vectors."
-                />
-              </div>
+          {/* Options & Scan Mode Selector */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                type="button"
+                onClick={() => setScanMode('deep')}
+                style={{
+                  background: scanMode === 'deep' ? 'rgba(6, 182, 212, 0.2)' : 'transparent',
+                  border: scanMode === 'deep' ? '1px solid #38bdf8' : '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  padding: '6px 12px',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  color: scanMode === 'deep' ? '#38bdf8' : 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <Shield size={14} />
+                <span>Premium Deep Audit (x402)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setScanMode('free')}
+                style={{
+                  background: scanMode === 'free' ? 'rgba(6, 182, 212, 0.2)' : 'transparent',
+                  border: scanMode === 'free' ? '1px solid #38bdf8' : '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  padding: '6px 12px',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  color: scanMode === 'free' ? '#38bdf8' : 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <Zap size={14} />
+                <span>Free Quick Scan (Triage)</span>
+              </button>
+            </div>
+
+            {/* Benchmark Samples Selector */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                Demo Target:
+              </span>
               <select
                 value={selectedSample}
                 onChange={(e) => handleSelectSample(e.target.value)}
+                disabled={isLoading}
                 style={{
                   background: 'var(--code-box-bg)',
                   border: '1px solid var(--border-color)',
-                  color: 'var(--text-primary)',
                   borderRadius: '6px',
+                  color: 'var(--text-primary)',
                   padding: '6px 10px',
-                  fontSize: '0.78rem',
+                  fontSize: '0.75rem',
                   outline: 'none',
-                  cursor: 'pointer',
-                  maxWidth: '280px'
+                  cursor: 'pointer'
                 }}
               >
-                <option value="">Select Pre-Configured Benchmark...</option>
+                <option value="">Select a Benchmark Case...</option>
                 {benchmarkSamples.map((sample) => (
                   <option key={sample.id} value={sample.id}>
-                    [{sample.category}] {sample.name}
+                    {sample.name} ({sample.category})
                   </option>
                 ))}
               </select>
-            </div>
-
-            {/* Analysis Mode Toggles */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={deepAnalysis}
-                  onChange={(e) => setDeepAnalysis(e.target.checked)}
-                  style={{ accentColor: '#0284c7' }}
-                />
-                <span>Headless Sandbox Audit</span>
-              </label>
-
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', color: 'var(--text-muted)', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={forceRefresh}
-                  onChange={(e) => setForceRefresh(e.target.checked)}
-                  style={{ accentColor: '#0284c7' }}
-                />
-                <span>Bypass Cache</span>
-              </label>
             </div>
           </div>
         </div>

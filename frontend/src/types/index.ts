@@ -141,6 +141,62 @@ export interface RiskScoreReport {
   crawl_artifacts?: CrawlArtifacts;
   security_audit?: SecurityPostureAudit;
   ai_insights?: GeminiAIInsight;
+  is_premium?: boolean;
+  tx_id?: string;
+  payment_timestamp?: string;
+  payment_amount_algo?: number;
+  explorer_url?: string;
+}
+
+export interface PaymentChallenge {
+  challenge_id: string;
+  network: string;
+  recipient_address: string;
+  amount_microalgos: number;
+  amount_algo: number;
+  token_symbol: string;
+  target_url: string;
+  case_id: string;
+  created_at: number;
+  expires_at: number;
+  facilitator_url: string;
+  x402_header: string;
+}
+
+export interface FreeScanResult {
+  case_id: string;
+  target_url: string;
+  canonical_domain: string;
+  timestamp: string;
+  basic_risk_score: number;
+  verdict: 'PHISHING' | 'SUSPICIOUS' | 'BENIGN' | 'UNKNOWN';
+  confidence: number;
+  lexical_score: number;
+  is_newly_registered: boolean;
+  domain_age_days?: number;
+  registrar?: string;
+  triage_reason: string;
+  deep_audit_locked: boolean;
+  x402_challenge?: PaymentChallenge;
+}
+
+export interface PaymentVerificationResponse {
+  verified: boolean;
+  tx_id?: string;
+  sender_address?: string;
+  amount_algo?: number;
+  block_round?: number;
+  confirmed_at?: string;
+  explorer_url?: string;
+  error_message?: string;
+  report?: RiskScoreReport;
+}
+
+export interface TestnetStatus {
+  online: boolean;
+  last_round?: number;
+  node_server?: string;
+  network?: string;
 }
 
 export interface CaseSummary {
@@ -154,6 +210,9 @@ export interface CaseSummary {
   created_at: string;
   analyst_verdict?: string;
   analyst_notes?: string;
+  is_premium?: boolean;
+  tx_id?: string;
+  security_grade?: string;
 }
 
 export interface FeedItem {
