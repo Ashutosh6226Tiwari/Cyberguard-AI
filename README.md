@@ -71,37 +71,42 @@
 
 ```mermaid
 flowchart TD
-    A([🌐 User Enters URL in Cyber SOC Console / Chrome Extension]) --> B[Target Canonicalization & Protocol Normalization]
+    A["🌐 User Enters URL in Cyber SOC Console / Chrome Extension"] --> B["Target Canonicalization & Protocol Normalization"]
     
-    B --> C{Stage 1: Fast Free Triage}
-    C --> D[Extract 24-D Lexical Feature Vector]
-    C --> E[Query Google DoH & RDAP Cache]
-    D & E --> F[Calibrated Random Forest Classifier]
+    B --> C{"Stage 1: Fast Free Triage"}
+    C --> D["Extract 24-D Lexical Feature Vector"]
+    C --> E["Query Google DoH & RDAP Cache"]
+    D --> F["Calibrated Random Forest Classifier"]
+    E --> F
     
-    F --> G[Generate Free Triage Report & Risk Gauge]
+    F --> G["Generate Free Triage Report & Risk Gauge"]
     
-    G --> H{User Requests Deep Forensics?}
-    H -- No --> I([View Basic Risk Score & Domain Standing])
-    H -- Yes --> J[Server Issues HTTP 402 Payment Required]
+    G --> H{"User Requests Deep Forensics?"}
+    H -- "No" --> I["View Basic Risk Score & Domain Standing"]
+    H -- "Yes" --> J["Server Issues HTTP 402 Payment Required"]
     
-    J --> K[x402 Challenge Generated: 0.1 ALGO / 100,000 µALGO]
-    K --> L[User Pays via Pera / Defly / Testnet Wallet]
-    L --> M[Algorand Testnet On-Chain Settlement]
-    M --> N[GoPlausible Facilitator / Indexer Verification]
+    J --> K["x402 Challenge Generated: 0.1 ALGO (100,000 µALGO)"]
+    K --> L["User Pays via Pera / Defly / Testnet Wallet"]
+    L --> M["Algorand Testnet On-Chain Settlement"]
+    M --> N["GoPlausible Facilitator / Indexer Verification"]
     
-    N --> O{Stage 2 - 6: Deep Forensics Pipeline}
+    N --> O{"Stage 2-6: Deep Forensics Pipeline"}
     
-    O --> P1[Isolated Playwright Chromium Sandbox]
-    O --> P2[Computer Vision Brand pHash Logo Matcher]
-    O --> P3[Authoritative DNS MX/NS/TXT & TLS Hierarchy]
-    O --> P4[HTTP Defense Headers & SPF/DMARC Auditor]
+    O --> P1["Isolated Playwright Chromium Sandbox"]
+    O --> P2["Computer Vision Brand pHash Logo Matcher"]
+    O --> P3["Authoritative DNS MX/NS/TXT & TLS Hierarchy"]
+    O --> P4["HTTP Defense Headers & SPF/DMARC Auditor"]
     
-    P1 & P2 & P3 & P4 --> Q[Multi-Signal Calibrated Risk Fusion Engine]
+    P1 --> Q["Multi-Signal Calibrated Risk Fusion Engine"]
+    P2 --> Q
+    P3 --> Q
+    P4 --> Q
     
-    Q --> R[Google Gemini 2.5 Flash Threat Intelligence Explainer]
-    Q --> S[7-Stage Attack Chain Reconstruction]
+    Q --> R["Google Gemini 2.5 Flash Threat Intelligence Explainer"]
+    Q --> S["7-Stage Attack Chain Reconstruction"]
     
-    R & S --> T([🏆 Comprehensive SOC Forensic Dossier & 1-Click Code Fixes])
+    R --> T["🏆 Comprehensive SOC Forensic Dossier & 1-Click Code Fixes"]
+    S --> T
 
     style A fill:#0284c7,stroke:#38bdf8,color:#fff
     style J fill:#f59e0b,stroke:#fbbf24,color:#000
@@ -154,42 +159,42 @@ sequenceDiagram
 ```mermaid
 flowchart LR
     subgraph S1["1. Lexical Model (25%)"]
-        L1[Shannon Entropy]
-        L2[Punycode / Homograph]
-        L3[Subdomain Depth & Token]
-        L4[Risky TLD Classifier]
+        L1["Shannon Entropy"]
+        L2["Punycode / Homograph"]
+        L3["Subdomain Depth & Token"]
+        L4["Risky TLD Classifier"]
     end
 
     subgraph S2["2. Infrastructure & Age (20%)"]
-        I1[RDAP Domain Age Days]
-        I2[Newly Registered Domain - NRD]
-        I3[DNS Hierarchy A/MX/NS]
-        I4[SSL/TLS Certificate Validity]
+        I1["RDAP Domain Age Days"]
+        I2["Newly Registered Domain (NRD)"]
+        I3["DNS Hierarchy A/MX/NS"]
+        I4["SSL/TLS Certificate Validity"]
     end
 
     subgraph S3["3. DOM & Behavior (25%)"]
-        D1[Interactive Password Fields]
-        D2[Cross-Origin Form Dispatch]
-        D3[Multi-Hop Redirections]
-        D4[Obfuscated JS eval/atob]
+        D1["Interactive Password Fields"]
+        D2["Cross-Origin Form Dispatch"]
+        D3["Multi-Hop Redirections"]
+        D4["Obfuscated JS eval/atob"]
     end
 
     subgraph S4["4. Visual & Brand (30%)"]
-        V1[64-Bit Perceptual Hash pHash]
-        V2[Logo Trademark Catalog]
-        V3[Authorized Domain Check]
-        V4[Contradiction Alarm]
+        V1["64-Bit Perceptual Hash pHash"]
+        V2["Logo Trademark Catalog"]
+        V3["Authorized Domain Check"]
+        V4["Contradiction Alarm"]
     end
 
-    S1 --> FUSION["⚖️ Multi-Signal Fusion Engine<br/><code>Risk = 0.25*Lex + 0.20*Infra + 0.25*DOM + 0.30*Brand</code>"]
+    S1 --> FUSION["⚖️ Multi-Signal Fusion Engine<br/>Risk = 0.25*Lex + 0.20*Infra + 0.25*DOM + 0.30*Brand"]
     S2 --> FUSION
     S3 --> FUSION
     S4 --> FUSION
 
-    FUSION --> OVERRIDE{Critical Override Check}
-    OVERRIDE -- "Brand Contradiction + Password Input" --> CRIT["Force Risk Score ≥ 88.0 (CRITICAL PHISHING)"]
+    FUSION --> OVERRIDE{"Critical Override Check"}
+    OVERRIDE -- "Brand Contradiction + Password Input" --> CRIT["Force Risk Score >= 88.0 (CRITICAL PHISHING)"]
     OVERRIDE -- "Unregistered Domain (NXDOMAIN)" --> UNREG["Set Verdict: UNREGISTERED (Zero Fake Data)"]
-    OVERRIDE -- "Verified Authentic Brand" --> SAFE["Cap Risk Score ≤ 12.0 (BENIGN)"]
+    OVERRIDE -- "Verified Authentic Brand" --> SAFE["Cap Risk Score <= 12.0 (BENIGN)"]
     OVERRIDE -- "Standard Signals" --> CALIB["Calibrated Final Risk Score (0 - 100)"]
 
     style FUSION fill:#0284c7,stroke:#38bdf8,color:#fff
@@ -204,21 +209,21 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    A[Playwright Captures High-Res Screenshot & DOM Snippet] --> B[Text & Trademark Cue Matcher]
-    B --> C{Trademark Found in DOM / Title / URL?}
+    A["Playwright Captures High-Res Screenshot & DOM Snippet"] --> B["Text & Trademark Cue Matcher"]
+    B --> C{"Trademark Found in DOM / Title / URL?"}
     
-    C -- No --> D[Verdict: Generic / Unbranded Domain]
-    C -- Yes --> E[Extract Brand Profile e.g. PayPal, Microsoft, Apple, Google, Chase]
+    C -- "No" --> D["Verdict: Generic / Unbranded Domain"]
+    C -- "Yes" --> E["Extract Brand Profile (PayPal, Microsoft, Apple, Google, Chase)"]
     
-    E --> F[Compute 64-Bit dHash / pHash on Rendered Logo]
-    F --> G{Visual Similarity ≥ 0.70 AND Text Cue ≥ 0.75?}
+    E --> F["Compute 64-Bit dHash / pHash on Rendered Logo"]
+    F --> G{"Visual Similarity >= 0.70 AND Text Cue >= 0.75?"}
     
-    G -- No --> D
-    G -- Yes --> H[Check Target Domain Against Brand Authorized Domain Whitelist]
+    G -- "No" --> D
+    G -- "Yes" --> H["Check Target Domain Against Brand Authorized Domain Whitelist"]
     
-    H --> I{Is Domain in Authorized List?}
-    I -- Yes (e.g. login.microsoft.com) --> J[✅ AUTHENTIC BRAND DOMAIN<br/>Confidence: High | Safe Standing]
-    I -- No (e.g. login-microsoft-secure.xyz) --> K[🚨 CRITICAL CONTRADICTION DETECTED<br/>Visual Brand ≠ Domain Owner<br/>Exploit: Credential Harvester Lookalike]
+    H --> I{"Is Domain in Authorized List?"}
+    I -- "Yes (e.g. login.microsoft.com)" --> J["✅ AUTHENTIC BRAND DOMAIN<br/>Confidence: High - Safe Standing"]
+    I -- "No (e.g. login-microsoft-secure.xyz)" --> K["🚨 CRITICAL CONTRADICTION DETECTED<br/>Visual Brand != Domain Owner<br/>Exploit: Credential Harvester Lookalike"]
 
     style J fill:#10b981,stroke:#34d399,color:#fff
     style K fill:#ef4444,stroke:#f87171,color:#fff
@@ -231,13 +236,13 @@ flowchart TD
 
 ```mermaid
 gitGraph
-    commit id: "1. Ingress Link" tag: "Candidate URL Input"
-    commit id: "2. DNS Resolution" tag: "IP, NS & RDAP Age"
-    commit id: "3. SSL/TLS Handshake" tag: "SNI & Certificate Chain"
-    commit id: "4. Redirect Sequence" tag: "HTTP 301/302 Multi-Hop"
-    commit id: "5. DOM Sandbox" tag: "Headless Chromium Render"
-    commit id: "6. Credential Trap" tag: "Password Input & Exfiltration"
-    commit id: "7. AI Verdict" tag: "Gemini 2.5 Threat Intel"
+    commit id: "1. Ingress Link"
+    commit id: "2. DNS Resolution"
+    commit id: "3. SSL/TLS Handshake"
+    commit id: "4. Redirect Sequence"
+    commit id: "5. DOM Sandbox"
+    commit id: "6. Credential Trap"
+    commit id: "7. AI Verdict"
 ```
 
 ---
