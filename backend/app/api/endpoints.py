@@ -278,7 +278,7 @@ async def get_testnet_node_status():
 # 6. Deep Security Analysis (Full Multi-Modal Pipeline)
 # -----------------------------------------------------------------------------------
 @router.post("/analyze", response_model=RiskScoreReport)
-async def analyze_url(req: AnalysisRequest, response: Response, x_payment: Optional[str] = Header(None)):
+async def analyze_url(req: AnalysisRequest, x_payment: Optional[str] = Header(default=None)):
     case_id = f"case-{uuid.uuid4().hex[:8]}"
     
     lex_res = extract_lexical_features(req.url)
@@ -289,7 +289,7 @@ async def analyze_url(req: AnalysisRequest, response: Response, x_payment: Optio
     features = lex_res["features"]
     
     # Check if transaction ID was supplied directly or in x-payment header
-    tx_id = req.payment_tx_id or x_payment
+    tx_id = req.payment_tx_id or (x_payment if isinstance(x_payment, str) else None)
     
     report = await _execute_full_deep_audit(
         canonical_url=canonical_url,
@@ -339,8 +339,7 @@ async def escalate_feed_item(item_id: str):
         raise HTTPException(status_code=404, detail="Feed candidate not found")
         
     req = AnalysisRequest(url=f"http://{item.domain}", deep_analysis=True)
-    response = Response()
-    return await analyze_url(req, response)
+    return await analyze_url(req, x_payment=None)
 
 @router.get("/brands")
 def list_brands():
