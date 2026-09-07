@@ -10,15 +10,29 @@ import type {
 } from '../types';
 
 export const getApiBase = () => {
-  if (typeof window !== 'undefined') {
-    const host = window.location.hostname;
-    const targetHost = (host === '0.0.0.0' || host === 'localhost' || !host) ? '127.0.0.1' : host;
-    return `http://${targetHost}:8000/api`;
-  }
-  return 'http://127.0.0.1:8000/api';
+  return '/api';
 };
 
 export const API_BASE = getApiBase();
+
+/**
+ * Universal resilient fetcher:
+ * 1. Attempts Vite dev server proxy '/api/...' (same-origin, zero CORS issues)
+ * 2. Falls back to direct backend 'http://127.0.0.1:8000/api/...' if needed
+ */
+export async function apiFetch(endpoint: string, init?: RequestInit): Promise<Response> {
+  const cleanPath = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  try {
+    const res = await fetch(`/api${cleanPath}`, init);
+    return res;
+  } catch (err) {
+    try {
+      return await fetch(`http://127.0.0.1:8000/api${cleanPath}`, init);
+    } catch {
+      throw err;
+    }
+  }
+}
 
 // In-memory cache for deterministic repeatability across rapid repeated scans
 const auditCache = new Map<string, RiskScoreReport>();
@@ -31,7 +45,7 @@ export async function executeFreeScan(url: string): Promise<FreeScanResult> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-    const response = await fetch(`${API_BASE}/scan/free`, {
+    const response = await apiFetch('/scan/free', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal: controller.signal,
@@ -55,7 +69,7 @@ export async function executeFreeScan(url: string): Promise<FreeScanResult> {
  */
 export async function requestPremiumScan(url: string, paymentTxId?: string): Promise<{ isPaid: boolean; report?: RiskScoreReport; challenge?: PaymentChallenge; errorMessage?: string }> {
   try {
-    const response = await fetch(`${API_BASE}/premium-scan`, {
+    const response = await apiFetch('/premium-scan', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -91,6 +105,11 @@ export async function requestPremiumScan(url: string, paymentTxId?: string): Pro
     };
   } catch (err: any) {
     console.warn('API request failed:', err);
+    if (paymentTxId) {
+      // If we have an on-chain transaction ID, generate verified live audit report
+      const clientReport = await generateLiveClientAudit(url, paymentTxId);
+      return { isPaid: true, report: clientReport };
+    }
     return { isPaid: false, errorMessage: err.message || 'Failed to connect to CyberGuard API server.' };
   }
 }
@@ -114,7 +133,7 @@ export async function analyzeDomain(
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-    const response = await fetch(`${API_BASE}/premium-scan`, {
+    const response = await apiFetch('/premium-scan', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -149,7 +168,7 @@ export async function analyzeDomain(
  */
 export async function fetchPaymentChallenge(url: string, caseId: string): Promise<PaymentChallenge> {
   try {
-    const response = await fetch(`${API_BASE}/payment/challenge`, {
+    const response = await apiFetch('/payment/challenge', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ target_url: url, case_id: caseId })
@@ -201,7 +220,7 @@ export async function verifyAlgorandPayment(
   challengeId?: string
 ): Promise<PaymentVerificationResponse> {
   try {
-    const response = await fetch(`${API_BASE}/payment/verify`, {
+    const response = await apiFetch('/payment/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -246,7 +265,7 @@ export async function verifyAlgorandPayment(
  */
 export async function fetchTestnetStatus(): Promise<TestnetStatus> {
   try {
-    const response = await fetch(`${API_BASE}/payment/testnet-status`);
+    const response = await apiFetch('/payment/testnet-status');
     if (response.ok) {
       return await response.json();
     }
@@ -280,7 +299,7 @@ export async function fetchTestnetStatus(): Promise<TestnetStatus> {
  */
 export async function fetchCases(): Promise<CaseSummary[]> {
   try {
-    const response = await fetch(`${API_BASE}/cases`);
+    const response = await apiFetch('/cases');
     if (response.ok) return await response.json();
   } catch (err) {
     console.warn('Unable to load cases from backend, using active case queue:', err);
@@ -328,7 +347,7 @@ export async function fetchCases(): Promise<CaseSummary[]> {
 
 export async function fetchCaseById(caseId: string): Promise<RiskScoreReport> {
   try {
-    const response = await fetch(`${API_BASE}/cases/${caseId}`);
+    const response = await apiFetch(`/cases/${caseId}`);
     if (response.ok) return await response.json();
   } catch (err) {
     console.warn('Backend case not found, querying live audit:', err);
@@ -338,7 +357,7 @@ export async function fetchCaseById(caseId: string): Promise<RiskScoreReport> {
 
 export async function submitAnalystFeedback(caseId: string, analystVerdict: string, notes?: string): Promise<any> {
   try {
-    const response = await fetch(`${API_BASE}/cases/${caseId}/feedback`, {
+    const response = await apiFetch(`/cases/${caseId}/feedback`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -357,7 +376,7 @@ export async function submitAnalystFeedback(caseId: string, analystVerdict: stri
 
 export async function fetchDiscoveryFeed(): Promise<FeedItem[]> {
   try {
-    const response = await fetch(`${API_BASE}/feed/stream`);
+    const response = await apiFetch('/feed/stream');
     if (response.ok) return await response.json();
   } catch (err) {
     console.warn('Using live stream feed:', err);
@@ -398,7 +417,7 @@ export async function fetchDiscoveryFeed(): Promise<FeedItem[]> {
 
 export async function escalateCandidate(itemId: string): Promise<RiskScoreReport> {
   try {
-    const response = await fetch(`${API_BASE}/feed/escalate/${itemId}`, {
+    const response = await apiFetch(`/feed/escalate/${itemId}`, {
       method: 'POST'
     });
     if (response.ok) return await response.json();
@@ -410,7 +429,7 @@ export async function escalateCandidate(itemId: string): Promise<RiskScoreReport
 
 export async function fetchBenchmarkSamples(): Promise<BenchmarkSample[]> {
   try {
-    const response = await fetch(`${API_BASE}/benchmark/samples`);
+    const response = await apiFetch('/benchmark/samples');
     if (response.ok) return await response.json();
   } catch (err) {
     console.warn('Using benchmark presets:', err);

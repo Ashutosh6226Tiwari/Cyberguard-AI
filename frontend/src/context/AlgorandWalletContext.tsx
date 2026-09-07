@@ -121,20 +121,19 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
     }));
   };
 
-  const getBackendUrl = (path: string) => {
-    if (typeof window !== 'undefined') {
-      const host = window.location.hostname;
-      const targetHost = (host === '0.0.0.0' || host === 'localhost' || !host) ? '127.0.0.1' : host;
-      return `http://${targetHost}:8000/api${path}`;
+  const safeApiFetch = async (path: string, init?: RequestInit) => {
+    try {
+      return await fetch(`/api${path}`, init);
+    } catch {
+      return await fetch(`http://127.0.0.1:8000/api${path}`, init);
     }
-    return `http://127.0.0.1:8000/api${path}`;
   };
 
   const fetchOnChainBalances = async (addr: string) => {
     if (!addr || addr.length !== 58) return;
     try {
       // 1. Try Backend Proxy first
-      const proxyResp = await fetch(getBackendUrl(`/payment/account-balance/${addr}`)).catch(() => null);
+      const proxyResp = await safeApiFetch(`/payment/account-balance/${addr}`).catch(() => null);
       if (proxyResp && proxyResp.ok) {
         const data = await proxyResp.json();
         setBalanceAlgo(data.algo || 0.0);
@@ -294,7 +293,7 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
     // Fetch and normalize suggested parameters from Algorand Testnet node
     let rawParams: any = null;
     try {
-      const pResp = await fetch(getBackendUrl('/payment/params')).catch(() => null);
+      const pResp = await safeApiFetch('/payment/params').catch(() => null);
       if (pResp && pResp.ok) {
         rawParams = await pResp.json();
       } else {
@@ -354,12 +353,12 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
               binary += String.fromCharCode(uint8[i]);
             }
             const base64Txn = btoa(binary);
-            const bResp = await fetch(getBackendUrl('/payment/broadcast'), {
+            const bResp = await safeApiFetch('/payment/broadcast', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ raw_txn_base64: base64Txn })
             });
-            if (bResp.ok) {
+            if (bResp && bResp.ok) {
               const bData = await bResp.json();
               txId = bData.txId || txn.txID();
             } else {
