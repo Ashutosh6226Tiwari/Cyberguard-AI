@@ -263,7 +263,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
 
               {/* Option 2: Pera / Defly Wallet */}
               <button
-                onClick={async () => { await connectPeraWallet(); onClose(); }}
+                onClick={async () => { await connectPeraWallet('MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY'); onClose(); }}
                 style={{
                   background: 'var(--code-box-bg)',
                   border: '1px solid var(--border-color)',
@@ -282,10 +282,10 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                   </div>
                   <div>
                     <div style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                      Pera / Defly Mobile Wallet
+                      Pera Mobile Wallet
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                      Connect via mobile app QR code &amp; sign transactions
+                    <div className="mono" style={{ fontSize: '0.72rem', color: '#38bdf8', marginTop: '2px' }}>
+                      MZM62WIYCYOFBA...OX6YFY
                     </div>
                   </div>
                 </div>

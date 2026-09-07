@@ -80,10 +80,9 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
     persistState(true, clean, 15.5, 100.0, 'custom');
   };
 
-  const connectPeraWallet = async () => {
-    const randomSuffix = Math.random().toString(36).substring(2, 10).toUpperCase();
-    const peraAddress = `PERA7K9X4M2K5P8R1T3V${randomSuffix}7P9Q1`;
-    persistState(true, peraAddress, 12.4, 75.0, 'pera');
+  const connectPeraWallet = async (customAddr?: string) => {
+    const peraAddress = customAddr || 'MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY';
+    persistState(true, peraAddress, 18.5, 95.0, 'pera');
   };
 
   const disconnectWallet = () => {

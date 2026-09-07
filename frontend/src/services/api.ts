@@ -109,7 +109,7 @@ export async function fetchPaymentChallenge(url: string, caseId: string): Promis
 
   const now = Math.floor(Date.now() / 1000);
   const challengeId = `x402-${Math.random().toString(16).slice(2, 14)}`;
-  const receiver = 'CYBERGAI4L2KXZX7J4H2Y73WVRK57YNDM4EBR4ZPQ4K6F6P6QG4E63C25M';
+  const receiver = 'MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY';
   
   return {
     challenge_id: challengeId,

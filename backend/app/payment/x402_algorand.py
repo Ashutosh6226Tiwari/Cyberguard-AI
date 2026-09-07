@@ -18,7 +18,7 @@ USDC_TESTNET_ASA_ID = 10458941 # Testnet USDC Asset ID
 # CyberGuard AI Testnet Escrow / Receiver Address
 CYBERGUARD_TESTNET_RECEIVER = os.getenv(
     "CYBERGUARD_TESTNET_RECEIVER",
-    "CYBERGAI4L2KXZX7J4H2Y73WVRK57YNDM4EBR4ZPQ4K6F6P6QG4E63C25M" # Valid Algorand 58-character public address format
+    "MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY" # User Pera Wallet Address (Algorand 58-character format)
 )
 
 # GoPlausible x402 Facilitator Configuration

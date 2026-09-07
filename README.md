@@ -307,7 +307,7 @@ The **x402 protocol** leverages the long-dormant `HTTP 402 Payment Required` sta
 
 ### Algorand Testnet Parameters
 * **Network CAIP-2 Identifier**: `algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=`
-* **CyberGuard AI Testnet Escrow Address**: `CYBERGAI4L2KXZX7J4H2Y73WVRK57YNDM4EBR4ZPQ4K6F6P6QG4E63C25M`
+* **CyberGuard AI Testnet Escrow Address**: `MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY`
 * **Audit Price**: `100,000 microAlgos` (= **`0.1 ALGO`**) or **`$0.01 USDC`** (Testnet ASA `#10458941`).
 * **GoPlausible Facilitator**: `https://facilitator.goplausible.xyz`
 * **Explorer Verification**: [Lora Algokit Testnet Explorer](https://lora.algokit.io/testnet)
@@ -321,12 +321,12 @@ Content-Type: application/json
 {
   "challenge_id": "x402-a1b2c3d4e5f6",
   "network": "algorand-testnet",
-  "recipient_address": "CYBERGAI4L2KXZX7J4H2Y73WVRK57YNDM4EBR4ZPQ4K6F6P6QG4E63C25M",
+  "recipient_address": "MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY",
   "amount_microalgos": 100000,
   "amount_algo": 0.1,
   "token_symbol": "ALGO",
   "facilitator_url": "https://facilitator.goplausible.xyz",
-  "x402_header": "{\"v\":\"1.0\",\"net\":\"algorand-testnet\",\"to\":\"CYBERGAI4L...\",\"amt\":100000,\"cur\":\"ALGO\"}"
+  "x402_header": "{\"v\":\"1.0\",\"net\":\"algorand-testnet\",\"to\":\"MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY\",\"amt\":100000,\"cur\":\"ALGO\"}"
 }
 ```
 
