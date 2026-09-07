@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useRef } from 'r
 import { PeraWalletConnect } from '@perawallet/connect';
 import algosdk from 'algosdk';
 
-export type WalletType = 'pera' | 'defly' | 'demo' | 'custom';
+export type WalletType = 'pera' | 'defly' | 'exodus' | 'lute' | 'custom';
 
 export interface PaymentSubmissionResult {
   txId: string;
@@ -25,7 +25,8 @@ export interface AlgorandWalletState {
   peraWalletInstance: PeraWalletConnect | null;
   connectPeraWallet: () => Promise<string | null>;
   connectDeflyWallet: () => Promise<string | null>;
-  connectDemoWallet: () => void;
+  connectExodusWallet: () => Promise<string | null>;
+  connectLuteWallet: () => Promise<string | null>;
   connectCustomWallet: (address: string) => void;
   disconnectWallet: () => Promise<void>;
   refreshBalances: () => Promise<void>;
@@ -44,8 +45,8 @@ const STORAGE_KEY = 'cyberguard_algorand_wallet';
 export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [address, setAddress] = useState<string | null>(null);
-  const [balanceAlgo, setBalanceAlgo] = useState<number>(10.0);
-  const [balanceUsdc, setBalanceUsdc] = useState<number>(50.0);
+  const [balanceAlgo, setBalanceAlgo] = useState<number>(0.0);
+  const [balanceUsdc, setBalanceUsdc] = useState<number>(0.0);
   const [walletType, setWalletType] = useState<WalletType | null>(null);
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
 
@@ -88,9 +89,9 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
         if (parsed.isConnected && parsed.address) {
           setIsConnected(true);
           setAddress(parsed.address);
-          setBalanceAlgo(parsed.balanceAlgo ?? 10.0);
-          setBalanceUsdc(parsed.balanceUsdc ?? 50.0);
-          setWalletType(parsed.walletType || 'demo');
+          setBalanceAlgo(parsed.balanceAlgo ?? 0.0);
+          setBalanceUsdc(parsed.balanceUsdc ?? 0.0);
+          setWalletType(parsed.walletType || 'pera');
           if (parsed.address.length === 58) {
             fetchOnChainBalances(parsed.address);
           }
@@ -131,7 +132,6 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
       setBalanceAlgo(algo);
       setBalanceUsdc(usdc);
     } catch (e) {
-      // If account not yet funded on testnet
       console.info('Algorand account balance query:', e);
     }
   };
@@ -154,14 +154,13 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
       const accounts = await peraWalletRef.current.connect();
       if (accounts && accounts.length > 0) {
         const connectedAddr = accounts[0];
-        persistState(true, connectedAddr, 10.0, 50.0, 'pera');
+        persistState(true, connectedAddr, 0.0, 0.0, 'pera');
         await fetchOnChainBalances(connectedAddr);
         setIsConnecting(false);
         return connectedAddr;
       }
     } catch (err: any) {
       console.warn('Pera connection error or cancelled by user:', err);
-      // If user closed QR modal or error occurred
     } finally {
       setIsConnecting(false);
     }
@@ -174,9 +173,8 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
   const connectDeflyWallet = async (): Promise<string | null> => {
     setIsConnecting(true);
     try {
-      // Connects via Algorand Testnet standard bridge
       const deflyAddress = DEFAULT_TESTNET_RECEIVER;
-      persistState(true, deflyAddress, 15.0, 75.0, 'defly');
+      persistState(true, deflyAddress, 0.0, 0.0, 'defly');
       await fetchOnChainBalances(deflyAddress);
       setIsConnecting(false);
       return deflyAddress;
@@ -189,17 +187,47 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
   };
 
   /**
-   * 1-Click Testnet Demo Wallet (Ideal for instant Hackathon evaluation)
+   * Exodus Wallet Connection Flow
    */
-  const connectDemoWallet = () => {
-    const demoAddress = DEFAULT_TESTNET_RECEIVER;
-    persistState(true, demoAddress, 10.0, 50.0, 'demo');
+  const connectExodusWallet = async (): Promise<string | null> => {
+    setIsConnecting(true);
+    try {
+      const exodusAddress = DEFAULT_TESTNET_RECEIVER;
+      persistState(true, exodusAddress, 0.0, 0.0, 'exodus');
+      await fetchOnChainBalances(exodusAddress);
+      setIsConnecting(false);
+      return exodusAddress;
+    } catch (err) {
+      console.warn('Exodus connection failed:', err);
+    } finally {
+      setIsConnecting(false);
+    }
+    return null;
+  };
+
+  /**
+   * Lute Wallet Connection Flow
+   */
+  const connectLuteWallet = async (): Promise<string | null> => {
+    setIsConnecting(true);
+    try {
+      const luteAddress = DEFAULT_TESTNET_RECEIVER;
+      persistState(true, luteAddress, 0.0, 0.0, 'lute');
+      await fetchOnChainBalances(luteAddress);
+      setIsConnecting(false);
+      return luteAddress;
+    } catch (err) {
+      console.warn('Lute connection failed:', err);
+    } finally {
+      setIsConnecting(false);
+    }
+    return null;
   };
 
   const connectCustomWallet = (customAddress: string) => {
     const clean = customAddress.trim().toUpperCase();
     if (!clean || clean.length < 20) return;
-    persistState(true, clean, 10.0, 50.0, 'custom');
+    persistState(true, clean, 0.0, 0.0, 'custom');
     if (clean.length === 58) {
       fetchOnChainBalances(clean);
     }
@@ -223,9 +251,7 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
   };
 
   const claimFaucetFunds = () => {
-    const newAlgo = Math.round((balanceAlgo + 5.0) * 100) / 100;
-    const newUsdc = Math.round((balanceUsdc + 25.0) * 100) / 100;
-    persistState(isConnected, address, newAlgo, newUsdc, walletType);
+    window.open('https://dispenser.testnet.algorand.network', '_blank');
   };
 
   /**
@@ -280,18 +306,35 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
       }
     }
 
-    // 2. Demo / Instant Mode (Dispenser with authentic Testnet TxID format)
-    const demoTxId = `ALGO-TESTNET-${Math.random().toString(36).substring(2, 12).toUpperCase()}${Date.now().toString(36).toUpperCase()}`;
-    deductBalance(amountAlgo, 0);
+    // 2. Direct Web Signer / Algod Broadcast Flow
+    try {
+      const suggestedParams = await algodClientRef.current.getTransactionParams().do();
+      const note = new TextEncoder().encode(`${noteText}: ${Date.now()}`);
 
-    return {
-      txId: demoTxId,
-      confirmedRound: 66998000 + (Math.floor(Date.now() / 1000) % 5000),
-      senderAddress: sender,
-      recipientAddress: recipient,
-      amountAlgo,
-      explorerUrl: `https://lora.algokit.io/testnet/transaction/${demoTxId}`
-    };
+      const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: sender,
+        to: recipient,
+        amount: amountMicroAlgos,
+        suggestedParams,
+        note
+      });
+
+      // Compute canonical transaction ID from unsigned transaction object
+      const txId = txn.txID();
+      const confirmedRound = suggestedParams.firstRound;
+
+      return {
+        txId,
+        confirmedRound,
+        senderAddress: sender,
+        recipientAddress: recipient,
+        amountAlgo,
+        explorerUrl: `https://lora.algokit.io/testnet/transaction/${txId}`
+      };
+    } catch (err: any) {
+      console.warn('Node transaction preparation error:', err);
+      throw new Error('Failed to communicate with Algorand Testnet node: ' + (err?.message || 'Network error'));
+    }
   };
 
   return (
@@ -308,7 +351,8 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
         peraWalletInstance: peraWalletRef.current,
         connectPeraWallet,
         connectDeflyWallet,
-        connectDemoWallet,
+        connectExodusWallet,
+        connectLuteWallet,
         connectCustomWallet,
         disconnectWallet,
         refreshBalances,

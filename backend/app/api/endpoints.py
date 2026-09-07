@@ -282,7 +282,92 @@ def get_x402_discovery_config():
     return x402_manager.get_discovery_config()
 
 # -----------------------------------------------------------------------------------
-# 3. x402 Algorand Testnet Verification Endpoint
+# 3. Dedicated x402 Protected Premium Audit Endpoint (HTTP 402 Protocol)
+# -----------------------------------------------------------------------------------
+@router.post("/premium-scan")
+async def premium_security_scan(
+    req: AnalysisRequest,
+    x_payment: Optional[str] = Header(default=None),
+    response: Response = None
+):
+    """
+    HTTP 402 Protected Endpoint for Premium Deep Security Audit.
+    Requires an authentic on-chain payment of 0.1 ALGO (100,000 µALGO) on Algorand Testnet.
+    Returns HTTP 402 Payment Required with challenge payload if unpaid.
+    """
+    case_id = f"case-{uuid.uuid4().hex[:8]}"
+    tx_id = req.payment_tx_id or (x_payment if isinstance(x_payment, str) and x_payment.strip() else None)
+    
+    # 1. If no payment token/txid provided, issue authentic HTTP 402 Payment Required
+    if not tx_id:
+        challenge = x402_manager.create_payment_challenge(req.url, case_id)
+        auth_header = (
+            f'x402 realm="CyberGuard Premium Audit", '
+            f'network="{challenge.network}", '
+            f'caip2="{challenge.caip2_network}", '
+            f'recipient="{challenge.recipient_address}", '
+            f'amount="{challenge.amount_microalgos}", '
+            f'currency="ALGO", '
+            f'facilitator="{challenge.facilitator_url}"'
+        )
+        return JSONResponse(
+            status_code=402,
+            content={
+                "status": 402,
+                "error": "Payment Required",
+                "message": (
+                    "Access to CyberGuard AI Premium Deep Security Audit requires an on-chain "
+                    f"micropayment of {settings.PREMIUM_AUDIT_PRICE_ALGO} ALGO ({settings.PREMIUM_AUDIT_PRICE_MICROALGOS} µALGO) "
+                    f"to {settings.AVM_ADDRESS} on Algorand Testnet."
+                ),
+                "challenge": challenge.model_dump()
+            },
+            headers={
+                "WWW-Authenticate": auth_header,
+                "X-Payment-Required": "true",
+                "X-Facilitator": challenge.facilitator_url,
+                "X-Network": challenge.caip2_network,
+                "X-Challenge-Id": challenge.challenge_id
+            }
+        )
+
+    # 2. Verify on-chain payment transaction on Algorand Testnet
+    res = await x402_manager.verify_algorand_transaction(
+        tx_id=tx_id,
+        case_id=case_id
+    )
+    
+    if not res.verified:
+        challenge = x402_manager.create_payment_challenge(req.url, case_id)
+        return JSONResponse(
+            status_code=402,
+            content={
+                "status": 402,
+                "error": "Payment Verification Failed",
+                "detail": res.error_message or "Payment could not be verified on Algorand Testnet.",
+                "challenge": challenge.model_dump()
+            },
+            headers={
+                "WWW-Authenticate": f'x402 network="{challenge.network}", recipient="{challenge.recipient_address}"',
+                "X-Payment-Required": "true"
+            }
+        )
+
+    # 3. Payment Verified: Execute full deep intelligence multi-modal audit
+    lex_res = extract_lexical_features(req.url)
+    report = await _execute_full_deep_audit(
+        canonical_url=lex_res["canonical_url"],
+        registrable_domain=lex_res["registrable_domain"],
+        subdomain=lex_res["subdomain"],
+        tld=lex_res["tld"],
+        features=lex_res["features"],
+        case_id=case_id,
+        tx_id=res.tx_id
+    )
+    return report
+
+# -----------------------------------------------------------------------------------
+# 4. x402 Algorand Testnet Verification Endpoint
 # -----------------------------------------------------------------------------------
 @router.post("/payment/verify", response_model=PaymentVerificationResponse)
 async def verify_payment_and_unlock(req: PaymentVerificationRequest):
@@ -321,19 +406,6 @@ async def verify_payment_and_unlock(req: PaymentVerificationRequest):
         explorer_url=res.explorer_url,
         report=report
     )
-
-# -----------------------------------------------------------------------------------
-# 4. 1-Click Testnet Demo Dispenser (For instant Hackathon Jury evaluation)
-# -----------------------------------------------------------------------------------
-@router.post("/payment/faucet-demo", response_model=PaymentVerificationResponse)
-async def faucet_demo_payment(req: PaymentChallengeRequest):
-    # Generate real formatted Algorand Testnet transaction ID hash
-    demo_txid = f"ALGO-TESTNET-{uuid.uuid4().hex.upper()}"
-    return await verify_payment_and_unlock(PaymentVerificationRequest(
-        tx_id=demo_txid,
-        case_id=req.case_id,
-        target_url=req.target_url
-    ))
 
 # -----------------------------------------------------------------------------------
 # 5. Algorand Testnet Node Status

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   X,
   Wallet,
-  ShieldCheck,
   CheckCircle2,
   Copy,
   Check,
@@ -15,10 +14,10 @@ import {
   QrCode,
   ArrowLeft,
   Loader2,
-  Info
+  ShieldCheck
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { useAlgorandWallet } from '../context/AlgorandWalletContext';
+import { useAlgorandWallet, type WalletType } from '../context/AlgorandWalletContext';
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -33,10 +32,11 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
     balanceUsdc,
     walletType,
     isConnecting,
-    connectDemoWallet,
     connectCustomWallet,
     connectPeraWallet,
     connectDeflyWallet,
+    connectExodusWallet,
+    connectLuteWallet,
     disconnectWallet,
     claimFaucetFunds,
     refreshBalances
@@ -45,7 +45,6 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
   const [currentView, setCurrentView] = useState<'select' | 'pera_qr' | 'defly_qr' | 'custom'>('select');
   const [customInput, setCustomInput] = useState('');
   const [copied, setCopied] = useState(false);
-  const [faucetClaimed, setFaucetClaimed] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   if (!isOpen) return null;
@@ -56,12 +55,6 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
-  };
-
-  const handleClaimFaucet = () => {
-    claimFaucetFunds();
-    setFaucetClaimed(true);
-    setTimeout(() => setFaucetClaimed(false), 2500);
   };
 
   const handleRefresh = async () => {
@@ -79,7 +72,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
     }
   };
 
-  const handleConnectPeraDirect = async () => {
+  const handleConnectPera = async () => {
     setCurrentView('pera_qr');
     const result = await connectPeraWallet();
     if (result) {
@@ -88,9 +81,25 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
     }
   };
 
-  const handleConnectDeflyDirect = async () => {
+  const handleConnectDefly = async () => {
     setCurrentView('defly_qr');
     const result = await connectDeflyWallet();
+    if (result) {
+      setCurrentView('select');
+      onClose();
+    }
+  };
+
+  const handleConnectExodus = async () => {
+    const result = await connectExodusWallet();
+    if (result) {
+      setCurrentView('select');
+      onClose();
+    }
+  };
+
+  const handleConnectLute = async () => {
+    const result = await connectLuteWallet();
     if (result) {
       setCurrentView('select');
       onClose();
@@ -100,6 +109,10 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
   // Algorand standard deep-link URI for Pera / Defly WalletConnect
   const peraConnectionUri = `algorand://wc?uri=wc:cyberguard-ai-testnet-session-${Date.now()}@2?relay-protocol=irn&symKey=pera-wc-testnet`;
   const deflyConnectionUri = `defly://wc?uri=wc:cyberguard-ai-testnet-session-${Date.now()}@2?relay-protocol=irn&symKey=defly-wc-testnet`;
+
+  const shortenedAddress = address
+    ? `${address.slice(0, 8)}...${address.slice(-6)}`
+    : '';
 
   return (
     <div
@@ -121,19 +134,19 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
         className="glass-panel"
         style={{
           width: '100%',
-          maxWidth: '540px',
-          background: 'var(--bg-card)',
-          border: '1px solid rgba(6, 182, 212, 0.4)',
+          maxWidth: '520px',
+          background: '#0b131f',
+          border: '1px solid rgba(56, 189, 248, 0.35)',
           borderRadius: '16px',
-          padding: '28px',
-          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(6, 182, 212, 0.2)',
+          padding: '26px',
+          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85), 0 0 30px rgba(6, 182, 212, 0.2)',
           position: 'relative',
-          maxHeight: '90vh',
+          maxHeight: '92vh',
           overflowY: 'auto'
         }}
       >
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '14px', marginBottom: '18px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             {currentView !== 'select' && !isConnected ? (
               <button
@@ -145,13 +158,13 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
               </button>
             ) : (
               <div style={{ background: 'rgba(6, 182, 212, 0.15)', border: '1px solid rgba(6, 182, 212, 0.5)', padding: '8px', borderRadius: '10px', color: '#38bdf8' }}>
-                <Wallet size={22} />
+                <Wallet size={20} />
               </div>
             )}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                  {isConnected ? 'Algorand Wallet Connected' : currentView === 'pera_qr' ? 'Connect Pera Wallet' : currentView === 'defly_qr' ? 'Connect Defly Wallet' : 'Connect Algorand Wallet'}
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                  {isConnected ? 'Algorand Wallet Connected' : currentView === 'pera_qr' ? 'Connect Pera Wallet' : currentView === 'defly_qr' ? 'Connect Defly Wallet' : 'Select wallet provider'}
                 </h3>
                 <span style={{ fontSize: '0.65rem', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#10b981', padding: '2px 8px', borderRadius: '12px', fontWeight: 800 }}>
                   TESTNET
@@ -173,29 +186,31 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
 
         {isConnected && address ? (
           /* ========================================================================= */
-          /* 1. CONNECTED STATE                                                        */
+          /* 1. CONNECTED STATE DASHBOARD                                              */
           /* ========================================================================= */
           <div>
-            {/* Status Card */}
-            <div style={{ background: 'var(--code-box-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '18px', marginBottom: '18px' }}>
+            <div style={{ background: 'var(--code-box-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }} />
                   <span style={{ fontSize: '0.78rem', color: '#10b981', fontWeight: 700 }}>Active Testnet Session</span>
                 </div>
                 <span className="badge-info mono" style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '6px' }}>
-                  {walletType === 'pera' ? '🟡 Pera Wallet' : walletType === 'defly' ? '🟣 Defly Wallet' : walletType === 'demo' ? '⚡ 1-Click Demo' : 'Custom Wallet'}
+                  {walletType === 'pera' ? '🟡 Pera Wallet' : walletType === 'defly' ? '🟣 Defly' : walletType === 'exodus' ? '🔷 Exodus' : walletType === 'lute' ? '🟣 Lute' : 'Custom Wallet'}
                 </span>
               </div>
 
-              {/* Address Box */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                <span className="mono" style={{ fontSize: '0.82rem', color: '#38bdf8', wordBreak: 'break-all' }}>
-                  {address}
-                </span>
+              {/* Shortened Address & Copy */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', background: 'rgba(0,0,0,0.4)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                <div>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block' }}>Connected Address:</span>
+                  <span className="mono" style={{ fontSize: '0.85rem', color: '#38bdf8', fontWeight: 700 }}>
+                    {shortenedAddress}
+                  </span>
+                </div>
                 <button
                   onClick={handleCopy}
-                  title="Copy address"
+                  title="Copy full address"
                   style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}
                 >
                   {copied ? <Check size={16} color="#10b981" /> : <Copy size={16} />}
@@ -203,17 +218,17 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
               </div>
 
               {/* Balances */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '14px' }}>
-                <div style={{ background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.3)', padding: '12px', borderRadius: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '12px' }}>
+                <div style={{ background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.3)', padding: '10px 12px', borderRadius: '8px' }}>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '2px' }}>ALGO Balance</div>
-                  <div className="mono" style={{ fontSize: '1.25rem', fontWeight: 800, color: '#38bdf8' }}>
+                  <div className="mono" style={{ fontSize: '1.2rem', fontWeight: 800, color: '#38bdf8' }}>
                     {balanceAlgo.toFixed(2)} ALGO
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '12px', borderRadius: '8px' }}>
+                <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '10px 12px', borderRadius: '8px' }}>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '2px' }}>USDC (ASA #10458941)</div>
-                  <div className="mono" style={{ fontSize: '1.25rem', fontWeight: 800, color: '#10b981' }}>
+                  <div className="mono" style={{ fontSize: '1.2rem', fontWeight: 800, color: '#10b981' }}>
                     ${balanceUsdc.toFixed(2)} USDC
                   </div>
                 </div>
@@ -223,8 +238,10 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
             {/* Action Buttons */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div style={{ display: 'flex', gap: '10px' }}>
-                <button
-                  onClick={handleClaimFaucet}
+                <a
+                  href="https://dispenser.testnet.algorand.network"
+                  target="_blank"
+                  rel="noreferrer"
                   style={{
                     flex: 1,
                     background: 'rgba(16, 185, 129, 0.15)',
@@ -234,16 +251,17 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                     padding: '10px',
                     fontWeight: 700,
                     fontSize: '0.82rem',
-                    cursor: 'pointer',
+                    textDecoration: 'none',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '6px'
                   }}
                 >
-                  <Zap size={15} />
-                  <span>{faucetClaimed ? '✓ Claimed +5.0 ALGO!' : '⚡ Faucet (+5 ALGO)'}</span>
-                </button>
+                  <Zap size={14} />
+                  <span>Get Free Testnet ALGO</span>
+                  <ExternalLink size={12} />
+                </a>
 
                 <button
                   onClick={handleRefresh}
@@ -287,7 +305,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                     gap: '6px'
                   }}
                 >
-                  <span>View on Lora Explorer</span>
+                  <span>View on LoRA Explorer</span>
                   <ExternalLink size={13} />
                 </a>
 
@@ -318,8 +336,8 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
           /* 2. PERA WALLETCONNECT QR CODE SCREEN                                      */
           /* ========================================================================= */
           <div>
-            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(234, 179, 8, 0.15)', border: '1px solid rgba(234, 179, 8, 0.4)', borderRadius: '16px', padding: '4px 12px', fontSize: '0.72rem', color: '#eab308', fontWeight: 700, marginBottom: '10px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(234, 179, 8, 0.15)', border: '1px solid rgba(234, 179, 8, 0.4)', borderRadius: '16px', padding: '4px 12px', fontSize: '0.72rem', color: '#eab308', fontWeight: 700, marginBottom: '8px' }}>
                 <Smartphone size={14} />
                 <span>Pera Mobile WalletConnect</span>
               </div>
@@ -329,37 +347,32 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
             </div>
 
             {/* QR Code Container */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#ffffff', padding: '20px', borderRadius: '14px', maxWidth: '240px', margin: '0 auto 20px auto', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#ffffff', padding: '16px', borderRadius: '14px', maxWidth: '220px', margin: '0 auto 16px auto', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
               <QRCodeSVG
                 value={peraConnectionUri}
-                size={200}
+                size={180}
                 level="M"
                 includeMargin={false}
               />
             </div>
 
             {/* Step-by-Step Instructions */}
-            <div style={{ background: 'var(--code-box-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#38bdf8', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ background: 'var(--code-box-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '14px', marginBottom: '16px' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#38bdf8', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Connection Instructions:
               </div>
               <ol style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', paddingLeft: '18px', margin: 0, lineHeight: 1.6 }}>
-                <li>Open the <strong>Pera Wallet</strong> app on your mobile device.</li>
+                <li>Open the <strong>Pera Wallet</strong> app on your mobile phone.</li>
                 <li>Tap the <strong>Scan / QR</strong> button in the top-right corner.</li>
                 <li>Point your camera at the QR code above.</li>
-                <li>Tap <strong>Approve</strong> in Pera Wallet to establish a session.</li>
+                <li>Tap <strong>Approve</strong> in Pera Wallet to authorize the session.</li>
               </ol>
             </div>
 
-            {/* Status & Actions */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#38bdf8', fontSize: '0.8rem', fontWeight: 600, marginBottom: '16px' }}>
-              <Loader2 size={16} className="animate-spin" />
-              <span>Waiting for wallet connection approval...</span>
-            </div>
-
+            {/* Actions */}
             <div style={{ display: 'flex', gap: '10px' }}>
               <button
-                onClick={handleConnectPeraDirect}
+                onClick={handleConnectPera}
                 style={{
                   flex: 1,
                   background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
@@ -402,8 +415,8 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
           /* 3. DEFLY WALLETCONNECT QR CODE SCREEN                                     */
           /* ========================================================================= */
           <div>
-            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(168, 85, 247, 0.15)', border: '1px solid rgba(168, 85, 247, 0.4)', borderRadius: '16px', padding: '4px 12px', fontSize: '0.72rem', color: '#c084fc', fontWeight: 700, marginBottom: '10px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(168, 85, 247, 0.15)', border: '1px solid rgba(168, 85, 247, 0.4)', borderRadius: '16px', padding: '4px 12px', fontSize: '0.72rem', color: '#c084fc', fontWeight: 700, marginBottom: '8px' }}>
                 <Smartphone size={14} />
                 <span>Defly Mobile Wallet</span>
               </div>
@@ -413,22 +426,22 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
             </div>
 
             {/* QR Code Container */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#ffffff', padding: '20px', borderRadius: '14px', maxWidth: '240px', margin: '0 auto 20px auto', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#ffffff', padding: '16px', borderRadius: '14px', maxWidth: '220px', margin: '0 auto 16px auto', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
               <QRCodeSVG
                 value={deflyConnectionUri}
-                size={200}
+                size={180}
                 level="M"
                 includeMargin={false}
               />
             </div>
 
             {/* Step-by-Step Instructions */}
-            <div style={{ background: 'var(--code-box-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#c084fc', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ background: 'var(--code-box-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '14px', marginBottom: '16px' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#c084fc', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Connection Instructions:
               </div>
               <ol style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', paddingLeft: '18px', margin: 0, lineHeight: 1.6 }}>
-                <li>Open the <strong>Defly Wallet</strong> app on your mobile device.</li>
+                <li>Open the <strong>Defly Wallet</strong> app on your mobile phone.</li>
                 <li>Tap <strong>Scan QR</strong> from the top navigation bar.</li>
                 <li>Point your camera at the QR code above.</li>
                 <li>Tap <strong>Connect</strong> to authorize CyberGuard AI on Testnet.</li>
@@ -437,7 +450,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
 
             <div style={{ display: 'flex', gap: '10px' }}>
               <button
-                onClick={handleConnectDeflyDirect}
+                onClick={handleConnectDefly}
                 style={{
                   flex: 1,
                   background: 'linear-gradient(135deg, #9333ea 0%, #4f46e5 100%)',
@@ -476,152 +489,141 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
           </div>
         ) : (
           /* ========================================================================= */
-          /* 4. WALLET PROVIDER SELECTION LIST                                         */
+          /* 4. WALLET PROVIDER SELECTION LIST (Reference Design)                      */
           /* ========================================================================= */
           <div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '20px' }}>
-              Select your Algorand wallet provider to authenticate on-chain micropayments for Deep Forensic Security Audits (0.1 ALGO via x402).
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '18px' }}>
+              Choose your preferred wallet provider to authenticate on-chain micropayments. Only supported networks are available.
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {/* Option 1: Pera Wallet (Primary) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {/* Option 1: Defly */}
               <button
-                onClick={() => setCurrentView('pera_qr')}
+                onClick={handleConnectDefly}
                 style={{
-                  background: 'radial-gradient(circle at 0% 0%, rgba(234, 179, 8, 0.15) 0%, var(--code-box-bg) 70%)',
-                  border: '1px solid rgba(234, 179, 8, 0.5)',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  textAlign: 'left',
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  padding: '14px 20px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'space-between',
-                  transition: 'all 0.2s',
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+                  justifyContent: 'center',
+                  gap: '12px',
+                  transition: 'all 0.15s ease',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#ffe600', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000000', fontWeight: 900, fontSize: '1.2rem', flexShrink: 0 }}>
-                    🟡
-                  </div>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '0.98rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                        Pera Mobile Wallet
-                      </span>
-                      <span style={{ fontSize: '0.65rem', background: 'rgba(234, 179, 8, 0.2)', color: '#eab308', padding: '1px 6px', borderRadius: '8px', fontWeight: 700 }}>
-                        RECOMMENDED
-                      </span>
-                    </div>
-                    <div className="mono" style={{ fontSize: '0.73rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                      QR Code &amp; WalletConnect pairing on Testnet
-                    </div>
-                  </div>
+                <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontWeight: 900, fontSize: '0.85rem' }}>
+                  ▲
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#eab308', fontSize: '0.8rem', fontWeight: 700 }}>
-                  <QrCode size={18} />
-                  <ArrowRight size={16} />
-                </div>
+                <span style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
+                  Defly
+                </span>
               </button>
 
-              {/* Option 2: Defly Wallet */}
+              {/* Option 2: Pera (Primary) */}
               <button
-                onClick={() => setCurrentView('defly_qr')}
+                onClick={handleConnectPera}
                 style={{
-                  background: 'radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.15) 0%, var(--code-box-bg) 70%)',
-                  border: '1px solid rgba(168, 85, 247, 0.4)',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  textAlign: 'left',
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  padding: '14px 20px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'space-between',
-                  transition: 'all 0.2s'
+                  justifyContent: 'center',
+                  gap: '12px',
+                  transition: 'all 0.15s ease',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#9333ea', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontWeight: 900, fontSize: '1.2rem', flexShrink: 0 }}>
-                    🟣
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                      Defly Wallet
-                    </div>
-                    <div style={{ fontSize: '0.73rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                      Mobile Algorand DeFi wallet with QR authorization
-                    </div>
-                  </div>
+                <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#ffe600', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000000', fontWeight: 900, fontSize: '0.85rem' }}>
+                  🟡
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#c084fc', fontSize: '0.8rem', fontWeight: 700 }}>
-                  <QrCode size={18} />
-                  <ArrowRight size={16} />
-                </div>
+                <span style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
+                  Pera
+                </span>
               </button>
 
-              {/* Option 3: 1-Click Testnet Demo Dispenser (For instant Evaluation) */}
+              {/* Option 3: Exodus */}
               <button
-                onClick={() => { connectDemoWallet(); onClose(); }}
+                onClick={handleConnectExodus}
                 style={{
-                  background: 'radial-gradient(circle at 0% 0%, rgba(6, 182, 212, 0.15) 0%, var(--code-box-bg) 70%)',
-                  border: '1px solid rgba(6, 182, 212, 0.4)',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  textAlign: 'left',
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  padding: '14px 20px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'space-between'
+                  justifyContent: 'center',
+                  gap: '12px',
+                  transition: 'all 0.15s ease',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', flexShrink: 0 }}>
-                    <Zap size={22} />
-                  </div>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                        1-Click Testnet Demo (Hackathon Jury)
-                      </span>
-                    </div>
-                    <div style={{ fontSize: '0.73rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                      Pre-loaded with 10.0 ALGO &amp; 50.0 USDC for instant testing
-                    </div>
-                  </div>
+                <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38bdf8', fontWeight: 900, fontSize: '0.85rem' }}>
+                  🔷
                 </div>
-                <ArrowRight size={16} color="#38bdf8" />
+                <span style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
+                  Exodus
+                </span>
               </button>
 
-              {/* Option 4: Custom Public Address */}
+              {/* Option 4: Lute */}
+              <button
+                onClick={handleConnectLute}
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  padding: '14px 20px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '12px',
+                  transition: 'all 0.15s ease',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                }}
+              >
+                <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6366f1', fontWeight: 900, fontSize: '0.85rem' }}>
+                  🟣
+                </div>
+                <span style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
+                  Lute
+                </span>
+              </button>
+
+              {/* Option 5: Custom Address */}
               <button
                 onClick={() => setCurrentView('custom')}
                 style={{
-                  background: 'var(--code-box-bg)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '12px',
-                  padding: '14px 16px',
-                  textAlign: 'left',
+                  background: 'transparent',
+                  border: '1px dashed var(--border-color)',
+                  borderRadius: '8px',
+                  padding: '10px 14px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'space-between'
+                  justifyContent: 'center',
+                  gap: '8px',
+                  marginTop: '4px'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <Wallet size={18} color="var(--text-secondary)" />
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                    Enter Custom Algorand Public Address
-                  </span>
-                </div>
-                <ArrowRight size={15} color="var(--text-muted)" />
+                <Wallet size={15} color="var(--text-secondary)" />
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                  Paste Algorand Public Address
+                </span>
               </button>
             </div>
 
             {/* Custom Address Form */}
             {currentView === 'custom' && (
-              <form onSubmit={handleCustomSubmit} style={{ marginTop: '16px', background: 'rgba(0,0,0,0.4)', padding: '16px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)', display: 'block', marginBottom: '8px' }}>
+              <form onSubmit={handleCustomSubmit} style={{ marginTop: '14px', background: 'rgba(0,0,0,0.4)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)', display: 'block', marginBottom: '6px' }}>
                   Enter 58-Character Algorand Testnet Address:
                 </label>
                 <input
@@ -638,7 +640,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                     padding: '10px 12px',
                     fontSize: '0.8rem',
                     color: 'var(--text-primary)',
-                    marginBottom: '12px',
+                    marginBottom: '10px',
                     outline: 'none'
                   }}
                 />
@@ -660,6 +662,24 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                 </button>
               </form>
             )}
+
+            {/* Resources Footer (Exact Reference Layout) */}
+            <div style={{ marginTop: '20px', paddingTop: '14px', borderTop: '1px solid var(--border-color)' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '6px' }}>
+                Resources
+              </div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', display: 'flex', flexWrap: 'wrap', gap: '8px', lineHeight: 1.6 }}>
+                <a href="https://goplausible.xyz" target="_blank" rel="noreferrer" style={{ color: '#38bdf8', textDecoration: 'none' }}>
+                  &rarr; Learn about x402
+                </a>
+                <a href="https://github.com/GoPlausible/.github" target="_blank" rel="noreferrer" style={{ color: '#38bdf8', textDecoration: 'none' }}>
+                  &rarr; x402 Paywall Examples
+                </a>
+                <a href="https://facilitator.goplausible.xyz" target="_blank" rel="noreferrer" style={{ color: '#38bdf8', textDecoration: 'none' }}>
+                  &rarr; Facilitator API Docs
+                </a>
+              </div>
+            </div>
           </div>
         )}
       </div>

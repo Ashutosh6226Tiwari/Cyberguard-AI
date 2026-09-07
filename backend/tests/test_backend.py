@@ -80,6 +80,14 @@ def test_unregistered_domain_handling():
     assert unregistered_intel.domain_age_days is None
     assert unregistered_intel.tls_valid is False
 
+def test_x402_challenge():
+    from app.payment.x402_algorand import x402_manager
+    challenge = x402_manager.create_payment_challenge("https://campuskart.shop", "case-test-1")
+    assert challenge.network == "algorand-testnet"
+    assert challenge.amount_microalgos == 100000
+    assert challenge.recipient_address == "MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY"
+    assert "WWW-Authenticate" not in challenge.x402_header or "x402" in challenge.x402_header
+
 if __name__ == "__main__":
     test_entropy()
     print("✓ test_entropy passed")
@@ -91,4 +99,6 @@ if __name__ == "__main__":
     print("✓ test_brand_contradiction passed")
     test_unregistered_domain_handling()
     print("✓ test_unregistered_domain_handling passed")
+    test_x402_challenge()
+    print("✓ test_x402_challenge passed")
     print("ALL BACKEND UNIT TESTS PASSED!")

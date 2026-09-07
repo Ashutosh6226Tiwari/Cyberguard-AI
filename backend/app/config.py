@@ -25,6 +25,16 @@ class Settings(BaseModel):
     RISK_THRESHOLD_MEDIUM: float = 40.0
     RISK_THRESHOLD_LOW: float = 15.0
 
+    # x402 & Algorand Testnet Settings
+    FACILITATOR_URL: str = os.getenv("FACILITATOR_URL", "https://facilitator.goplausible.xyz")
+    ALGOD_SERVER: str = os.getenv("ALGOD_SERVER", "https://testnet-api.algonode.cloud")
+    ALGOD_INDEXER: str = os.getenv("ALGOD_INDEXER", "https://testnet-idx.algonode.cloud")
+    NETWORK: str = os.getenv("NETWORK", "Algorand Testnet")
+    AVM_ADDRESS: str = os.getenv("AVM_ADDRESS", "MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY")
+    CYBERGUARD_TESTNET_RECEIVER: str = os.getenv("CYBERGUARD_TESTNET_RECEIVER", "MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY")
+    PREMIUM_AUDIT_PRICE_ALGO: float = float(os.getenv("PREMIUM_AUDIT_PRICE_ALGO", "0.1"))
+    PREMIUM_AUDIT_PRICE_MICROALGOS: int = int(os.getenv("PREMIUM_AUDIT_PRICE_MICROALGOS", "100000"))
+
 settings = Settings()
 os.makedirs(settings.SCREENSHOT_DIR, exist_ok=True)
 os.makedirs(os.path.dirname(settings.DATABASE_PATH), exist_ok=True)
