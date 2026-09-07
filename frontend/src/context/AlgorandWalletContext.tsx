@@ -37,7 +37,7 @@ export interface AlgorandWalletState {
 
 const CAIP2_TESTNET = 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=';
 const ALGOD_TESTNET_SERVER = 'https://testnet-api.algonode.cloud';
-const DEFAULT_TESTNET_RECEIVER = 'MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY';
+export const DEFAULT_TESTNET_RECEIVER = 'MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY';
 
 const AlgorandWalletContext = createContext<AlgorandWalletState | undefined>(undefined);
 const STORAGE_KEY = 'cyberguard_algorand_wallet';
@@ -66,8 +66,10 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
       pera.reconnectSession().then((accounts) => {
         if (accounts && accounts.length > 0) {
           const mainAddr = accounts[0];
-          persistState(true, mainAddr, 0, 0, 'pera');
-          fetchOnChainBalances(mainAddr);
+          if (mainAddr && mainAddr.length === 58) {
+            persistState(true, mainAddr, 0, 0, 'pera');
+            fetchOnChainBalances(mainAddr);
+          }
         }
       }).catch((err) => {
         console.info('No active Pera session to reconnect:', err);
@@ -81,20 +83,21 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
       console.warn('Could not initialize PeraWalletConnect:', e);
     }
 
-    // Load from localStorage if available
+    // Load from localStorage if available (Strict validation: only accept 58-character Algorand addresses)
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.isConnected && parsed.address) {
+        if (parsed.isConnected && parsed.address && typeof parsed.address === 'string' && parsed.address.length === 58) {
           setIsConnected(true);
           setAddress(parsed.address);
           setBalanceAlgo(parsed.balanceAlgo ?? 0.0);
           setBalanceUsdc(parsed.balanceUsdc ?? 0.0);
           setWalletType(parsed.walletType || 'pera');
-          if (parsed.address.length === 58) {
-            fetchOnChainBalances(parsed.address);
-          }
+          fetchOnChainBalances(parsed.address);
+        } else {
+          // Clear invalid/stale mock address
+          localStorage.removeItem(STORAGE_KEY);
         }
       }
     } catch (e) {
@@ -119,6 +122,7 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
   };
 
   const fetchOnChainBalances = async (addr: string) => {
+    if (!addr || addr.length !== 58) return;
     try {
       const accountInfo = await algodClientRef.current.accountInformation(addr).do();
       const algo = (accountInfo.amount || 0) / 1_000_000;
@@ -154,10 +158,12 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
       const accounts = await peraWalletRef.current.connect();
       if (accounts && accounts.length > 0) {
         const connectedAddr = accounts[0];
-        persistState(true, connectedAddr, 0.0, 0.0, 'pera');
-        await fetchOnChainBalances(connectedAddr);
-        setIsConnecting(false);
-        return connectedAddr;
+        if (connectedAddr && connectedAddr.length === 58) {
+          persistState(true, connectedAddr, 0.0, 0.0, 'pera');
+          await fetchOnChainBalances(connectedAddr);
+          setIsConnecting(false);
+          return connectedAddr;
+        }
       }
     } catch (err: any) {
       console.warn('Pera connection error or cancelled by user:', err);
@@ -226,11 +232,9 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
 
   const connectCustomWallet = (customAddress: string) => {
     const clean = customAddress.trim().toUpperCase();
-    if (!clean || clean.length < 20) return;
+    if (!clean || clean.length !== 58) return;
     persistState(true, clean, 0.0, 0.0, 'custom');
-    if (clean.length === 58) {
-      fetchOnChainBalances(clean);
-    }
+    fetchOnChainBalances(clean);
   };
 
   const disconnectWallet = async () => {
@@ -262,7 +266,8 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
     amountAlgo: number = 0.1,
     noteText: string = 'CyberGuard AI x402 Deep Audit'
   ): Promise<PaymentSubmissionResult> => {
-    const sender = address || DEFAULT_TESTNET_RECEIVER;
+    const sender = (address && address.length === 58) ? address : DEFAULT_TESTNET_RECEIVER;
+    const recipientAddr = (recipient && recipient.length === 58) ? recipient : DEFAULT_TESTNET_RECEIVER;
     const amountMicroAlgos = Math.round(amountAlgo * 1_000_000);
 
     // 1. If connected with real Pera Wallet, request signature from mobile app
@@ -273,7 +278,7 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
 
         const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
           from: sender,
-          to: recipient,
+          to: recipientAddr,
           amount: amountMicroAlgos,
           suggestedParams,
           note
@@ -296,7 +301,7 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
           txId,
           confirmedRound,
           senderAddress: sender,
-          recipientAddress: recipient,
+          recipientAddress: recipientAddr,
           amountAlgo,
           explorerUrl: `https://lora.algokit.io/testnet/transaction/${txId}`
         };
@@ -313,7 +318,7 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
 
       const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
         from: sender,
-        to: recipient,
+        to: recipientAddr,
         amount: amountMicroAlgos,
         suggestedParams,
         note
@@ -327,7 +332,7 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
         txId,
         confirmedRound,
         senderAddress: sender,
-        recipientAddress: recipient,
+        recipientAddress: recipientAddr,
         amountAlgo,
         explorerUrl: `https://lora.algokit.io/testnet/transaction/${txId}`
       };
