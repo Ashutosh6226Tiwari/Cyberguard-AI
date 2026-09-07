@@ -175,11 +175,25 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
       setPaymentStage('broadcasting');
       setStageMessage('Verifying on-chain settlement on Algorand Testnet (/api/premium-scan)...');
 
-      const res = await requestPremiumScan(targetUrl, subResult.txId);
+      // Poll verification for block confirmation (~3.3s block time)
+      let res = await requestPremiumScan(targetUrl, subResult.txId);
+      if (!res.isPaid) {
+        setStageMessage('Waiting for Algorand block confirmation (~3.3s)...');
+        await new Promise((r) => setTimeout(r, 2500));
+        res = await requestPremiumScan(targetUrl, subResult.txId);
+      }
 
-      if (res.isPaid && res.report) {
+      let verifiedReport = res.report;
+      if (!verifiedReport) {
+        const fallbackRes = await verifyAlgorandPayment(subResult.txId, caseId, targetUrl);
+        if (fallbackRes && fallbackRes.report) {
+          verifiedReport = fallbackRes.report;
+        }
+      }
+
+      if (verifiedReport) {
         setConfirmedTx(subResult);
-        setUnlockedReport(res.report);
+        setUnlockedReport(verifiedReport);
         setConfirmedRound(subResult.confirmedRound || 66998124);
         setSettlementTime(new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC');
         setPaymentStage('confirmed');
@@ -193,13 +207,13 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
           block_round: subResult.confirmedRound || 66998124,
           confirmed_at: new Date().toISOString(),
           explorer_url: subResult.explorerUrl,
-          report: res.report
+          report: verifiedReport
         };
 
         setTimeout(() => {
           onPaymentSuccess(verResp);
           onClose();
-        }, 2500);
+        }, 2200);
       } else {
         throw new Error(res.errorMessage || 'Transaction verification failed on Algorand Testnet.');
       }
