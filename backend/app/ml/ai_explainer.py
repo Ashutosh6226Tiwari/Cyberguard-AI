@@ -126,12 +126,12 @@ async def ask_cyber_copilot(
     report = report or {}
     domain = report.get("canonical_domain") or report.get("domain") or "target website"
     verdict = report.get("verdict") or "UNKNOWN"
-    risk_score = report.get("overall_risk_score") or 0
+    risk_score = report.get("overall_risk_score") or report.get("basic_risk_score") or report.get("risk_score") or 0
     security_audit = report.get("security_audit") or {}
-    grade = security_audit.get("security_grade") or security_audit.get("grade") or "N/A"
+    grade = security_audit.get("security_grade") or security_audit.get("grade") or report.get("security_grade") or "N/A"
     missing_headers = [f.get("name") for f in security_audit.get("findings", []) if isinstance(f, dict) and f.get("status") in ["FAIL", "WARNING"]]
     brand = report.get("brand_analysis") or {}
-    brand_matched = brand.get("brand_display_name")
+    brand_matched = brand.get("brand_display_name") or brand.get("matched_brand") or brand.get("brand") or None
     is_contradiction = brand.get("is_contradiction", False)
     contradiction_explanation = brand.get("contradiction_explanation", "")
 
@@ -199,18 +199,31 @@ Be concise, authoritative, professional, and actionable. Use markdown formatting
         else:
             reply = f"✅ **Target is verified benign / authentic.**\n\n`{domain}` has an authentic registration profile and consistent brand identity (Risk Score: **{risk_score}/100**). However, ensure your browser shows a secure green padlock (`https://`) before authenticating."
 
-    elif "grade" in msg_lower or "posture" in msg_lower or "f" in msg_lower or "score" in msg_lower or "why" in msg_lower:
-        if security_audit:
-            reply = f"🛡️ **Security Grade Breakdown for `{domain}` ({grade} - {security_audit.get('score_percentage', 0)}% Pass Rate):**\n\n"
-            reply += f"The grade evaluates essential defensive HTTP headers that immunize your website against attacker exploits:\n"
-            for f in security_audit.get("findings", []):
-                icon = "✅" if f.get("status") == "PASS" else "❌" if f.get("status") == "FAIL" else "⚠️"
-                reply += f"- {icon} **{f.get('name')}**: {f.get('exploit_risk')}\n"
-            reply += f"\n**Key Weakness:** {security_audit.get('hacker_perspective_summary', 'Missing key security headers.')}"
-        else:
-            reply = f"The domain `{domain}` received a threat score of **{risk_score}/100** with verdict **{verdict}** based on multi-signal neural fusion across lexical entropy, brand logo vision, and domain registration age."
+    elif "nginx" in msg_lower or "apache" in msg_lower or "cloudflare" in msg_lower or "config" in msg_lower or "hardening" in msg_lower or "header" in msg_lower:
+        reply = (
+            f"⚙️ **Hardening Configuration Snippet for `{domain}`:**\n\n"
+            "**Nginx Configuration (Inside `server {{ ... }}` block):**\n"
+            "```nginx\n"
+            "add_header X-Frame-Options \"SAMEORIGIN\" always;\n"
+            "add_header X-Content-Type-Options \"nosniff\" always;\n"
+            "add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains; preload\" always;\n"
+            "add_header Content-Security-Policy \"default-src 'self' https: data:; script-src 'self' 'unsafe-inline' https:; object-src 'none';\" always;\n"
+            "add_header Referrer-Policy \"strict-origin-when-cross-origin\" always;\n"
+            "```\n\n"
+            "**Apache `.htaccess`:**\n"
+            "```apache\n"
+            "Header always set X-Frame-Options SAMEORIGIN\n"
+            "Header always set X-Content-Type-Options nosniff\n"
+            "Header always set Strict-Transport-Security \"max-age=31536000; includeSubDomains; preload\"\n"
+            "Header always set Content-Security-Policy \"default-src 'self' https: data:; object-src 'none';\"\n"
+            "```\n\n"
+            "**Cloudflare Transform Rule (Rules → Transform Rules → Modify Response Header):**\n"
+            "- Set `Strict-Transport-Security` to `max-age=31536000; includeSubDomains; preload`\n"
+            "- Set `X-Frame-Options` to `SAMEORIGIN`\n"
+            "- Set `X-Content-Type-Options` to `nosniff`"
+        )
 
-    elif "code injection" in msg_lower or "xss" in msg_lower or "csp" in msg_lower:
+    elif "code injection" in msg_lower or "xss" in msg_lower or "csp" in msg_lower or "inject" in msg_lower:
         reply = (
             "🔒 **How to Immunize Your Website Against Code Injection (XSS):**\n\n"
             "Code injection occurs when an attacker injects unauthorized JavaScript into your web pages to hijack user sessions or capture keystrokes. "
@@ -236,22 +249,17 @@ Be concise, authoritative, professional, and actionable. Use markdown formatting
             "```"
         )
 
-    elif "nginx" in msg_lower or "apache" in msg_lower or "cloudflare" in msg_lower or "fix" in msg_lower or "config" in msg_lower:
-        reply = (
-            f"⚙️ **Hardening Configuration Snippet for `{domain}`:**\n\n"
-            "**Nginx Configuration (Inside `server {{ ... }}` block):**\n"
-            "```nginx\n"
-            "add_header X-Frame-Options \"SAMEORIGIN\" always;\n"
-            "add_header X-Content-Type-Options \"nosniff\" always;\n"
-            "add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains; preload\" always;\n"
-            "add_header Content-Security-Policy \"default-src 'self' https: data:; script-src 'self' 'unsafe-inline' https:; object-src 'none';\" always;\n"
-            "add_header Referrer-Policy \"strict-origin-when-cross-origin\" always;\n"
-            "```\n\n"
-            "**Cloudflare Transform Rule (Rules → Transform Rules → Modify Response Header):**\n"
-            "- Set `Strict-Transport-Security` to `max-age=31536000; includeSubDomains; preload`\n"
-            "- Set `X-Frame-Options` to `SAMEORIGIN`\n"
-            "- Set `X-Content-Type-Options` to `nosniff`"
-        )
+    elif "fix" in msg_lower or "grade" in msg_lower or "posture" in msg_lower or "score" in msg_lower or "why" in msg_lower:
+        if security_audit:
+            reply = f"🛡️ **Security Grade Breakdown for `{domain}` ({grade} - {security_audit.get('score_percentage', 0)}% Pass Rate):**\n\n"
+            reply += "The grade evaluates essential defensive HTTP headers that immunize your website against attacker exploits:\n"
+            for finding in security_audit.get("findings", []):
+                icon = "✅" if finding.get("status") == "PASS" else "❌" if finding.get("status") == "FAIL" else "⚠️"
+                reply += f"- {icon} **{finding.get('name')}**: {finding.get('exploit_risk')}\n"
+            reply += f"\n**Key Weakness:** {security_audit.get('hacker_perspective_summary', 'Missing key security headers.')}"
+            reply += f"\n\nUse the **Nginx / Cloudflare hardening config** above to immediately fix these gaps."
+        else:
+            reply = f"The domain `{domain}` received a threat score of **{risk_score}/100** with verdict **{verdict}** based on multi-signal neural fusion across lexical entropy, brand logo vision, and domain registration age."
 
     elif "brand" in msg_lower or "contradiction" in msg_lower or "logo" in msg_lower:
         reply = (
