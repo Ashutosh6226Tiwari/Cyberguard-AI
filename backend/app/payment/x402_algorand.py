@@ -328,13 +328,6 @@ class X402Manager:
             return {"success": False, "error": "Unable to broadcast transaction to Algorand Testnet nodes."}
         except Exception as e:
             return {"success": False, "error": str(e)}
-                if res.status_code == 200:
-                    data = res.json()
-                    return {"success": True, "txId": data.get("txId"), "error": None}
-                else:
-                    return {"success": False, "error": res.text, "status_code": res.status_code}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
 
     def is_case_paid(self, case_id: str) -> bool:
         return case_id in self._verified_sessions
