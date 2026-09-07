@@ -5,6 +5,7 @@ import time
 import zipfile
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
+from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException, Header, Response
 from fastapi.responses import JSONResponse, PlainTextResponse, StreamingResponse
 
