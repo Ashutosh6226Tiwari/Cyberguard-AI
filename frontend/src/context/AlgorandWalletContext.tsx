@@ -297,14 +297,16 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
 
     const firstValid = rawParams?.firstValid ?? rawParams?.firstRound ?? rawParams?.['last-round'] ?? 66998000n;
     const lastValid = rawParams?.lastValid ?? rawParams?.lastRound ?? (BigInt(firstValid) + 1000n);
-    const fee = rawParams?.fee ?? 1000n;
-    const minFee = rawParams?.minFee ?? rawParams?.['min-fee'] ?? 1000n;
+    const minFeeVal = BigInt(rawParams?.minFee ?? rawParams?.['min-fee'] ?? 1000);
+    const rawFeeVal = BigInt(rawParams?.fee ?? 1000);
+    const effectiveFee = rawFeeVal >= minFeeVal && rawFeeVal >= 1000n ? rawFeeVal : (minFeeVal >= 1000n ? minFeeVal : 1000n);
+
     const genesisID = rawParams?.genesisID ?? rawParams?.['genesis-id'] ?? 'testnet-v1.0';
     const genesisHash = rawParams?.genesisHash ?? new Uint8Array(Buffer.from('SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=', 'base64'));
 
     const suggestedParams = {
-      fee: BigInt(fee),
-      minFee: BigInt(minFee),
+      fee: effectiveFee,
+      minFee: minFeeVal >= 1000n ? minFeeVal : 1000n,
       firstValid: BigInt(firstValid),
       lastValid: BigInt(lastValid),
       genesisID,

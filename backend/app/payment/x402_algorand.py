@@ -287,12 +287,16 @@ class X402Manager:
         return {"address": clean_addr, "algo": 0.0, "usdc": 0.0, "amount_microalgos": 0}
 
     async def get_suggested_params(self) -> Dict[str, Any]:
-        """Fetches live suggested parameters from Algorand Testnet node."""
+        """Fetches live suggested parameters from Algorand Testnet node with min 1000 uALGO fee."""
         try:
             async with httpx.AsyncClient(timeout=5.0) as client:
                 res = await client.get(f"{settings.ALGOD_SERVER}/v2/transactions/params")
                 if res.status_code == 200:
-                    return res.json()
+                    data = res.json()
+                    min_fee = max(1000, data.get("min-fee", 1000))
+                    data["min-fee"] = min_fee
+                    data["fee"] = max(min_fee, data.get("fee", 0))
+                    return data
         except Exception:
             pass
         return {
