@@ -121,11 +121,18 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
     }));
   };
 
+  const getBackendUrl = (path: string) => {
+    if (typeof window !== 'undefined' && (window.location.port === '5173' || window.location.hostname === 'localhost')) {
+      return `http://${window.location.hostname}:8000/api${path}`;
+    }
+    return `/api${path}`;
+  };
+
   const fetchOnChainBalances = async (addr: string) => {
     if (!addr || addr.length !== 58) return;
     try {
       // 1. Try Backend Proxy first
-      const proxyResp = await fetch(`/api/payment/account-balance/${addr}`).catch(() => null);
+      const proxyResp = await fetch(getBackendUrl(`/payment/account-balance/${addr}`)).catch(() => null);
       if (proxyResp && proxyResp.ok) {
         const data = await proxyResp.json();
         setBalanceAlgo(data.algo || 0.0);
@@ -285,7 +292,7 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
     // Fetch and normalize suggested parameters from Algorand Testnet node
     let rawParams: any = null;
     try {
-      const pResp = await fetch('/api/payment/params').catch(() => null);
+      const pResp = await fetch(getBackendUrl('/payment/params')).catch(() => null);
       if (pResp && pResp.ok) {
         rawParams = await pResp.json();
       } else {

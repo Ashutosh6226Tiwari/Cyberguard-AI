@@ -9,7 +9,16 @@ import type {
   BenchmarkSample
 } from '../types';
 
-const API_BASE = '/api';
+const getApiBase = () => {
+  if (typeof window !== 'undefined') {
+    if (window.location.port === '5173' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return `http://${window.location.hostname}:8000/api`;
+    }
+  }
+  return '/api';
+};
+
+const API_BASE = getApiBase();
 
 // In-memory cache for deterministic repeatability across rapid repeated scans
 const auditCache = new Map<string, RiskScoreReport>();
