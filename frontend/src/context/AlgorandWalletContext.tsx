@@ -122,10 +122,12 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
   };
 
   const getBackendUrl = (path: string) => {
-    if (typeof window !== 'undefined' && (window.location.port === '5173' || window.location.hostname === 'localhost')) {
-      return `http://${window.location.hostname}:8000/api${path}`;
+    if (typeof window !== 'undefined') {
+      const host = window.location.hostname;
+      const targetHost = (host === '0.0.0.0' || host === 'localhost' || !host) ? '127.0.0.1' : host;
+      return `http://${targetHost}:8000/api${path}`;
     }
-    return `/api${path}`;
+    return `http://127.0.0.1:8000/api${path}`;
   };
 
   const fetchOnChainBalances = async (addr: string) => {
