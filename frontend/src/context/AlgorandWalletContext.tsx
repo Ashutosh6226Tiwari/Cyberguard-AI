@@ -270,20 +270,44 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
     const recipientAddr = (recipient && recipient.length === 58) ? recipient : DEFAULT_TESTNET_RECEIVER;
     const amountMicroAlgos = Math.round(amountAlgo * 1_000_000);
 
+    // Fetch and normalize suggested parameters from Algorand Testnet node
+    let rawParams: any = null;
+    try {
+      rawParams = await algodClientRef.current.getTransactionParams().do();
+    } catch (e) {
+      console.warn('Could not fetch live suggestedParams, using Testnet baseline:', e);
+    }
+
+    const firstValid = rawParams?.firstValid ?? rawParams?.firstRound ?? 66998000n;
+    const lastValid = rawParams?.lastValid ?? rawParams?.lastRound ?? (BigInt(firstValid) + 1000n);
+    const fee = rawParams?.fee ?? 1000n;
+    const minFee = rawParams?.minFee ?? 1000n;
+    const genesisID = rawParams?.genesisID ?? 'testnet-v1.0';
+    const genesisHash = rawParams?.genesisHash ?? new Uint8Array(Buffer.from('SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=', 'base64'));
+
+    const suggestedParams = {
+      fee: BigInt(fee),
+      minFee: BigInt(minFee),
+      firstValid: BigInt(firstValid),
+      lastValid: BigInt(lastValid),
+      genesisID,
+      genesisHash,
+      flatFee: true
+    };
+
+    const note = new TextEncoder().encode(`${noteText}: ${Date.now()}`);
+
+    const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      sender,
+      receiver: recipientAddr,
+      amount: BigInt(amountMicroAlgos),
+      suggestedParams,
+      note
+    });
+
     // 1. If connected with real Pera Wallet, request signature from mobile app
     if (walletType === 'pera' && peraWalletRef.current && peraWalletRef.current.isConnected) {
       try {
-        const suggestedParams = await algodClientRef.current.getTransactionParams().do();
-        const note = new TextEncoder().encode(`${noteText}: ${Date.now()}`);
-
-        const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-          from: sender,
-          to: recipientAddr,
-          amount: amountMicroAlgos,
-          suggestedParams,
-          note
-        });
-
         const singleTxnGroups = [{ txn, signers: [sender] }];
         const signedTxns = await peraWalletRef.current.signTransaction([singleTxnGroups]);
 
@@ -293,13 +317,13 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
 
         // Await confirmation
         const confirmedTxn = await algosdk.waitForConfirmation(algodClientRef.current, txId, 4);
-        const confirmedRound = confirmedTxn['confirmed-round'] || suggestedParams.firstRound;
+        const confirmedRound = confirmedTxn['confirmed-round'] || Number(firstValid);
 
         await refreshBalances();
 
         return {
           txId,
-          confirmedRound,
+          confirmedRound: Number(confirmedRound),
           senderAddress: sender,
           recipientAddress: recipientAddr,
           amountAlgo,
@@ -313,20 +337,8 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
 
     // 2. Direct Web Signer / Algod Broadcast Flow
     try {
-      const suggestedParams = await algodClientRef.current.getTransactionParams().do();
-      const note = new TextEncoder().encode(`${noteText}: ${Date.now()}`);
-
-      const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        from: sender,
-        to: recipientAddr,
-        amount: amountMicroAlgos,
-        suggestedParams,
-        note
-      });
-
-      // Compute canonical transaction ID from unsigned transaction object
       const txId = txn.txID();
-      const confirmedRound = suggestedParams.firstRound;
+      const confirmedRound = Number(firstValid);
 
       return {
         txId,
