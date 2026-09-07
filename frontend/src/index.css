@@ -355,6 +355,61 @@ body.light-theme .cyber-gradient-text {
   animation-play-state: paused;
 }
 
+/* Ambient Cyber Orbs & Particle Drift */
+@keyframes ambient-drift {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.1); }
+  66% { transform: translate(-25px, 20px) scale(0.95); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.ambient-orb-cyan {
+  position: fixed;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.07) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+  top: 10%;
+  left: -100px;
+  animation: ambient-drift 18s ease-in-out infinite;
+}
+
+.ambient-orb-purple {
+  position: fixed;
+  width: 550px;
+  height: 550px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.06) 0%, transparent 70%);
+  filter: blur(70px);
+  pointer-events: none;
+  z-index: 0;
+  bottom: 15%;
+  right: -120px;
+  animation: ambient-drift 22s ease-in-out infinite reverse;
+}
+
+/* Card Scroll Stacking Effects */
+.card-stack-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.card-stack-item {
+  position: sticky;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.card-stack-item:hover {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 240, 255, 0.2);
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

@@ -335,6 +335,10 @@ export function App() {
         {/* Subtle Background Matrix Canvas */}
         <MatrixBackground opacity={0.22} themeMode={theme} />
 
+        {/* Ambient Floating Cyber Orbs */}
+        <div className="ambient-orb-cyan" />
+        <div className="ambient-orb-purple" />
+
         <Header
           activeTab={activeTab}
           setActiveTab={setActiveTab}

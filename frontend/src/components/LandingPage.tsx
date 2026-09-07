@@ -15,7 +15,8 @@ import {
   Zap,
   Cpu,
   Coins,
-  Search
+  Search,
+  LayoutGrid
 } from 'lucide-react';
 import { InfoTooltip } from './InfoTooltip';
 
@@ -34,6 +35,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 }) => {
   const [quickUrl, setQuickUrl] = useState('');
   const [activePipelineStep, setActivePipelineStep] = useState<number>(0);
+  const [cardViewMode, setCardViewMode] = useState<'stack' | 'grid'>('stack');
 
   const sampleTargets = [
     {
@@ -116,17 +118,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const capabilityCards = [
     {
       id: 'brand-contradiction',
+      step: '01',
       title: 'Brand-Domain Contradiction Engine',
       subtitle: 'Visual & Identity Verification',
       badge: 'PROPRIETARY',
       description: 'Detects when a page imitates the logos and visual identity of trusted brands (e.g. PayPal, Apple, Microsoft, Chase) while operating on an unauthorized, deceptive domain.',
-      icon: <AlertTriangle size={22} color="#ef4444" />,
+      icon: <AlertTriangle size={24} color="#ef4444" />,
       iconBg: 'rgba(239, 68, 68, 0.15)',
       iconBorder: 'rgba(239, 68, 68, 0.4)',
       glowColor: 'rgba(239, 68, 68, 0.25)',
       quote: '"Imitates Bank of America, but domain is unauthorized .xyz"',
       quoteColor: '#ef4444',
       quoteBorder: '#ef4444',
+      tags: ['pHash 64-bit DCT', 'Visual Logo Catalog', 'Domain Impersonation', 'Brand Spoof Guard'],
       tooltip: {
         title: 'Brand-Domain Contradiction',
         description: 'Uses perceptual hashing (pHash) and visual logo matching to compare page visuals against a verified brand catalog. Detects deceptive impersonation.',
@@ -136,17 +140,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     },
     {
       id: 'attack-chain',
+      step: '02',
       title: 'Explainable Attack-Chain Reconstruction',
       subtitle: '7-Stage Forensic Path',
       badge: 'FORENSICS',
       description: 'Reconstructs a step-by-step forensic graph linking Ingress → DNS Infrastructure → Redirects → Landing DOM → Credential Forms → Exfiltration channels.',
-      icon: <GitCommit size={22} color="var(--accent-cyan)" />,
+      icon: <GitCommit size={24} color="var(--accent-cyan)" />,
       iconBg: 'rgba(0, 240, 255, 0.15)',
       iconBorder: 'rgba(0, 240, 255, 0.4)',
       glowColor: 'rgba(0, 240, 255, 0.25)',
       quote: 'Step 1 (Ingress) → Step 5 (Credential Hook) → Step 7 (Verdict)',
       quoteColor: 'var(--accent-cyan)',
       quoteBorder: 'var(--accent-cyan)',
+      tags: ['Ingress Link', 'Google DoH DNS', 'HTTP Redirect Bounces', 'Credential Form Traps'],
       tooltip: {
         title: '7-Stage Attack Chain Reconstruction',
         description: 'Maps the entire adversary lifecycle: Ingress Link, DNS Hosting, HTTP Redirect Bounces, Deceptive Landing DOM, Password Form Injection, and Data Exfiltration.',
@@ -156,17 +162,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     },
     {
       id: 'risk-fusion',
+      step: '03',
       title: 'Multi-Signal Calibrated Risk Fusion',
       subtitle: '0-100 Probability Vector',
       badge: 'ML CALIBRATION',
       description: 'Fuses 5 independent vectors: Lexical ML features, Domain Age & DNS, DOM password forms, Visual Brand confidence, and Threat Intel into a unified 0–100 risk score.',
-      icon: <Layers size={22} color="#3b82f6" />,
+      icon: <Layers size={24} color="#3b82f6" />,
       iconBg: 'rgba(59, 130, 246, 0.15)',
       iconBorder: 'rgba(59, 130, 246, 0.4)',
       glowColor: 'rgba(59, 130, 246, 0.25)',
       quote: 'Weighted contribution breakdown (+/- pts) for every signal',
       quoteColor: 'var(--accent-green)',
       quoteBorder: 'var(--accent-green)',
+      tags: ['24-D Lexical Tensor', 'Platt Scaling Calibration', 'Shannon Entropy', 'Point Scoring Breakdown'],
       tooltip: {
         title: 'Calibrated Risk Scoring (0–100)',
         description: 'Combines ML lexical probabilities with forensic evidence points. Employs Platt scaling to prevent false positives and provide calibrated probability.',
@@ -176,11 +184,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     },
     {
       id: 'security-audit',
+      step: '04',
       title: 'Website Exploitability & Security Audit',
       subtitle: 'Defensive Posture Rating',
       badge: 'WEBSITE DEFENSE',
       description: 'Website owners can check their own domain defense posture: Clickjacking immunity (X-Frame-Options), Email spoofing resistance (SPF/DMARC), CSP, and HSTS.',
-      icon: <Lock size={22} color="var(--accent-green)" />,
+      icon: <Lock size={24} color="var(--accent-green)" />,
       iconBg: 'rgba(0, 255, 136, 0.15)',
       iconBorder: 'rgba(0, 255, 136, 0.4)',
       glowColor: 'rgba(0, 255, 136, 0.25)',
@@ -189,6 +198,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       quoteBorder: '#f59e0b',
       actionText: 'Audit Your Own Domain',
       onAction: onLaunchScanner,
+      tags: ['HSTS & CSP Headers', 'Clickjacking Immune', 'SPF/DMARC Spoof Defense', 'Executive Security Grade'],
       tooltip: {
         title: 'Website Exploitability Audit',
         description: 'Inspects HTTP security headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options) and DNS records (SPF, DMARC) to calculate an executive security grade.',
@@ -198,11 +208,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     },
     {
       id: 'nrd-stream',
+      step: '05',
       title: 'Newly Registered Domain (NRD) Stream',
       subtitle: 'High-Throughput Early-Warning',
       badge: 'STREAM FEED',
       description: 'High-throughput early-warning stream prioritizing unknown candidates hitting DNS logs and Certificate Transparency feeds before phishing campaigns go viral.',
-      icon: <Activity size={22} color="#f97316" />,
+      icon: <Activity size={24} color="#f97316" />,
       iconBg: 'rgba(249, 115, 22, 0.15)',
       iconBorder: 'rgba(249, 115, 22, 0.4)',
       glowColor: 'rgba(249, 115, 22, 0.25)',
@@ -211,6 +222,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       quoteBorder: '#f97316',
       actionText: 'Explore NRD Stream',
       onAction: onOpenDiscovery,
+      tags: ['CertStream Feed', '< 30d Quarantine', 'Sub-10ms Triage', 'Playwright Sandbox Escalation'],
       tooltip: {
         title: 'Newly Registered Domain (NRD) Pipeline',
         description: 'Ingests real-time domain creation feeds. Over 70% of zero-day attacks occur on domains under 30 days old. Filters malicious targets via sub-10ms lexical heuristics.',
@@ -220,11 +232,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     },
     {
       id: 'chrome-ext',
+      step: '06',
       title: 'Real-Time Chrome Browser Extension',
       subtitle: 'Endpoint Client Protection',
       badge: 'ENDPOINT AGENT',
       description: 'Manifest V3 sidecar auditing active tabs in real-time. Displays threat warning banners, visual trust gauges, and seamless 1-click inspection routing.',
-      icon: <Puzzle size={22} color="#c084fc" />,
+      icon: <Puzzle size={24} color="#c084fc" />,
       iconBg: 'rgba(192, 132, 252, 0.15)',
       iconBorder: 'rgba(192, 132, 252, 0.4)',
       glowColor: 'rgba(192, 132, 252, 0.25)',
@@ -233,6 +246,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       quoteBorder: '#c084fc',
       actionText: 'Download Extension',
       onAction: onOpenExtension,
+      tags: ['Manifest V3 Sidecar', 'Silent Tab Audit', 'Visual Trust Gauge', 'Instant Deep-Dive Routing'],
       tooltip: {
         title: 'Real-Time Chrome Browser Extension',
         description: 'Browser sidecar that audits active tabs in real-time. Features badge alerts, threat warnings, and direct 1-click launch to the CyberGuard AI command center.',
@@ -781,132 +795,378 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </motion.div>
 
-      {/* 5. Cyber Defense Capabilities Grid Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
-        <h2 className="cyber-font neon-cyan-glow" style={{ fontSize: '1.15rem', fontWeight: 800, letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Terminal size={20} color="var(--accent-cyan)" />
-          <span>CYBER DEFENSE &amp; INTELLIGENCE CAPABILITIES</span>
-          <InfoTooltip
-            title="Cyber Defense Capabilities Suite"
-            description="Explore all 6 modular defense systems operating in parallel inside the CyberGuard AI core engine."
-            position="right"
-          />
-        </h2>
-      </div>
+      {/* 5. Cyber Defense Capabilities Header with Card View Mode Switcher */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '14px' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Terminal size={22} color="var(--accent-cyan)" />
+            <h2 className="cyber-font neon-cyan-glow" style={{ fontSize: '1.2rem', fontWeight: 900, letterSpacing: '0.04em' }}>
+              CYBER DEFENSE CAPABILITY STACK
+            </h2>
+            <InfoTooltip
+              title="Cyber Defense Capability Stack"
+              description="Scroll down to peel through each modular defense layer in the zero-trust pipeline, or toggle to the expanded grid view."
+              position="right"
+            />
+          </div>
+          <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            Scroll through the 6 defensive modules or select any layer to inspect technical forensics
+          </p>
+        </div>
 
-      {/* 6. Staggered Animated Capability Cards */}
-      <div className="feature-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
-        {capabilityCards.map((card, index) => (
-          <motion.div
-            key={card.id}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: 0.45, delay: index * 0.08 }}
-            whileHover={{ y: -6, scale: 1.02, transition: { duration: 0.2 } }}
-            className="glass-panel cyber-card-hover"
+        {/* View Mode Toggle Switcher */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--code-box-bg)', border: '1px solid var(--border-color)', padding: '4px', borderRadius: '12px' }}>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setCardViewMode('stack')}
             style={{
-              padding: '24px',
-              borderRadius: '14px',
+              background: cardViewMode === 'stack' ? 'linear-gradient(135deg, #00f0ff 0%, #0284c7 100%)' : 'transparent',
+              color: cardViewMode === 'stack' ? '#070a10' : 'var(--text-secondary)',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '7px 16px',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              cursor: 'pointer',
               display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              position: 'relative'
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: cardViewMode === 'stack' ? '0 0 16px rgba(0, 240, 255, 0.4)' : 'none',
+              transition: 'all 0.2s'
             }}
           >
-            <div>
-              {/* Card Top Row */}
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '14px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Layers size={15} />
+            <span className="cyber-font">STACKED SCROLL DECK</span>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setCardViewMode('grid')}
+            style={{
+              background: cardViewMode === 'grid' ? 'linear-gradient(135deg, #00f0ff 0%, #0284c7 100%)' : 'transparent',
+              color: cardViewMode === 'grid' ? '#070a10' : 'var(--text-secondary)',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '7px 16px',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: cardViewMode === 'grid' ? '0 0 16px rgba(0, 240, 255, 0.4)' : 'none',
+              transition: 'all 0.2s'
+            }}
+          >
+            <LayoutGrid size={15} />
+            <span className="cyber-font">EXPANDED 3D GRID</span>
+          </motion.button>
+        </div>
+      </div>
+
+      {/* Quick Jump Navigator Pills */}
+      {cardViewMode === 'stack' && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflowX: 'auto', paddingBottom: '14px', marginBottom: '24px', flexWrap: 'nowrap' }}>
+          <span className="mono" style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, flexShrink: 0 }}>
+            QUICK SCROLL JUMP:
+          </span>
+          {capabilityCards.map((c, idx) => (
+            <motion.button
+              key={c.id}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                const el = document.getElementById(`stack-card-${c.id}`);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }}
+              style={{
+                background: 'var(--code-box-bg)',
+                border: `1px solid ${c.iconBorder}`,
+                color: c.quoteColor,
+                borderRadius: '16px',
+                padding: '5px 14px',
+                fontSize: '0.74rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+                boxShadow: `0 0 10px ${c.glowColor}`,
+                transition: 'all 0.2s'
+              }}
+            >
+              <span className="mono">0{idx + 1} {c.title.split(' ')[0]}</span>
+            </motion.button>
+          ))}
+        </div>
+      )}
+
+      {/* 6. Card Scroll Animation Stacking Deck or Grid */}
+      {cardViewMode === 'stack' ? (
+        <div className="card-stack-container" style={{ position: 'relative', marginTop: '10px' }}>
+          {capabilityCards.map((card, index) => (
+            <motion.div
+              id={`stack-card-${card.id}`}
+              key={card.id}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.5, delay: index * 0.04 }}
+              className="glass-panel card-stack-item"
+              style={{
+                top: `${95 + index * 20}px`,
+                zIndex: 10 + index,
+                background: `radial-gradient(circle at 50% 0%, ${card.glowColor} 0%, rgba(13, 19, 31, 0.97) 85%)`,
+                border: `1px solid ${card.iconBorder}`,
+                borderRadius: '20px',
+                padding: '32px 28px',
+                marginBottom: index === capabilityCards.length - 1 ? '60px' : '40px',
+                boxShadow: `0 24px 60px rgba(0, 0, 0, 0.92), 0 0 30px ${card.glowColor}`
+              }}
+            >
+              {/* Card Header Row */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px', marginBottom: '22px', flexWrap: 'wrap', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   <div style={{
                     background: card.iconBg,
                     border: `1px solid ${card.iconBorder}`,
-                    padding: '9px',
-                    borderRadius: '10px',
+                    padding: '12px',
+                    borderRadius: '14px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: `0 0 10px ${card.glowColor}`
+                    boxShadow: `0 0 16px ${card.glowColor}`
                   }}>
                     {card.icon}
                   </div>
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
-                      <h3 style={{ fontSize: '1.02rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.3 }}>
-                        {card.title}
-                      </h3>
-                      <InfoTooltip
-                        title={card.tooltip.title}
-                        description={card.tooltip.description}
-                        securityImpact={card.tooltip.securityImpact}
-                        goodVsBad={card.tooltip.goodVsBad}
-                        position="bottom"
-                      />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span className="mono cyber-font" style={{ fontSize: '0.78rem', color: card.quoteColor, fontWeight: 900 }}>
+                        MODULE // 0{index + 1} OF 06
+                      </span>
+                      <span className="mono badge-info" style={{ fontSize: '0.62rem', padding: '2px 8px', borderRadius: '8px' }}>
+                        {card.badge}
+                      </span>
                     </div>
-                    <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                      {card.subtitle}
-                    </div>
+                    <h3 className="cyber-font" style={{ fontSize: '1.28rem', fontWeight: 900, color: 'var(--text-primary)', marginTop: '4px' }}>
+                      {card.title}
+                    </h3>
                   </div>
                 </div>
 
-                <span className="mono badge-info" style={{
-                  fontSize: '0.6rem',
-                  fontWeight: 800,
-                  padding: '2px 8px',
-                  borderRadius: '10px',
-                  letterSpacing: '0.04em'
-                }}>
-                  {card.badge}
-                </span>
+                <InfoTooltip
+                  title={card.tooltip.title}
+                  description={card.tooltip.description}
+                  securityImpact={card.tooltip.securityImpact}
+                  goodVsBad={card.tooltip.goodVsBad}
+                  position="bottom"
+                />
               </div>
 
-              {/* Description */}
-              <p style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: '16px' }}>
-                {card.description}
-              </p>
-            </div>
+              {/* Card Body - 2 Columns */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', alignItems: 'start' }}>
+                {/* Left Side: Subtitle, Description & Tags */}
+                <div>
+                  <div className="mono" style={{ fontSize: '0.76rem', color: card.quoteColor, fontWeight: 800, marginBottom: '8px' }}>
+                    // {card.subtitle.toUpperCase()}
+                  </div>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '18px' }}>
+                    {card.description}
+                  </p>
 
-            <div>
-              {/* Quote */}
-              <div
-                className="mono"
-                style={{
-                  fontSize: '0.72rem',
-                  color: card.quoteColor,
-                  background: 'var(--code-box-bg)',
-                  padding: '9px 12px',
-                  borderRadius: '8px',
-                  borderLeft: `3px solid ${card.quoteBorder}`,
-                  marginBottom: card.actionText ? '12px' : '0'
-                }}
-              >
-                {card.quote}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '14px' }}>
+                    {card.tags?.map((tag, tIdx) => (
+                      <span key={tIdx} className="mono" style={{
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '6px',
+                        padding: '3px 10px',
+                        fontSize: '0.68rem',
+                        color: 'var(--text-primary)'
+                      }}>
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mono" style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                    • Status: <span style={{ color: '#00ff88', fontWeight: 700 }}>ACTIVE FORENSIC LAYER</span> // Latency: <span style={{ color: 'var(--accent-cyan)' }}>Sub-second</span>
+                  </div>
+                </div>
+
+                {/* Right Side: Adversary Quote, Impact & Action */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', background: 'var(--code-box-bg)', padding: '20px', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
+                  <div>
+                    <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginBottom: '6px' }}>
+                      THREAT INTERCEPTION CRITERIA:
+                    </div>
+                    <div className="mono" style={{
+                      fontSize: '0.78rem',
+                      color: card.quoteColor,
+                      padding: '10px 14px',
+                      background: 'rgba(0, 0, 0, 0.5)',
+                      borderRadius: '8px',
+                      borderLeft: `3px solid ${card.quoteBorder}`
+                    }}>
+                      {card.quote}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginBottom: '4px' }}>
+                      SECURITY IMPACT:
+                    </div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                      {card.tooltip.securityImpact}
+                    </div>
+                  </div>
+
+                  {card.actionText && (
+                    <motion.button
+                      whileHover={{ scale: 1.02, x: 4 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => card.onAction && card.onAction()}
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(2, 132, 199, 0.2) 100%)',
+                        border: '1px solid var(--accent-cyan)',
+                        color: 'var(--accent-cyan)',
+                        borderRadius: '10px',
+                        padding: '10px 18px',
+                        fontSize: '0.82rem',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginTop: '4px',
+                        boxShadow: '0 0 14px rgba(0, 240, 255, 0.2)'
+                      }}
+                    >
+                      <span className="cyber-font">{card.actionText}</span>
+                      <ArrowRight size={15} />
+                    </motion.button>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      ) : (
+        /* Expanded 3D Grid View */
+        <div className="feature-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+          {capabilityCards.map((card, index) => (
+            <motion.div
+              key={card.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.45, delay: index * 0.08 }}
+              whileHover={{ y: -6, scale: 1.02, transition: { duration: 0.2 } }}
+              className="glass-panel cyber-card-hover"
+              style={{
+                padding: '24px',
+                borderRadius: '14px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                position: 'relative'
+              }}
+            >
+              <div>
+                {/* Card Top Row */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{
+                      background: card.iconBg,
+                      border: `1px solid ${card.iconBorder}`,
+                      padding: '9px',
+                      borderRadius: '10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: `0 0 10px ${card.glowColor}`
+                    }}>
+                      {card.icon}
+                    </div>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+                        <h3 style={{ fontSize: '1.02rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.3 }}>
+                          {card.title}
+                        </h3>
+                        <InfoTooltip
+                          title={card.tooltip.title}
+                          description={card.tooltip.description}
+                          securityImpact={card.tooltip.securityImpact}
+                          goodVsBad={card.tooltip.goodVsBad}
+                          position="bottom"
+                        />
+                      </div>
+                      <div className="mono" style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                        {card.subtitle}
+                      </div>
+                    </div>
+                  </div>
+
+                  <span className="mono badge-info" style={{
+                    fontSize: '0.6rem',
+                    fontWeight: 800,
+                    padding: '2px 8px',
+                    borderRadius: '10px',
+                    letterSpacing: '0.04em'
+                  }}>
+                    {card.badge}
+                  </span>
+                </div>
+
+                {/* Description */}
+                <p style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: '16px' }}>
+                  {card.description}
+                </p>
               </div>
 
-              {/* Action Button */}
-              {card.actionText && (
-                <motion.div
-                  whileHover={{ x: 4 }}
-                  onClick={() => card.onAction && card.onAction()}
+              <div>
+                {/* Quote */}
+                <div
+                  className="mono"
                   style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    color: 'var(--accent-cyan)',
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    marginTop: '8px'
+                    fontSize: '0.72rem',
+                    color: card.quoteColor,
+                    background: 'var(--code-box-bg)',
+                    padding: '9px 12px',
+                    borderRadius: '8px',
+                    borderLeft: `3px solid ${card.quoteBorder}`,
+                    marginBottom: card.actionText ? '12px' : '0'
                   }}
                 >
-                  <span>{card.actionText}</span>
-                  <ArrowRight size={14} />
-                </motion.div>
-              )}
-            </div>
-          </motion.div>
-        ))}
-      </div>
+                  {card.quote}
+                </div>
+
+                {/* Action Button */}
+                {card.actionText && (
+                  <motion.div
+                    whileHover={{ x: 4 }}
+                    onClick={() => card.onAction && card.onAction()}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      color: 'var(--accent-cyan)',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      marginTop: '8px'
+                    }}
+                  >
+                    <span>{card.actionText}</span>
+                    <ArrowRight size={14} />
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
