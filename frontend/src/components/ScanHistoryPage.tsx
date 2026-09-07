@@ -103,75 +103,158 @@ export const ScanHistoryPage: React.FC<ScanHistoryPageProps> = ({
       </div>
 
       {/* Filters and Controls */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '24px', flexWrap: 'wrap' }}>
+        <div style={{ position: 'relative', flex: '1 1 240px' }}>
+          <Search size={16} color="var(--text-secondary)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
           <input 
             type="text" 
-            placeholder="Search by domain..." 
+            placeholder="Filter by target domain..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg text-sm focus:border-cyan-400 focus:outline-none"
+            className="mono"
+            style={{
+              width: '100%',
+              padding: '10px 14px 10px 38px',
+              borderRadius: '8px',
+              backgroundColor: 'var(--bg-primary)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-primary)',
+              fontSize: '0.85rem',
+              outline: 'none',
+              boxSizing: 'border-box'
+            }}
           />
         </div>
-        <div className="flex flex-wrap gap-2 items-center">
-          <Filter className="w-4 h-4 text-[var(--text-secondary)]" />
-          {['All', 'PHISHING', 'SUSPICIOUS', 'BENIGN', 'UNREGISTERED'].map(v => (
-            <button 
-              key={v}
-              onClick={() => setVerdictFilter(v)}
-              className={`px-3 py-1 rounded text-xs font-bold border transition-colors ${verdictFilter === v ? 'bg-cyan-500/20 text-cyan-400 border-cyan-400' : 'bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-secondary)] hover:border-cyan-400/50'}`}
-            >
-              {v}
-            </button>
-          ))}
+
+        {/* Verdict Filter Pills */}
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <Filter size={14} color="var(--text-secondary)" />
+          {['All', 'PHISHING', 'SUSPICIOUS', 'BENIGN', 'UNREGISTERED'].map(v => {
+            const isSelected = verdictFilter === v;
+            return (
+              <button 
+                key={v}
+                onClick={() => setVerdictFilter(v)}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  border: isSelected ? '1px solid var(--accent-cyan)' : '1px solid var(--border-color)',
+                  background: isSelected ? 'rgba(0, 240, 255, 0.15)' : 'var(--bg-primary)',
+                  color: isSelected ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {v}
+              </button>
+            );
+          })}
         </div>
+
         <button 
           onClick={() => setSortNewest(!sortNewest)}
-          className="flex items-center gap-2 px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg text-sm font-bold hover:border-cyan-400 transition-colors"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '8px 14px',
+            borderRadius: '8px',
+            backgroundColor: 'var(--bg-primary)',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-primary)',
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            cursor: 'pointer'
+          }}
         >
-          <ArrowUpDown className="w-4 h-4" />
-          {sortNewest ? 'Newest First' : 'Oldest First'}
+          <ArrowUpDown size={14} />
+          <span>{sortNewest ? 'Newest First' : 'Oldest First'}</span>
         </button>
       </div>
 
-      {/* Comparison Panel */}
+      {/* Comparison Drawer */}
       <AnimatePresence>
         {compareCases.length === 2 && (
           <motion.div 
             initial={{ opacity: 0, height: 0, y: -20 }}
             animate={{ opacity: 1, height: 'auto', y: 0 }}
             exit={{ opacity: 0, height: 0, scale: 0.95 }}
-            className="mb-8 p-4 bg-[var(--bg-card)] border-2 border-cyan-500/50 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.15)] relative overflow-hidden"
+            style={{
+              marginBottom: '28px',
+              padding: '24px',
+              background: 'var(--bg-primary)',
+              border: '2px solid var(--accent-cyan)',
+              borderRadius: '16px',
+              boxShadow: '0 0 24px rgba(0, 240, 255, 0.2)',
+              position: 'relative'
+            }}
           >
-            <button onClick={() => setSelectedForCompare([])} className="absolute top-4 right-4 text-[var(--text-secondary)] hover:text-red-500"><X className="w-5 h-5"/></button>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Maximize2 className="w-5 h-5 text-cyan-400"/> Compare Domains</h3>
+            <button
+              onClick={() => setSelectedForCompare([])}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-secondary)',
+                cursor: 'pointer'
+              }}
+            >
+              <X size={18} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <Maximize2 size={18} color="var(--accent-cyan)" />
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
+                Side-by-Side Target Domain Comparison
+              </h3>
+            </div>
             
-            <div className="grid grid-cols-2 gap-6">
-              {compareCases.map((c, i) => (
-                <div key={c.case_id} className="space-y-4">
-                  <div className="text-center pb-4 border-b border-[var(--border-color)]">
-                    <div className="text-xl font-bold font-mono text-[var(--text-primary)] mb-2">{c.canonical_domain}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+              {compareCases.map((c) => (
+                <div key={c.case_id} style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <div style={{ textAlign: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
+                    <div className="mono" style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                      {c.canonical_domain}
+                    </div>
                     {getVerdictBadge(c.verdict)}
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="text-[var(--text-secondary)]">Risk Score:</div>
-                    <div className="font-mono font-bold" style={{color: getVerdictColor(c.verdict)}}>{c.risk_score.toFixed(1)} / 100</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.82rem' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Risk Score:</span>
+                    <span className="mono" style={{ fontWeight: 800, color: getVerdictColor(c.verdict) }}>{c.risk_score.toFixed(1)} / 100</span>
                     
-                    <div className="text-[var(--text-secondary)]">Security Grade:</div>
-                    <div className="font-mono font-bold text-cyan-400">{c.security_grade || 'N/A'}</div>
+                    <span style={{ color: 'var(--text-secondary)' }}>Security Grade:</span>
+                    <span className="mono" style={{ fontWeight: 800, color: 'var(--accent-cyan)' }}>{c.security_grade || 'N/A'}</span>
                     
-                    <div className="text-[var(--text-secondary)]">Date:</div>
-                    <div className="font-mono">{new Date(c.created_at).toLocaleDateString()}</div>
+                    <span style={{ color: 'var(--text-secondary)' }}>Audited Date:</span>
+                    <span className="mono">{new Date(c.created_at).toLocaleDateString()}</span>
                     
-                    <div className="text-[var(--text-secondary)]">Premium Audit:</div>
-                    <div>{c.is_premium ? '✅ Yes' : '❌ No'}</div>
+                    <span style={{ color: 'var(--text-secondary)' }}>Premium Deep Audit:</span>
+                    <span>{c.is_premium ? 'Verified (x402)' : 'Standard'}</span>
                   </div>
                   
-                  <button onClick={() => onSelectCase(c.case_id)} className="w-full py-2 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 rounded-lg text-sm font-bold hover:bg-cyan-500/20 transition-colors">
-                    View Full Report
-                  </button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => onSelectCase(c.case_id)}
+                    style={{
+                      marginTop: 'auto',
+                      padding: '10px',
+                      background: 'rgba(0, 240, 255, 0.12)',
+                      border: '1px solid var(--accent-cyan)',
+                      color: 'var(--accent-cyan)',
+                      borderRadius: '8px',
+                      fontSize: '0.8rem',
+                      fontWeight: 800,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Inspect Full Dossier
+                  </motion.button>
                 </div>
               ))}
             </div>
@@ -181,67 +264,99 @@ export const ScanHistoryPage: React.FC<ScanHistoryPageProps> = ({
 
       {/* Grid of Cases */}
       {filteredAndSortedCases.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
           <AnimatePresence>
-            {filteredAndSortedCases.map((c, i) => (
-              <motion.div 
-                layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                key={c.case_id}
-                className={`bg-[var(--bg-primary)] border rounded-xl p-4 transition-all hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)] ${selectedForCompare.includes(c.case_id) ? 'border-cyan-500 ring-1 ring-cyan-500/50' : 'border-[var(--border-color)] hover:border-cyan-400/50'}`}
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <div className="font-mono font-bold text-lg truncate max-w-[80%]" title={c.canonical_domain}>{c.canonical_domain}</div>
-                  <input 
-                    type="checkbox"
-                    checked={selectedForCompare.includes(c.case_id)}
-                    onChange={() => toggleCompare(c.case_id)}
-                    className="w-4 h-4 cursor-pointer accent-cyan-500"
-                    title="Compare"
-                  />
-                </div>
-                
-                <div className="flex justify-between items-center mb-4">
-                  {getVerdictBadge(c.verdict)}
-                  <div className="font-mono font-black text-lg" style={{color: getVerdictColor(c.verdict)}}>
-                    {c.risk_score.toFixed(1)}
-                  </div>
-                </div>
-                
-                {/* Score Bar */}
-                <div className="w-full h-1.5 bg-gray-700/30 rounded-full mb-4 overflow-hidden">
-                  <div className="h-full" style={{ width: `${Math.min(100, Math.max(0, c.risk_score))}%`, backgroundColor: getVerdictColor(c.verdict) }} />
-                </div>
-                
-                <div className="space-y-1 mb-4 text-xs text-[var(--text-secondary)]">
-                  <div className="flex justify-between">
-                    <span>Date:</span>
-                    <span>{new Date(c.created_at).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Grade:</span>
-                    <span className="font-bold text-cyan-400">{c.security_grade || 'N/A'}</span>
-                  </div>
-                  {c.tx_id && (
-                    <div className="flex justify-between items-center mt-1 pt-1 border-t border-[var(--border-color)]">
-                      <span className="flex items-center gap-1"><Coins className="w-3 h-3 text-green-500"/> TX:</span>
-                      <a href={`https://lora.algokit.io/testnet/transaction/${c.tx_id}`} target="_blank" rel="noreferrer" className="text-green-500 hover:underline flex items-center gap-1">
-                        {c.tx_id.slice(0,8)}... <ExternalLink className="w-3 h-3"/>
-                      </a>
-                    </div>
-                  )}
-                </div>
-                
-                <button 
-                  onClick={() => onSelectCase(c.case_id)}
-                  className="w-full py-2 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg text-sm font-bold text-cyan-400 hover:border-cyan-400 transition-colors"
+            {filteredAndSortedCases.map((c) => {
+              const isSelected = selectedForCompare.includes(c.case_id);
+              const isPhish = c.verdict === 'PHISHING';
+              const isSusp = c.verdict === 'SUSPICIOUS';
+              return (
+                <motion.div 
+                  layout
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  key={c.case_id}
+                  className="glass-panel cyber-card-hover"
+                  style={{
+                    padding: '18px',
+                    borderRadius: '12px',
+                    border: isSelected ? '2px solid var(--accent-cyan)' : '1px solid var(--border-color)',
+                    boxShadow: isSelected ? '0 0 16px rgba(0, 240, 255, 0.3)' : 'none',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px'
+                  }}
                 >
-                  View Details
-                </button>
-              </motion.div>
-            ))}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span className="mono" style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80%' }} title={c.canonical_domain}>
+                      {c.canonical_domain}
+                    </span>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                      <input 
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleCompare(c.case_id)}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <span>Compare</span>
+                    </label>
+                  </div>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    {getVerdictBadge(c.verdict)}
+                    <span className="mono" style={{ fontSize: '1.2rem', fontWeight: 900, color: getVerdictColor(c.verdict) }}>
+                      {c.risk_score.toFixed(1)}
+                    </span>
+                  </div>
+                  
+                  {/* Score Meter Bar */}
+                  <div style={{ width: '100%', height: '6px', background: 'var(--bg-primary)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                    <div style={{ width: `${Math.min(100, Math.max(0, c.risk_score))}%`, height: '100%', backgroundColor: getVerdictColor(c.verdict), borderRadius: '999px' }} />
+                  </div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span>Date:</span>
+                      <span className="mono">{new Date(c.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span>Security Grade:</span>
+                      <span className="mono" style={{ fontWeight: 800, color: 'var(--accent-cyan)' }}>{c.security_grade || 'N/A'}</span>
+                    </div>
+                    {c.tx_id && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '4px', borderTop: '1px solid var(--border-color)' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#10b981' }}><Coins size={12} /> TX:</span>
+                        <a href={`https://lora.algokit.io/testnet/transaction/${c.tx_id}`} target="_blank" rel="noreferrer" style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '2px', textDecoration: 'none' }}>
+                          <span className="mono">{c.tx_id.slice(0, 8)}...</span>
+                          <ExternalLink size={10} />
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => onSelectCase(c.case_id)}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      background: 'var(--bg-primary)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '8px',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      color: 'var(--accent-cyan)',
+                      cursor: 'pointer',
+                      marginTop: '4px'
+                    }}
+                  >
+                    View Details
+                  </motion.button>
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </div>
       ) : (
@@ -253,3 +368,4 @@ export const ScanHistoryPage: React.FC<ScanHistoryPageProps> = ({
     </div>
   );
 };
+

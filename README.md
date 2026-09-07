@@ -1,5 +1,5 @@
 # 🛡️ CyberGuard AI (v2.0-SOC PRO)
-> **Multi-Modal AI Phishing Intelligence, Attack-Chain Forensics & Website Security Auditor powered by x402 Micropayments on Algorand Testnet**
+> **Multi-Modal AI Phishing Intelligence, Exploit Immunity Auditor & Threat Telemetry Platform powered by x402 Micropayments on Algorand Testnet**
 
 <div align="center">
 
@@ -18,314 +18,487 @@
 ---
 
 ## 📑 Table of Contents
-1. [🏆 Hackathon Pitch & Executive Summary](#-hackathon-pitch--executive-summary)
-2. [🎯 Judge Presentation Cheat-Sheet & Scoring Matrix](#-judge-presentation-cheat-sheet--scoring-matrix)
-3. [📊 Interactive Visual Architecture & Flowcharts](#-interactive-visual-architecture--flowcharts)
-   - [Flowchart 1: End-to-End Scanning & Inference Lifecycle](#flowchart-1-end-to-end-scanning--inference-lifecycle)
-   - [Flowchart 2: x402 Micropayment & Algorand Settlement Engine](#flowchart-2-x402-micropayment--algorand-settlement-engine)
-   - [Flowchart 3: Multi-Signal Bayesian Fusion Engine Architecture](#flowchart-3-multi-signal-bayesian-fusion-engine-architecture)
-   - [Flowchart 4: Brand-Domain Contradiction (pHash) Decision Matrix](#flowchart-4-brand-domain-contradiction-phash-decision-matrix)
-   - [Flowchart 5: 7-Stage Attack Chain Forensics Timeline](#flowchart-5-7-stage-attack-chain-forensics-timeline)
-4. [🧠 AI Models, Data Sources & API Ingestion Breakdown](#-ai-models-data-sources--api-ingestion-breakdown)
-5. [🛡️ Core Feature Matrix & Capabilities](#-core-feature-matrix--capabilities)
-6. [⛓️ Algorand Testnet & x402 Protocol Implementation](#-algorand-testnet--x402-protocol-implementation)
-7. [💻 Local Installation & Setup Guide](#-local-installation--setup-guide)
-8. [🔬 Benchmark Scenarios & Automated Verification](#-benchmark-scenarios--automated-verification)
-9. [🎤 Judge Q&A Preparation Cheat-Sheet](#-judge-qa-preparation-cheat-sheet)
+1. [Executive Overview & Platform Vision](#-executive-overview--platform-vision)
+2. [End-to-End System Architecture](#-end-to-end-system-architecture)
+   - [Flowchart 1: Complete Threat Scanning & Inference Pipeline](#flowchart-1-complete-threat-scanning--inference-pipeline)
+   - [Flowchart 2: Multi-Signal Bayesian Risk Fusion Matrix](#flowchart-2-multi-signal-bayesian-risk-fusion-matrix)
+   - [Flowchart 3: Brand-Domain Contradiction & Logo Vision (pHash)](#flowchart-3-brand-domain-contradiction--logo-vision-phash)
+   - [Flowchart 4: 7-Stage Adversary Kill-Chain Forensics](#flowchart-4-7-stage-adversary-kill-chain-forensics)
+   - [Flowchart 5: x402 Micropayment & Algorand Testnet Settlement](#flowchart-5-x402-micropayment--algorand-testnet-settlement)
+   - [Flowchart 6: Dual-Persona Scanner Architecture](#flowchart-6-dual-persona-scanner-architecture)
+3. [Deep Dive: Backend Inspection Pipeline & Engineering](#-deep-dive-backend-inspection-pipeline--engineering)
+4. [Live Threat Intelligence Feeds & Datasets Used](#-live-threat-intelligence-feeds--datasets-used)
+5. [Developer Website Hardening & Code Injection Immunity](#-developer-website-hardening--code-injection-immunity)
+6. [Complete Platform Feature Matrix](#-complete-platform-feature-matrix)
+7. [x402 Micropayment Protocol on Algorand Testnet](#-x402-micropayment-protocol-on-algorand-testnet)
+8. [REST API Reference & Endpoints](#-rest-api-reference--endpoints)
+9. [Local Deployment & Setup Guide](#-local-deployment--setup-guide)
+10. [Manifest V3 Chrome Extension Setup](#-manifest-v3-chrome-extension-setup)
+11. [Technical FAQ & Security Architecture](#-technical-faq--security-architecture)
 
 ---
 
-## 🏆 Hackathon Pitch & Executive Summary
+## 🌐 Executive Overview & Platform Vision
 
-### The Problem
-* Over **3.4 billion phishing emails** and **millions of fraudulent domains** are launched every single day.
-* **Legacy Blacklists Fail**: Modern phishing campaigns utilize automated cloud DNS and Newly Registered Domains (NRDs) that stay alive for fewer than 4 hours—long before traditional threat intelligence feeds update.
-* **Black-Box AI Lacks Trust**: Existing AI tools return arbitrary scores without explaining *why* a site is dangerous or how an attack unfolds.
-* **High SaaS Barriers**: Webmasters and end-users cannot easily perform ad-hoc multi-modal forensic security audits without costly enterprise subscriptions.
+Modern cyber threats have evolved past the defensive perimeter of legacy reputation blacklists:
+* **Ephemeral Attack Infrastructure**: Cyber adversaries utilize programmatic DNS provisioning, Cloudflare worker tunnels, and Newly Registered Domains (NRDs) that stay alive for **under 4 hours**—long before centralized blacklists index them.
+* **Stealthy Brand Impersonation**: Phishing kits clone legitimate enterprise login interfaces (e.g. Microsoft 365, PayPal, Google Workspace) with pixel-level fidelity, evading simple string matching using dynamic character obviation and zero-width spaces.
+* **Developer Security Gaps**: Web applications frequently launch missing critical HTTP security controls (`Content-Security-Policy`, `X-Frame-Options`, `HSTS`, `SPF/DMARC`), leaving applications vulnerable to Cross-Site Scripting (XSS), script injection, and Clickjacking.
+* **Prohibitive SaaS Paywalls**: Security analysts, developers, and users face rigid subscription tiers requiring accounts and credit card processing for simple ad-hoc forensic lookups.
 
-### The Solution: CyberGuard AI
-**CyberGuard AI** is a zero-trust, explainable phishing intelligence platform and website exploitability auditor. It solves these challenges through:
-1. **Multi-Modal AI Stack**: Combining a **24-Dimensional URL Lexical Random Forest**, **Computer Vision Perceptual Hashing (`pHash`)**, **Headless Chromium DOM Inspection**, and **Google Gemini 2.5 Flash Threat Intelligence**.
-2. **x402 Micropayment Protocol on Algorand**: Implements the native `HTTP 402 Payment Required` standard on **Algorand Testnet** (0.1 ALGO / ~$0.01 per deep audit), eliminating subscriptions, paywalls, and user account creation.
-3. **Explainable 7-Stage Attack-Chain Forensics**: Visualizes the adversary's entire kill chain from initial ingress link to credential harvesting and data exfiltration.
-4. **Website Security Posture & 1-Click Developer Fixes**: Audits Clickjacking (`X-Frame-Options`), Email Spoofing (`SPF / DMARC`), `HSTS`, and `CSP`, providing ready-to-copy code fixes for Nginx, Apache, Next.js, and Node.js Helmet.
-
----
-
-## 🎯 Judge Presentation Cheat-Sheet & Scoring Matrix
-
-| Evaluation Criteria | How CyberGuard AI Delivers | Where to Find in Code / UI |
-|---|---|---|
-| **Technical Complexity** | Combines 24-D Lexical ML + Computer Vision (pHash) + Headless Playwright Sandbox + Multi-source DNS/RDAP Telemetry + Bayesian Fusion. | `backend/app/ml/` & `backend/app/collectors/` |
-| **Web3 / x402 Integration** | Native HTTP 402 challenge/response workflow with Algorand Testnet on-chain transaction verification & GoPlausible facilitator standard. | `backend/app/payment/x402_algorand.py` |
-| **Explainable AI & LLMs** | Google Gemini 2.5 Flash explains attacker exploit vectors in plain English; Feature attributions explain exact risk contributions. | `backend/app/ml/ai_explainer.py` |
-| **Real-Time Accuracy (Zero Fake Data)** | Authoritative DoH (Google DNS), ICANN RDAP, and Port 43 Socket WHOIS. Explicitly detects unregistered domains (NXDOMAIN). | `backend/app/collectors/domain_intel.py` & `frontend/src/services/api.ts` |
-| **Production UI / UX** | Interactive Matrix Terminal, Cyber HUD, Attack-Chain Visualizer, Code Generators, Dark/Light Themes, Report Export (MD/JSON). | `frontend/src/components/` |
-| **Endpoint Security** | Fully functional Manifest V3 Chrome Extension providing active background tab scanning. | `extension/` |
+### The Solution
+**CyberGuard AI** is a zero-trust, multi-modal threat intelligence engine and website vulnerability auditor. It operates on a **100% Real Live Telemetry** principle (zero synthetic or fabricated data) and offers:
+1. **Multi-Modal Threat Triage**: Sub-25ms 24-dimensional lexical machine learning fused with headless Chromium DOM telemetry, 64-bit perceptual visual hashing (`pHash`), and Google Gemini 2.5 Flash threat intelligence.
+2. **Dual-Persona Scanning Mode**:
+   - **Persona A (Developer & Webmaster)**: Audits HTTP defense headers, DNS mail authentication, and cryptographic TLS certificates, generating actionable, ready-to-deploy code fixes for Nginx, Apache, Next.js, Node.js Helmet, and Cloudflare.
+   - **Persona B (End-User & Security Analyst)**: Unmasks phishing traps, credential harvesters, typo-squatted lookalikes, and brand contradictions.
+3. **x402 Micropayment Protocol on Algorand Testnet**: Implements the official `HTTP 402 Payment Required` standard, enabling frictionless, micro-metered access (0.1 ALGO / ~$0.01 per deep audit) directly through Web3 wallets (Pera, Defly, Exodus, Lute) without account creation or credit card storage.
+4. **Comprehensive SOC Suite**: Includes real-time Threat Intelligence dashboards, Email Link Extractor, Bulk URL Scanning, Password Strength & k-Anonymity Breach Verification, IP Carrier/ASN Intelligence, and Persistent Domain Watchlists.
 
 ---
 
-## 📊 Interactive Visual Architecture & Flowcharts
+## 📊 End-to-End System Architecture
 
-### Flowchart 1: End-to-End Scanning & Inference Lifecycle
+### Flowchart 1: Complete Threat Scanning & Inference Pipeline
 
 ```mermaid
 flowchart TD
-    A["🌐 User Enters URL in Cyber SOC Console / Chrome Extension"] --> B["Target Canonicalization & Protocol Normalization"]
+    START(["🌐 Ingress Target URL / Domain"]) --> CANON["Target Canonicalization & URL Normalization"]
     
-    B --> C{"Stage 1: Fast Free Triage"}
-    C --> D["Extract 24-D Lexical Feature Vector"]
-    C --> E["Query Google DoH & RDAP Cache"]
-    D --> F["Calibrated Random Forest Classifier"]
-    E --> F
-    
-    F --> G["Generate Free Triage Report & Risk Gauge"]
-    
-    G --> H{"User Requests Deep Forensics?"}
-    H -- "No" --> I["View Basic Risk Score & Domain Standing"]
-    H -- "Yes" --> J["Server Issues HTTP 402 Payment Required"]
-    
-    J --> K["x402 Challenge Generated: 0.1 ALGO (100,000 µALGO)"]
-    K --> L["User Pays via Pera / Defly / Testnet Wallet"]
-    L --> M["Algorand Testnet On-Chain Settlement"]
-    M --> N["GoPlausible Facilitator / Indexer Verification"]
-    
-    N --> O{"Stage 2-6: Deep Forensics Pipeline"}
-    
-    O --> P1["Isolated Playwright Chromium Sandbox"]
-    O --> P2["Computer Vision Brand pHash Logo Matcher"]
-    O --> P3["Authoritative DNS MX/NS/TXT & TLS Hierarchy"]
-    O --> P4["HTTP Defense Headers & SPF/DMARC Auditor"]
-    
-    P1 --> Q["Multi-Signal Calibrated Risk Fusion Engine"]
-    P2 --> Q
-    P3 --> Q
-    P4 --> Q
-    
-    Q --> R["Google Gemini 2.5 Flash Threat Intelligence Explainer"]
-    Q --> S["7-Stage Attack Chain Reconstruction"]
-    
-    R --> T["🏆 Comprehensive SOC Forensic Dossier & 1-Click Code Fixes"]
-    S --> T
-
-    style A fill:#0284c7,stroke:#38bdf8,color:#fff
-    style J fill:#f59e0b,stroke:#fbbf24,color:#000
-    style M fill:#000000,stroke:#10b981,color:#fff
-    style T fill:#10b981,stroke:#34d399,color:#fff
-```
-
----
-
-### Flowchart 2: x402 Micropayment & Algorand Settlement Engine
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Client as 💻 User / SOC Console
-    participant Gateway as ⚡ FastAPI Gateway (/api)
-    participant x402 as 💳 x402 Payment Manager
-    participant Algo as ⛓️ Algorand Testnet (AlgoNode)
-    participant Fac as 🌐 GoPlausible Facilitator
-    participant Deep as 🔬 Deep Forensics Engine
-
-    Client->>Gateway: POST /api/scan/free (Target URL)
-    Gateway-->>Client: Returns Free Scan Triage + x402 Payment Challenge
-    Note over Client,Gateway: HTTP 402 Challenge: 0.1 ALGO (100,000 µALGO) to Escrow Address
-
-    Client->>Algo: Sign & Submit 0.1 ALGO Payment Transaction
-    Algo-->>Client: Returns Algorand Transaction ID (tx_id)
-
-    Client->>Gateway: POST /api/analyze (URL + X-Payment: tx_id)
-    Gateway->>x402: verify_algorand_transaction(tx_id, case_id)
-    
-    alt Verification via Algorand Testnet Indexer / Node
-        x402->>Algo: GET /v2/transactions/{tx_id}
-        Algo-->>x402: 200 OK (Confirmed Round, Receiver, Amount: 100000 µALGO)
-    else Verification via GoPlausible Facilitator
-        x402->>Fac: POST /api/v1/verify
-        Fac-->>x402: 200 OK (Verified: True)
+    subgraph L1["⚡ Tier 1: Fast Triage Engine (< 25ms)"]
+        CANON --> FEAT["Extract 24-Dimensional Lexical Feature Vector"]
+        CANON --> DOH_CHECK["Query Authoritative Google DoH RFC 8484"]
+        CANON --> RDAP_CHECK["Query ICANN / IANA RDAP Registry"]
+        
+        FEAT --> RF_MODEL["Calibrated Random Forest Classifier<br/>(60 Estimators, Depth=7, Sigmoid Calibration)"]
+        DOH_CHECK --> RF_MODEL
+        RDAP_CHECK --> RF_MODEL
+        
+        RF_MODEL --> TRIAGE_OUT["Generate Free Triage Report<br/>• Phishing Probability (0.0 - 1.0)<br/>• Lexical Heuristics<br/>• Registrar & Domain Age<br/>• NXDOMAIN Resolution Check"]
     end
+    
+    TRIAGE_OUT --> DECISION{"Deep Forensic Audit Requested?"}
+    DECISION -- "No" --> FREE_REPORT["Render Basic Triage Report in UI"]
+    DECISION -- "Yes" --> X402_GATEWAY["Server Emits HTTP 402 Payment Required<br/>Challenge: 0.1 ALGO (100,000 µALGO)"]
+    
+    subgraph X402_LAYER["⛓️ x402 Micropayment & Algorand Testnet Settlement"]
+        X402_GATEWAY --> WALLET_SELECT["User Connects Wallet: Pera / Defly / Exodus / Lute"]
+        WALLET_SELECT --> ONCHAIN_TX["Sign & Broadcast 0.1 ALGO Settlement on Algorand Testnet"]
+        ONCHAIN_TX --> INDEXER_VERIFY["Algorand Indexer Cryptographic Proof Validation<br/>(AlgoNode Cloud / GoPlausible Facilitator)"]
+    end
+    
+    INDEXER_VERIFY --> L2["🔬 Tier 2: Deep Forensic Audit Pipeline"]
+    
+    subgraph L2_PIPELINE["Deep Security & Forensics Execution"]
+        L2 --> SANDBOX["Isolated Playwright Chromium Sandbox<br/>(SSRF Firewall, 10s Timeout, Headless DOM)"]
+        L2 --> TLS_PROBE["Live X.509 Cryptographic TLS Handshake<br/>(DER Peer Cert, Issuer, Validity Countdown)"]
+        L2 --> DNS_MATRIX["Full DNS Matrix Resolution<br/>(A, AAAA, MX Mail, Authoritative NS, TXT)"]
+        L2 --> SEC_AUDIT["HTTP Defensive Headers & SPF/DMARC Audit<br/>(CSP, HSTS, X-Frame-Options, Sniffing)"]
+        
+        SANDBOX --> PHASH["Perceptual Image Hashing (pHash / dHash 64-bit)<br/>Brand Trademark Catalog Comparison"]
+        SANDBOX --> FORM_INSPECT["DOM Inspection: Password Fields & Cross-Origin POST Targets"]
+    end
+    
+    PHASH --> FUSION["⚖️ Multi-Signal Calibrated Risk Fusion Engine"]
+    TLS_PROBE --> FUSION
+    DNS_MATRIX --> FUSION
+    SEC_AUDIT --> FUSION
+    FORM_INSPECT --> FUSION
+    
+    FUSION --> OVERRIDE{"Critical Security Overrides"}
+    OVERRIDE -- "Brand Contradiction + Password Trap" --> CRIT_FLAG["Assign Verdict: CRITICAL PHISHING (Score >= 88.0)"]
+    OVERRIDE -- "NXDOMAIN / No A-Record" --> UNREG_FLAG["Assign Verdict: UNREGISTERED DOMAIN"]
+    OVERRIDE -- "Authentic Verified Trademark" --> SAFE_FLAG["Cap Risk Score <= 12.0 (BENIGN)"]
+    OVERRIDE -- "Standard Telemetry" --> CALIB_SCORE["Weighted Final Risk Score (0 - 100)"]
+    
+    CRIT_FLAG --> GEMINI["Google Gemini 2.5 Flash Threat Synthesizer"]
+    UNREG_FLAG --> GEMINI
+    SAFE_FLAG --> GEMINI
+    CALIB_SCORE --> GEMINI
+    
+    GEMINI --> DOSSIER["📋 Production SOC Forensic Dossier<br/>• 7-Stage Attack Kill-Chain<br/>• Exploit Immunity Guidance<br/>• Multi-Platform Code Fixes (Nginx, Apache, Next.js, Helmet)<br/>• Downloadable JSON/Markdown Report"]
 
-    x402-->>Gateway: Transaction Verified & Session Authenticated
-    Gateway->>Deep: Execute Deep Playwright, pHash, DNS & Gemini Pipeline
-    Deep-->>Gateway: Full RiskScoreReport Payload
-    Gateway-->>Client: 200 OK (Full Forensic Dossier & Remediations)
+    style START fill:#0284c7,stroke:#38bdf8,color:#fff
+    style X402_GATEWAY fill:#f59e0b,stroke:#fbbf24,color:#000
+    style INDEXER_VERIFY fill:#000000,stroke:#10b981,color:#fff
+    style DOSSIER fill:#10b981,stroke:#34d399,color:#fff
 ```
 
 ---
 
-### Flowchart 3: Multi-Signal Bayesian Fusion Engine Architecture
+### Flowchart 2: Multi-Signal Bayesian Risk Fusion Matrix
 
 ```mermaid
 flowchart LR
-    subgraph S1["1. Lexical Model (25%)"]
-        L1["Shannon Entropy"]
-        L2["Punycode / Homograph"]
-        L3["Subdomain Depth & Token"]
-        L4["Risky TLD Classifier"]
+    subgraph S1["1. Lexical ML Model (Weight: 25%)"]
+        L1["Shannon Entropy (URL, Domain, Path)"]
+        L2["Punycode & Homoglyph IDN Detection"]
+        L3["Subdomain Depth & Delimiter Ratios"]
+        L4["High-Risk TLD & Token Heuristics"]
     end
 
-    subgraph S2["2. Infrastructure & Age (20%)"]
-        I1["RDAP Domain Age Days"]
-        I2["Newly Registered Domain (NRD)"]
-        I3["DNS Hierarchy A/MX/NS"]
-        I4["SSL/TLS Certificate Validity"]
+    subgraph S2["2. Infrastructure & Age (Weight: 20%)"]
+        I1["ICANN RDAP Domain Age in Days"]
+        I2["Newly Registered Domain (NRD) Penalty"]
+        I3["Authoritative DNS A/MX/NS Resolution"]
+        I4["X.509 SSL/TLS Certificate Validity & CA"]
     end
 
-    subgraph S3["3. DOM & Behavior (25%)"]
-        D1["Interactive Password Fields"]
-        D2["Cross-Origin Form Dispatch"]
-        D3["Multi-Hop Redirections"]
-        D4["Obfuscated JS eval/atob"]
+    subgraph S3["3. DOM & Exploitation (Weight: 25%)"]
+        D1["Interactive Password Input Traps"]
+        D2["Cross-Origin Form Dispatch Target"]
+        D3["Multi-Hop Open Redirect Chains"]
+        D4["Obfuscated Inline JS (eval / atob / unescape)"]
     end
 
-    subgraph S4["4. Visual & Brand (30%)"]
-        V1["64-Bit Perceptual Hash pHash"]
-        V2["Logo Trademark Catalog"]
-        V3["Authorized Domain Check"]
-        V4["Contradiction Alarm"]
+    subgraph S4["4. Visual & Brand (Weight: 30%)"]
+        V1["64-Bit Perceptual Image Hash (pHash)"]
+        V2["Enterprise Logo Landmark Matcher"]
+        V3["Domain Whitelist Validation"]
+        V4["Brand-Domain Contradiction Engine"]
     end
 
-    S1 --> FUSION["⚖️ Multi-Signal Fusion Engine<br/>Risk = 0.25*Lex + 0.20*Infra + 0.25*DOM + 0.30*Brand"]
+    S1 --> FUSION["⚖️ Calibrated Fusion Engine<br/>Base = 0.25*Lex + 0.20*Infra + 0.25*DOM + 0.30*Brand"]
     S2 --> FUSION
     S3 --> FUSION
     S4 --> FUSION
 
-    FUSION --> OVERRIDE{"Critical Override Check"}
-    OVERRIDE -- "Brand Contradiction + Password Input" --> CRIT["Force Risk Score >= 88.0 (CRITICAL PHISHING)"]
-    OVERRIDE -- "Unregistered Domain (NXDOMAIN)" --> UNREG["Set Verdict: UNREGISTERED (Zero Fake Data)"]
-    OVERRIDE -- "Verified Authentic Brand" --> SAFE["Cap Risk Score <= 12.0 (BENIGN)"]
-    OVERRIDE -- "Standard Signals" --> CALIB["Calibrated Final Risk Score (0 - 100)"]
+    FUSION --> EVAL{"Rule Override Evaluator"}
+    EVAL -- "Brand Contradiction Detected + Password Harvest" --> FORCE_CRIT["🚨 CRITICAL PHISHING (Score 92-98)"]
+    EVAL -- "NXDOMAIN / No Active DNS Host" --> FORCE_UNREG["ℹ️ UNREGISTERED DOMAIN (NXDOMAIN)"]
+    EVAL -- "Verified Authentic Brand Match" --> FORCE_SAFE["✅ BENIGN / AUTHENTIC (Score <= 12)"]
+    EVAL -- "Standard Risk Spectrum" --> FINAL_SCORE["Calibrated Output Score (0 - 100)"]
 
     style FUSION fill:#0284c7,stroke:#38bdf8,color:#fff
-    style CRIT fill:#ef4444,stroke:#f87171,color:#fff
-    style UNREG fill:#38bdf8,stroke:#0284c7,color:#000
-    style SAFE fill:#10b981,stroke:#34d399,color:#fff
+    style FORCE_CRIT fill:#ef4444,stroke:#f87171,color:#fff
+    style FORCE_UNREG fill:#0ea5e9,stroke:#38bdf8,color:#fff
+    style FORCE_SAFE fill:#10b981,stroke:#34d399,color:#fff
 ```
 
 ---
 
-### Flowchart 4: Brand-Domain Contradiction (pHash) Decision Matrix
+### Flowchart 3: Brand-Domain Contradiction & Logo Vision (pHash)
 
 ```mermaid
 flowchart TD
-    A["Playwright Captures High-Res Screenshot & DOM Snippet"] --> B["Text & Trademark Cue Matcher"]
-    B --> C{"Trademark Found in DOM / Title / URL?"}
+    CAPTURE["Playwright Captures High-Res Viewport & Favicon"] --> TEXT_SCAN["Keyword & Trademark Pattern Extractor"]
     
-    C -- "No" --> D["Verdict: Generic / Unbranded Domain"]
-    C -- "Yes" --> E["Extract Brand Profile (PayPal, Microsoft, Apple, Google, Chase)"]
+    TEXT_SCAN --> HAS_BRAND{"Brand Identity Detected?<br/>(PayPal, Microsoft, Google, Apple, Chase, etc.)"}
+    HAS_BRAND -- "No" --> GENERIC["Classify as Generic Web Property<br/>Visual Brand Risk: 0.0"]
+    HAS_BRAND -- "Yes" --> RETRIEVE["Fetch Reference Trademark Profile & Canonical Domains"]
     
-    E --> F["Compute 64-Bit dHash / pHash on Rendered Logo"]
-    F --> G{"Visual Similarity >= 0.70 AND Text Cue >= 0.75?"}
+    RETRIEVE --> LOGO_CROP["Isolate Visual Logo Component via DOM & Layout Bounding Box"]
+    LOGO_CROP --> HASH_COMPUTE["Compute 64-bit dHash / pHash on Rendered Asset"]
     
-    G -- "No" --> D
-    G -- "Yes" --> H["Check Target Domain Against Brand Authorized Domain Whitelist"]
+    HASH_COMPUTE --> SIMILARITY{"Hamming Similarity >= 0.70 AND Text Cue >= 0.75?"}
+    SIMILARITY -- "No" --> GENERIC
+    SIMILARITY -- "Yes" --> WHITELIST_CHECK{"Is Target Domain in Authorized Canonical Whitelist?<br/>(e.g., target == login.microsoft.com)"}
     
-    H --> I{"Is Domain in Authorized List?"}
-    I -- "Yes (e.g. login.microsoft.com)" --> J["✅ AUTHENTIC BRAND DOMAIN<br/>Confidence: High - Safe Standing"]
-    I -- "No (e.g. login-microsoft-secure.xyz)" --> K["🚨 CRITICAL CONTRADICTION DETECTED<br/>Visual Brand != Domain Owner<br/>Exploit: Credential Harvester Lookalike"]
+    WHITELIST_CHECK -- "YES (Authorized)" --> AUTHENTIC["✅ VERIFIED AUTHENTIC BRAND<br/>Brand Contradiction: FALSE<br/>Status: Authorized Domain Owner"]
+    WHITELIST_CHECK -- "NO (Unauthorized)" --> ALARM["🚨 CRITICAL BRAND CONTRADICTION<br/>Brand Contradiction: TRUE<br/>Impersonated Brand: Microsoft<br/>Hostile Host: login-microsoft-portal.xyz<br/>Exploit: Trademark Spoofing & Phishing"]
 
-    style J fill:#10b981,stroke:#34d399,color:#fff
-    style K fill:#ef4444,stroke:#f87171,color:#fff
-    style D fill:#6b7280,stroke:#9ca3af,color:#fff
+    style AUTHENTIC fill:#10b981,stroke:#34d399,color:#fff
+    style ALARM fill:#ef4444,stroke:#f87171,color:#fff
+    style GENERIC fill:#64748b,stroke:#94a3b8,color:#fff
 ```
 
 ---
 
-### Flowchart 5: 7-Stage Attack Chain Forensics Timeline
+### Flowchart 4: 7-Stage Adversary Kill-Chain Forensics
 
 ```mermaid
-gitGraph
-    commit id: "1. Ingress Link"
-    commit id: "2. DNS Resolution"
-    commit id: "3. SSL/TLS Handshake"
-    commit id: "4. Redirect Sequence"
-    commit id: "5. DOM Sandbox"
-    commit id: "6. Credential Trap"
-    commit id: "7. AI Verdict"
+flowchart LR
+    S1["1. Ingress Vector<br/>(Email / SMS / Ads)"] --> S2["2. Fast-Flux DNS<br/>(Dynamic Cloud Routing)"]
+    S2 --> S3["3. TLS Encryption<br/>(Let's Encrypt / DV Cert)"]
+    S3 --> S4["4. Redirect Cascade<br/>(Multi-Hop Cloaking)"]
+    S4 --> S5["5. DOM Render<br/>(Brand Logo Emulation)"]
+    S5 --> S6["6. Credential Trap<br/>(Fake Form POST)"]
+    S6 --> S7["7. Exfiltration<br/>(Adversary C2 Server)"]
+
+    style S1 fill:#3b82f6,stroke:#60a5fa,color:#fff
+    style S2 fill:#6366f1,stroke:#818cf8,color:#fff
+    style S3 fill:#8b5cf6,stroke:#a78bfa,color:#fff
+    style S4 fill:#ec4899,stroke:#f472b6,color:#fff
+    style S5 fill:#f59e0b,stroke:#fbbf24,color:#000
+    style S6 fill:#f97316,stroke:#fb923c,color:#fff
+    style S7 fill:#ef4444,stroke:#f87171,color:#fff
 ```
 
 ---
 
-## 🧠 AI Models, Data Sources & API Ingestion Breakdown
+### Flowchart 5: x402 Micropayment & Algorand Testnet Settlement
 
-### 1. Machine Learning & AI Models
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as 💻 User / Security Analyst
+    participant API as ⚡ CyberGuard FastAPI Gateway
+    participant x402 as 💳 x402 Payment Engine
+    participant Wallet as 📱 Algorand Wallet (Pera/Defly/Lute)
+    participant AlgoNode as ⛓️ Algorand Testnet (Consensus Node)
+    participant Indexer as 🔍 AlgoNode Indexer (Ledger Search)
+    participant Forensic as 🔬 Deep Forensics Pipeline
 
-| Model / Subsystem | Algorithm / Architecture | Input Features / Parameters | Purpose & Output |
-|---|---|---|---|
-| **Fast Triage Classifier** | **Calibrated Random Forest** (`n_estimators=60`, `max_depth=7`, Sigmoid Calibration) | 24-D handcrafted vector: Shannon entropy (URL, domain, path), digit ratio, hyphen count, punycode IDN, risky TLD flag, brand keyword tokens, subdomain depth. | Generates calibrated phishing probability (`0.0` - `1.0`), feature attributions, and triage rationale within **< 25ms**. |
-| **Brand Vision Matcher** | **Perceptual Hashing (`pHash` + `dHash`)** + Color Profiling | 64-bit difference hash vectors extracted from rendered DOM screenshots and authentic brand assets. | Computes visual similarity (`0.0` - `1.0`) to detect unauthorized trademark lookalikes. |
-| **Multi-Signal Fusion** | **Bayesian Calibrated Rule Matrix** | Fuses Lexical (0.25) + Domain/RDAP (0.20) + DOM/Forms (0.25) + Brand Contradiction (0.30). | Output overall risk score (`0 - 100`), confidence, verdict (`BENIGN`, `SUSPICIOUS`, `PHISHING`, `UNREGISTERED`). |
-| **Threat Explainer** | **Google Gemini 2.5 Flash** (`gemini-2.5-flash`) | Structured JSON prompt containing target domain, age, brand contradiction, and security headers. | Explains threat vectors in plain English and generates offensive hacker perspective audits. |
+    Client->>API: POST /api/premium-scan (Target URL, no payment)
+    API->>x402: generate_challenge("CyberGuard Deep Audit")
+    x402-->>API: 402 Challenge (Escrow: MZM62...6YFY, Amount: 100,000 µALGO)
+    API-->>Client: HTTP 402 Payment Required (WWW-Authenticate: x402 ...)
+
+    Client->>Wallet: Present Algorand Payment Request (0.1 ALGO)
+    Wallet->>Client: Biometric / Passphrase Cryptographic Signature
+    Client->>AlgoNode: Broadcast Signed Raw Transaction
+    AlgoNode-->>Client: Confirmed Transaction ID (TxID)
+
+    Client->>API: POST /api/premium-scan (Target URL + X-Payment: TxID)
+    API->>x402: verify_algorand_transaction(TxID, Escrow, 100000 µALGO)
+    x402->>Indexer: GET /v2/transactions/{TxID}
+    Indexer-->>x402: 200 OK (Confirmed Round, Sender, Receiver, Amount Verified)
+    x402-->>API: Cryptographic Proof Validated (Non-Replayable)
+
+    API->>Forensic: Execute Deep Sandbox, pHash, SSL & Gemini Analysis
+    Forensic-->>API: Complete Forensic Audit Dossier
+    API-->>Client: HTTP 200 OK (Full Report + Blockchain Receipt + LoRA Link)
+```
 
 ---
 
-### 2. Live Data Ingestion & External APIs
+### Flowchart 6: Dual-Persona Scanner Architecture
 
-| Data Source | Provider / Endpoint | Data Ingested | Fallback / Zero-Fake Guarantee |
-|---|---|---|---|
-| **Google Public DoH** | `https://dns.google/resolve?name={domain}&type={A,AAAA,MX,NS,TXT}` | Live authoritative DNS records (IPv4/v6 addresses, nameservers, mail servers, SPF, DMARC). | Direct DoH JSON lookup. If `Status: 3` (`NXDOMAIN`), flags domain as unregistered. |
-| **ICANN / IANA RDAP** | `https://rdap.org/domain/{domain}` | Domain registration timestamp, expiration date, sponsoring registrar name, RDAP entities. | Returns 404 for unallocated domains. Socket WHOIS Port 43 fallback. |
-| **Algorand Testnet Node** | `https://testnet-api.algonode.cloud` | Current consensus round, transaction status, account balances, testnet health. | AlgoNode public testnet node (no authentication required). |
-| **Algorand Indexer** | `https://testnet-idx.algonode.cloud/v2/transactions/{tx_id}` | On-chain cryptographic payment verification (sender, receiver, microAlgos transferred, round). | Queries on-chain consensus ledger for cryptographic proof. |
-| **GoPlausible x402 Facilitator** | `https://facilitator.goplausible.xyz` | x402 standard payment facilitator verification and discovery configuration. | Local verification against Algorand Indexer. |
-| **Headless Sandbox** | **Playwright Chromium** (`headless=True`) | DOM tree, rendered title, interactive forms, password inputs, cross-origin POST targets, screenshot. | Isolated sandbox with SSRF guard and 10s strict timeout. |
+```mermaid
+flowchart TD
+    INPUT["Target Web URL"] --> ROUTER{"Operational Mode"}
+    
+    subgraph P1["🛡️ Persona 1: Developer Website Security & Hardening"]
+        ROUTER -->|"Developer Mode"| DEV_AUDIT["Audit Exploit Resistance"]
+        DEV_AUDIT --> H_AUDIT["Audit Security Headers<br/>• Content-Security-Policy (XSS Immunity)<br/>• Strict-Transport-Security (HSTS)<br/>• X-Frame-Options (Clickjacking Immunity)<br/>• X-Content-Type-Options (MIME Sniffing)<br/>• Referrer-Policy & Permissions-Policy"]
+        DEV_AUDIT --> DNS_SEC["Audit Email Spoofing Immunity<br/>• SPF (Sender Policy Framework)<br/>• DMARC (Domain-based Auth)"]
+        DEV_AUDIT --> TLS_AUDIT["Audit TLS Handshake<br/>• Protocol (TLS 1.3 / 1.2)<br/>• Certificate Authority Root Trust<br/>• Expiration Countdown"]
+        
+        H_AUDIT --> GRADE["Calculate Executive Letter Grade (A+ to F)"]
+        DNS_SEC --> GRADE
+        TLS_AUDIT --> GRADE
+        
+        GRADE --> FIXES["Generate Ready-to-Copy Remediation Snippets<br/>• Nginx conf<br/>• Apache .htaccess<br/>• Next.js middleware / vercel.json<br/>• Node.js Helmet middleware<br/>• Cloudflare Edge Transform Rules<br/>• DNS TXT Records"]
+    end
+    
+    subgraph P2["🚨 Persona 2: Phishing & Fraud Threat Intelligence"]
+        ROUTER -->|"Threat Hunter Mode"| THREAT_AUDIT["Audit Fraud & Deception Indicators"]
+        THREAT_AUDIT --> LEX_AUDIT["Lexical Entropy & Typo-Squatting Vectors"]
+        THREAT_AUDIT --> BRAND_AUDIT["Visual Perceptual pHash Logo Matching"]
+        THREAT_AUDIT --> DOM_AUDIT["Credential Harvesting Input Forms"]
+        THREAT_AUDIT --> INFRA_AUDIT["Newly Registered Domain (NRD) & Host ASN"]
+        
+        LEX_AUDIT --> VERDICT["Synthesize Threat Classification<br/>• BENIGN<br/>• SUSPICIOUS<br/>• PHISHING<br/>• UNREGISTERED"]
+        BRAND_AUDIT --> VERDICT
+        DOM_AUDIT --> VERDICT
+        INFRA_AUDIT --> VERDICT
+        
+        VERDICT --> TIMELINE["Reconstruct 7-Stage Attack Chain Forensics"]
+    end
+
+    style ROUTER fill:#0284c7,stroke:#38bdf8,color:#fff
+    style FIXES fill:#10b981,stroke:#34d399,color:#fff
+    style TIMELINE fill:#ef4444,stroke:#f87171,color:#fff
+```
 
 ---
 
-## 🛡️ Core Feature Matrix & Capabilities
+## 🔬 Deep Dive: Backend Inspection Pipeline & Engineering
+
+The CyberGuard AI backend is engineered in **FastAPI / Python 3.11+**, leveraging an asynchronous pipeline optimized for sub-second responses and memory-safe sandboxing.
+
+### 1. Fast Triage Classifier (`backend/app/ml/classifier.py`)
+* **Model**: Calibrated Random Forest Classifier (`n_estimators=60`, `max_depth=7`, with Sigmoid probability calibration).
+* **Speed**: **< 25ms execution time**, requiring zero third-party API dependencies or external tokens.
+* **Feature Extraction (24 Dimensions)**:
+  1. `url_length`: Total character length of URL string.
+  2. `domain_length`: Fully Qualified Domain Name (FQDN) length.
+  3. `path_length`: Length of request URI path.
+  4. `url_entropy`: Shannon entropy $H(X) = -\sum P(x) \log_2 P(x)$ across entire URL.
+  5. `domain_entropy`: Shannon entropy of domain label (identifies algorithmic DGA domains).
+  6. `path_entropy`: Shannon entropy of resource path.
+  7. `subdomain_depth`: Count of sub-labels (e.g. `login.verify.update.example.com` = 4).
+  8. `digit_ratio`: Proportion of numerical digits relative to alphabetics.
+  9. `hyphen_count`: Frequency of hyphens in FQDN (common indicator of lookalike campaigns).
+  10. `at_symbol_flag`: Detects embedded `@` credential obfuscation.
+  11. `has_ip_address`: Detects raw IPv4/IPv6 literals instead of domain names.
+  12. `punycode_flag`: Detects `xn--` Internationalized Domain Name (IDN) homoglyph attacks.
+  13. `suspicious_tld`: Matches against high-abuse top-level domains (`.xyz`, `.top`, `.buzz`, `.club`, etc.).
+  14. `brand_token_count`: Matches known enterprise brand keyword tokens within untrusted subdomains.
+  15. `security_keywords`: Presence of deceptive trigger words (`login`, `secure`, `verify`, `billing`, `update`, `banking`).
+  16. `query_param_count`: Number of GET parameters (identifies tracking & dynamic phishing payloads).
+  17. `double_slash_redirect`: Detects protocol evasion sequences (`//` in path).
+  18. `tld_in_subdomain`: Detects deceptive nested TLD tokens (e.g. `paypal.com.account-update.xyz`).
+  19. `consecutive_consonants`: Identifies machine-generated domain names.
+  20. `vowel_ratio`: Statistical balance of vowel distribution.
+  21. `domain_age_penalty`: Inversely proportional age score based on RDAP registration date.
+  22. `tld_risk_weight`: Normalized registry abuse index.
+  23. `port_flag`: Non-standard port declarations (`:8080`, `:8443`).
+  24. `path_depth`: Count of directory delimiters.
+
+### 2. Isolated Chromium Sandboxing (`backend/app/collectors/crawler.py`)
+* Deep audits launch a headless **Playwright Chromium** browser instance inside an isolated asynchronous context.
+* **Hardened Security Perimeter**:
+  - Strict 10-second request timeout.
+  - Server-Side Request Forgery (SSRF) guard preventing navigation to RFC 1918 private subnets (`127.0.0.1`, `10.0.0.0/8`, `192.168.0.0/16`, `169.254.169.254` AWS metadata).
+  - Web popups, automated file downloads, and notification permissions disabled.
+  - User-Agent rotators reflecting genuine modern desktop browsers.
+* **Telemetric Extraction**:
+  - Live high-resolution viewport capture (1280x800).
+  - DOM tree parsing: identifying `<input type="password">`, hidden input fields, and `<form action="...">` targets.
+  - Detection of cross-origin dispatch (e.g. page hosted on `domain-a.com` submitting credentials to `exfil-b.ru`).
+  - Analysis of obfuscated client-side JavaScript (`eval()`, `atob()`, `String.fromCharCode()`, `unescape()`).
+
+### 3. Visual Perception & Brand Contradiction Engine (`backend/app/ml/brand_vision.py`)
+* Phishing campaigns clone official logos while hosting on deceptive domains.
+* **Perceptual Difference Hashing (`dHash` / `pHash`)**:
+  - Rendered DOM logos are cropped, converted to grayscale, and downsampled to an $8 \times 8$ gradient matrix.
+  - Produces a 64-bit fingerprint invariant to minor scaling, JPEG compression artifacts, and color shifts.
+  - Calculates Hamming distance $D_H$ against an authentic enterprise trademark catalogue (PayPal, Microsoft, Google, Apple, Amazon, Chase, Bank of America, Facebook, Netflix).
+* **Contradiction Evaluation**:
+  - If visual similarity $S \ge 0.70$ and brand text cues $T \ge 0.75$, the target domain is checked against the brand's verified canonical domain whitelist.
+  - If the domain does **not** match the authorized ownership whitelist, a **Critical Brand Contradiction** is flagged, overriding the risk score directly to the `CRITICAL PHISHING` tier.
+
+### 4. Cryptographic TLS/SSL & Network Hierarchy (`backend/app/collectors/domain_intel.py`)
+* **Real X.509 DER Certificate Extraction**:
+  - Connects directly to target port 443 via Python `ssl` and `socket`.
+  - Extracts the binary DER peer certificate and parses it using `cryptography.x509`.
+  - Audits Subject, Common Name (CN), Subject Alternative Names (SANs), Verified Issuer Organization, Public CA root trust chain, expiration timestamp, and self-signed certificate flags.
+* **DNS Resolution Matrix**:
+  - Direct queries via **Google DNS-over-HTTPS (DoH RFC 8484)** for `A`, `AAAA`, `MX`, `NS`, and `TXT` records.
+  - Audits mail routing infrastructure and authoritative nameserver redundancy.
+* **Unregistered Domain (NXDOMAIN) Handling**:
+  - If DNS resolution returns `Status: 3 (NXDOMAIN)` or ICANN RDAP returns `HTTP 404`:
+  - CyberGuard AI strictly outputs `UNREGISTERED`, suppressing fake data, synthetic IP addresses, or placeholder SSL certificates.
+  - UI displays an `UNREGISTERED DOMAIN (NXDOMAIN)` notice informing the operator that no active server or network route exists.
+
+### 5. Google Gemini 2.5 Flash Threat Intelligence (`backend/app/ml/ai_explainer.py`)
+* The multi-signal telemetry payload is formatted into a structured schema and dispatched to **Google Gemini 2.5 Flash** (`gemini-2.5-flash`).
+* The LLM synthesizes the technical data into:
+  - An executive threat summary in plain English.
+  - Explanations of how attackers weaponized the target domain.
+  - Concrete mitigation steps for affected administrators and deceptive indicators for end users.
+
+---
+
+## 📡 Live Threat Intelligence Feeds & Datasets Used
+
+CyberGuard AI strictly enforces a **Zero Synthetic Data Policy**. All outputs are derived from real, live, authoritative protocols and APIs:
+
+| Intelligence Source | Type / Protocol | Endpoint / Provider | Purpose in CyberGuard AI |
+| :--- | :--- | :--- | :--- |
+| **Google Public DoH** | DNS-over-HTTPS (RFC 8484) | `https://dns.google/resolve` | Authoritative DNS resolution for A, AAAA, MX, NS, and TXT records. Instant NXDOMAIN detection. |
+| **ICANN / IANA RDAP** | RESTful RDAP | `https://rdap.org/domain/` | Authoritative domain registration age, expiration date, and sponsoring registrar entity identification. |
+| **HaveIBeenPwned API** | REST k-Anonymity | `https://api.pwnedpasswords.com/range/` | Cryptographic SHA-1 prefix credential breach auditing. Validates if user passwords have leaked. |
+| **IP-API Geolocation** | BGP / ASN Intelligence | `http://ip-api.com/json/` | Autonomous System Number (ASN), ISP carrier, hosting/datacenter classification, and server location. |
+| **AlgoNode Cloud Indexer**| Algorand Testnet Ledger | `https://testnet-idx.algonode.cloud/v2/` | On-chain cryptographic validation of x402 payment transactions and microAlgo settlement. |
+| **AlgoNode Cloud API** | Algorand Consensus Node | `https://testnet-api.algonode.cloud/` | Real-time block round tracking, escrow account balance, and network health verification. |
+| **GoPlausible Facilitator**| x402 Protocol Facilitator | `https://facilitator.goplausible.xyz` | Official x402 payment standard discovery, challenge formatting, and transaction verification. |
+| **Port 43 Socket WHOIS** | TCP RFC 3912 | Direct registry socket | Fallback WHOIS resolution when RDAP endpoints are throttled or unallocated. |
+| **Python Cryptography** | X.509 DER Parsing | Port 443 SSL handshake | Cryptographic validation of TLS peer certificates, Subject Alternative Names, and issuer authority. |
+
+---
+
+## 🛡️ Developer Website Hardening & Code Injection Immunity
+
+CyberGuard AI provides a dedicated **Developer Website Security Audit** designed to harden web applications against code injection, Cross-Site Scripting (XSS), Clickjacking, and protocol downgrade exploits:
+
+```
++-------------------------------------------------------------------------------------------------------------+
+|                                    DEFENSIVE SECURITY CONTROLS AUDITED                                      |
++--------------------------+------------------------------+---------------------------------------------------+
+| Defensive Control        | Threat Vector Blocked        | Recommended Directive Implementation              |
++--------------------------+------------------------------+---------------------------------------------------+
+| Content-Security-Policy  | Cross-Site Scripting (XSS),  | default-src 'self'; script-src 'self' 'nonce-...';|
+| (CSP)                    | Malicious Script Injection,  | object-src 'none'; base-uri 'self';               |
+|                          | Data Exfiltration            | frame-ancestors 'none';                           |
++--------------------------+------------------------------+---------------------------------------------------+
+| Strict-Transport-Security| SSL Stripping, Man-in-the-   | max-age=63072000; includeSubDomains; preload      |
+| (HSTS)                   | Middle (MitM) Attacks        |                                                   |
++--------------------------+------------------------------+---------------------------------------------------+
+| X-Frame-Options          | Clickjacking, Hidden UI      | DENY (or SAMEORIGIN)                              |
+|                          | Redressing Exploits          |                                                   |
++--------------------------+------------------------------+---------------------------------------------------+
+| X-Content-Type-Options   | MIME-Confusion Exploits,     | nosniff                                           |
+|                          | Drive-By Downloads           |                                                   |
++--------------------------+------------------------------+---------------------------------------------------+
+| Referrer-Policy          | Information Leakage via URLs | strict-origin-when-cross-origin                   |
++--------------------------+------------------------------+---------------------------------------------------+
+| Permissions-Policy       | Hardware Hijacking (Camera,  | camera=(), microphone=(), geolocation=(), usb=()  |
+|                          | Microphone, Geolocation)     |                                                   |
++--------------------------+------------------------------+---------------------------------------------------+
+| SPF (DNS TXT)            | Email Spoofing & Phishing    | v=spf1 mx include:_spf.google.com ~all            |
+|                          | Sent From Your Domain        |                                                   |
++--------------------------+------------------------------+---------------------------------------------------+
+| DMARC (DNS TXT)          | Unauthorized Domain Mail     | v=DMARC1; p=reject; rua=mailto:dmarc@example.com  |
+|                          | Delivery & Domain Impersonation                                                 |
++--------------------------+------------------------------+---------------------------------------------------+
+```
+
+### 1-Click Multi-Platform Remediation Generators
+For any missing or weak security controls, CyberGuard AI automatically formats ready-to-paste configurations tailored for:
+* **Nginx** (`/etc/nginx/conf.d/security_headers.conf`)
+* **Apache HTTP Server** (`.htaccess` / `httpd.conf`)
+* **Next.js & Vercel** (`middleware.ts` / `vercel.json`)
+* **Node.js Express** (`helmet` configuration snippet)
+* **Cloudflare** (Edge Transform Rules expression)
+* **DNS Providers** (Authoritative TXT records for SPF and DMARC)
+
+---
+
+## 🎛️ Complete Platform Feature Matrix
 
 ```
 +----------------------------------------------------------------------------------------------------+
 |                                    CYBERGUARD AI FEATURE MATRIX                                    |
 +------------------------------------------------------------------+----------------+----------------+
-| Capability / Inspection Layer                                    | Free Scan (L1) | Deep Audit (L2)|
+| Capability / Inspection Layer                                    | Free Tier (L1) | Deep Audit (L2)|
 +------------------------------------------------------------------+----------------+----------------+
 | 24-Dimensional URL Lexical Random Forest Classifier              |       ✅       |       ✅       |
 | Calibrated Phishing Probability Score (0 - 100)                  |       ✅       |       ✅       |
-| Real-Time Google DoH DNS Record Hierarchy (A, NS, MX, TXT)       |       ✅       |       ✅       |
-| Authoritative RDAP Domain Age & Registrar Resolution             |       ✅       |       ✅       |
-| Unregistered Domain (NXDOMAIN) Detection (Zero Fake Data)        |       ✅       |       ✅       |
-| Headless Playwright Chromium DOM & Screenshot Capture            |       🔒       |       ✅       |
+| Authoritative Google DoH DNS Resolution (A, AAAA, MX, NS, TXT)   |       ✅       |       ✅       |
+| Authoritative ICANN RDAP Domain Age & Registrar Resolution       |       ✅       |       ✅       |
+| Unregistered Domain (NXDOMAIN) Verification                      |       ✅       |       ✅       |
+| Multi-Signal Calibrated Risk Fusion                              |       ✅       |       ✅       |
+| Threat Intelligence Center (Live SOC Metrics & Risky TLDs)       |       ✅       |       ✅       |
+| Bulk URL Scanner (Concurrent Batch Processing + CSV Export)      |       ✅       |       ✅       |
+| Email Link Extractor & Phishing Triage                           |       ✅       |       ✅       |
+| Password Strength & HIBP k-Anonymity Breach Verification         |       ✅       |       ✅       |
+| IP Reputation & Geolocation (ASN, Reverse DNS, Abuse Index)      |       ✅       |       ✅       |
+| Domain Watchlist & Live Alerts (Persistent Surveillance)         |       ✅       |       ✅       |
+| Scan History & Side-by-Side Comparison Drawer                    |       ✅       |       ✅       |
+| Interactive Cyber Defense AI Chatbot Assistant                   |       ✅       |       ✅       |
+| Manifest V3 Chrome Extension Active Tab Protection               |       ✅       |       ✅       |
+| Headless Playwright Chromium Sandbox Capture & Viewport          |       🔒       |       ✅       |
 | Computer Vision Brand-Domain Contradiction Engine (pHash)        |       🔒       |       ✅       |
-| Full 7-Stage Attack-Chain Timeline Graph                         |       🔒       |       ✅       |
-| Website Security Posture Auditor (Clickjacking, SPF, DMARC, HSTS)|       🔒       |       ✅       |
-| Executive Letter Grades (A+ to F) with Exploit Risk Breakdown    |       🔒       |       ✅       |
-| Google Gemini 2.5 Flash Threat Intelligence & Exploit Explainer  |       🔒       |       ✅       |
-| 1-Click Developer Code Fixes (Nginx, Apache, Next.js, Helmet)    |       🔒       |       ✅       |
-| Downloadable Forensic Dossier (Markdown & JSON)                  |       🔒       |       ✅       |
-| Micro-Metered Access via Algorand Testnet (0.1 ALGO via x402)    |  Free / 0 ALGO |    0.1 ALGO    |
+| Live X.509 DER TLS/SSL Peer Certificate Extraction               |       🔒       |       ✅       |
+| Website Security Posture Audit (CSP, HSTS, X-Frame-Options)      |       🔒       |       ✅       |
+| 1-Click Remediation Snippets (Nginx, Apache, Next.js, Cloudflare)|       🔒       |       ✅       |
+| Complete 7-Stage Adversary Kill-Chain Timeline                   |       🔒       |       ✅       |
+| Google Gemini 2.5 Flash Threat Intelligence Dossier              |       🔒       |       ✅       |
+| Micro-Metered Access via Algorand Testnet (x402 Protocol)        |  Free / 0 ALGO |    0.1 ALGO    |
 +------------------------------------------------------------------+----------------+----------------+
 ```
 
 ---
 
-## ⛓️ Algorand Testnet & x402 Protocol Implementation
+## ⛓️ x402 Micropayment Protocol on Algorand Testnet
 
 ### What is x402?
-The **x402 protocol** leverages the native `HTTP 402 Payment Required` status code to enable frictionless, trustless micropayments on high-throughput blockchains. Unlike traditional SaaS paywalls, x402 requires **zero credit cards, zero subscriptions, and zero login accounts**.
+The **x402 protocol** implements the native `HTTP 402 Payment Required` standard. It allows API servers to return payment challenges directly in standard HTTP response headers, allowing clients (both browsers and automated autonomous agents) to settle payments on-chain in real time without creating user accounts, sharing personal identity details, or entering credit card numbers.
 
-### Supported Algorand Wallet Providers
-CyberGuard AI integrates with the official Algorand ecosystem wallets via WalletConnect v2:
-* 🟣 **Defly Wallet**: Mobile biometric signing with QR pairing.
-* 🟡 **Pera Wallet** *(Recommended)*: Official Algorand mobile wallet with instant WalletConnect deep-linking.
-* 🔷 **Exodus Wallet**: Multi-chain Web3 wallet with Algorand Testnet support.
-* 🟣 **Lute Wallet**: Algorand web-based developer wallet.
-* ⚡ **Direct Web Signer**: Instant testnet signature generator for automated agents.
-
-### Algorand Testnet Protocol Parameters
+### Protocol Parameters
 * **Network CAIP-2 Identifier**: `algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=`
 * **CyberGuard AI Escrow Address**: `MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY`
-* **Audit Price**: `100,000 microAlgos` (= **`0.1 ALGO`**) or **`$0.01 USDC`** (Testnet ASA `#10458941`).
-* **Minimum Consensus Transaction Fee**: `1,000 microAlgos` (`1mA` / `0.001 ALGO`).
-* **WalletConnect Cloud Project ID**: `2746fa499d042749f0e019a16c15cf39`
-* **GoPlausible Facilitator**: `https://facilitator.goplausible.xyz`
-* **Public Algorand Node / Indexer**: `https://testnet-api.algonode.cloud` & `https://testnet-idx.algonode.cloud`
-* **Explorer Verification**: [LoRA Algokit Testnet Explorer](https://lora.algokit.io/testnet)
+* **Audit Price**: `100,000 microAlgos` (= **`0.1 ALGO`**, approximately **`$0.01 USD`**).
+* **Consensus Network Fee**: `1,000 microAlgos` (`0.001 ALGO`).
+* **Supported Wallets**: 🟡 **Pera Wallet**, 🟣 **Defly Wallet**, 🔷 **Exodus**, 🟣 **Lute**.
+* **Public Node**: `https://testnet-api.algonode.cloud`
+* **Public Indexer**: `https://testnet-idx.algonode.cloud`
+* **On-Chain Explorer**: [LoRA Algokit Testnet Explorer](https://lora.algokit.io/testnet)
 
-### The x402 HTTP Challenge & Verification Workflow
-When an unauthenticated client requests the Premium Deep Audit endpoint (`POST /api/premium-scan`), the server immediately issues an authentic `HTTP 402` response:
-
+### HTTP 402 Challenge Specification
+When requesting a protected endpoint without an on-chain receipt:
 ```http
 HTTP/1.1 402 Payment Required
 WWW-Authenticate: x402 realm="CyberGuard Premium Audit", network="algorand-testnet", caip2="algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=", recipient="MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY", amount="100000", currency="ALGO", facilitator="https://facilitator.goplausible.xyz"
@@ -335,7 +508,7 @@ Content-Type: application/json
 {
   "status": 402,
   "error": "Payment Required",
-  "message": "Access to CyberGuard AI Premium Deep Security Audit requires an on-chain micropayment of 0.1 ALGO (100,000 µALGO) to MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY on Algorand Testnet.",
+  "message": "Access to CyberGuard AI Premium Deep Security Audit requires an on-chain micropayment of 0.1 ALGO (100,000 µALGO) on Algorand Testnet.",
   "challenge": {
     "challenge_id": "x402-1aeacbb6af29",
     "network": "algorand-testnet",
@@ -349,7 +522,8 @@ Content-Type: application/json
 }
 ```
 
-The client signs the transaction via Pera / Defly, broadcasts it to Algorand Testnet, and requests forensic unlocking:
+### Unlocking the Report with Cryptographic Proof
+The client signs the transaction, broadcasts it to Algorand Testnet, and submits the transaction ID:
 ```http
 POST /api/premium-scan HTTP/1.1
 Host: localhost:8000
@@ -362,17 +536,36 @@ X-Payment: 6V42OBUS4K5OIZ4Z44YVZZT7B22NPPZ7E5AECU3O4M6C3P67ZSQA
   "payment_tx_id": "6V42OBUS4K5OIZ4Z44YVZZT7B22NPPZ7E5AECU3O4M6C3P67ZSQA"
 }
 ```
+The server checks the Algorand Indexer ledger. Once confirmed, the Deep Forensic Audit executes and returns `HTTP 200 OK` along with the on-chain confirmation receipt.
 
 ---
 
-## 💻 Local Installation & Setup Guide
+## 🔌 REST API Reference & Endpoints
 
-### 1. Prerequisites
-* **Python 3.10+** (Tested on Python 3.11 & 3.12)
-* **Node.js 18+** & **npm**
-* **Google Chrome / Chromium**
+| Method | Endpoint | Description | Auth / Tier |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/scan/free` | Performs fast lexical ML triage, DoH DNS lookups, and RDAP age checks | Free (L1) |
+| `POST` | `/api/premium-scan` | Executes deep Playwright sandbox, pHash logo matching, TLS DER cert, and Gemini AI | x402 (0.1 ALGO) |
+| `POST` | `/api/scan/bulk` | Parallel batch scanning of up to 20 domains with forensic aggregations | Free Tier |
+| `GET` | `/api/threat/stats` | Returns real-time SOC metrics, top impersonated brands, and risky TLD telemetry | Free Tier |
+| `POST` | `/api/tools/password-strength`| Evaluates password entropy, crack time, and checks HIBP k-anonymity breach database | Free Tier |
+| `POST` | `/api/tools/ip-reputation` | Resolves IP geolocation, carrier ASN, abuse risk index, and reverse DNS (PTR) | Free Tier |
+| `GET` | `/api/watchlist` | Retrieves all domains currently monitored in the watchlist | Free Tier |
+| `POST` | `/api/watchlist` | Adds a domain and metadata tags to the surveillance watchlist | Free Tier |
+| `DELETE`| `/api/watchlist/{id}` | Removes a monitored domain from the surveillance watchlist | Free Tier |
+| `POST` | `/api/chat` | Contextual AI cybersecurity assistant answering questions about scan results | Free Tier |
+| `GET` | `/api/extension/download` | Direct zip package download of the CyberGuard AI Chrome Extension | Free Tier |
 
-### 2. Clone the Repository
+---
+
+## 💻 Local Deployment & Setup Guide
+
+### 1. System Prerequisites
+* **Python 3.10+** (Tested on 3.11 and 3.12)
+* **Node.js 18+** & **npm 9+**
+* **Google Chrome / Chromium** (required for Playwright)
+
+### 2. Repository Setup
 ```bash
 git clone https://github.com/Siddhartha39/Cyberguard-AI.git
 cd Cyberguard-AI
@@ -380,107 +573,85 @@ cd Cyberguard-AI
 
 ### 3. Backend Setup
 ```bash
-# Navigate to backend and install requirements
+# Navigate to backend directory and install Python dependencies
 cd backend
 pip install -r requirements.txt
 
-# Install Playwright browser binaries
+# Install Playwright Chromium browser binaries
 playwright install chromium
 
-# Start the FastAPI server
+# Launch the FastAPI server with hot-reload
 cd ..
 PYTHONPATH=backend python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
-* Backend API: `http://localhost:8000`
-* Interactive OpenAPI Docs (Swagger): `http://localhost:8000/docs`
+* **API Server Running**: `http://localhost:8000`
+* **Interactive OpenAPI (Swagger) Docs**: `http://localhost:8000/docs`
 
 ### 4. Frontend Setup
 ```bash
-# Navigate to frontend and install npm packages
+# Navigate to frontend directory and install npm packages
 cd frontend
 npm install
 
 # Start the Vite development server
 npm run dev -- --host 0.0.0.0 --port 5173
 ```
-* Frontend SOC Console: `http://localhost:5173`
-
-### 5. Chrome Extension Installation (Manifest V3)
-1. Open Google Chrome and go to `chrome://extensions/`.
-2. Toggle **Developer mode** on (top-right).
-3. Click **Load unpacked** and select the `extension/` folder in this repository.
-4. The CyberGuard AI shield icon will appear in your Chrome toolbar.
+* **SOC Web Console**: `http://localhost:5173`
 
 ---
 
-## 🔬 Benchmark Scenarios & Automated Verification
+## 🧩 Manifest V3 Chrome Extension Setup
 
-### Pre-Configured Benchmark Scenarios in UI
-1. **`campuskart.shop`** (Legitimate E-Commerce Store)
-   * *Expected Verdict*: `BENIGN` (Risk Score: `4.4/100`)
-   * *Demonstrates*: Zero False Positives on newly launched legitimate businesses.
-2. **`login-paypal-security-verification.xyz`** (Active Phishing Impersonation)
-   * *Expected Verdict*: `PHISHING` (Risk Score: `96.5/100`)
-   * *Demonstrates*: Critical Brand Contradiction detection against PayPal trademark.
-3. **`microsoft-onedrive-sharepoint-verify.top`** (Credential Harvesting Portal)
-   * *Expected Verdict*: `PHISHING` (Risk Score: `92.0/100`)
-   * *Demonstrates*: Password input trap detection on newly registered `.top` TLD.
-4. **`github.com`** (Grade A+ Security Hardened Reference)
-   * *Expected Verdict*: `BENIGN` (Grade: `A+`, 100% Pass Rate)
-   * *Demonstrates*: Modern CSP, HSTS, and DMARC verification.
-5. **`psit.a` / `nonexistent-site.xyz`** (Unregistered Domain Validation)
-   * *Expected Verdict*: `UNREGISTERED` (Zero fake data, NXDOMAIN).
+The repository includes a production **Manifest V3 Chrome Extension** located in the `extension/` directory:
 
-### Running Automated Test Suite
-```bash
-PYTHONPATH=backend python3 backend/tests/test_backend.py
-```
-**Output:**
-```
-✓ test_entropy passed
-✓ test_lexical_extraction passed
-✓ test_triage_classifier passed
-✓ test_brand_contradiction passed
-✓ test_unregistered_domain_handling passed
-✓ test_x402_challenge passed
-ALL BACKEND UNIT TESTS PASSED!
-```
+1. Open Google Chrome and navigate to `chrome://extensions/`.
+2. Enable **Developer mode** using the toggle in the upper-right corner.
+3. Click **Load unpacked** in the upper-left corner.
+4. Select the `extension/` folder inside the `Cyberguard-AI` directory.
+5. The CyberGuard AI shield icon will appear in your Chrome toolbar.
+6. Click the extension on any active webpage to initiate a real-time security audit connecting directly to your local CyberGuard AI backend.
 
 ---
 
-## 🎤 Judge Q&A Preparation Cheat-Sheet
+## ❓ Technical FAQ & Security Architecture
 
 <details>
-<summary><strong>Q1: Why did you use a Calibrated Random Forest for lexical triage instead of calling an LLM directly?</strong></summary>
+<summary><strong>1. Why use a Calibrated Random Forest for Fast Triage instead of calling an LLM directly?</strong></summary>
 
-> **Answer**: Speed and cost. The Fast Triage stage executes in **< 25ms** using a 24-dimensional feature vector without consuming API tokens or network latency. This filters out 90% of requests instantly for free, reserving deep Playwright crawling and Google Gemini 2.5 Flash for the premium audit unlocked via x402 micropayments.
+> **Answer**: Latency, cost, and reliability. The Fast Triage classifier extracts a 24-dimensional handcrafted lexical feature vector and evaluates it in **< 25ms** entirely in local CPU memory without consuming API tokens or incurring network round-trips. This delivers an instant risk assessment for free, reserving the heavier headless Chromium sandbox and Google Gemini 2.5 Flash synthesis for the deep forensic tier unlocked via x402 micropayments.
 </details>
 
 <details>
-<summary><strong>Q2: How does CyberGuard AI prevent False Positives on new legitimate startups?</strong></summary>
+<summary><strong>2. How does CyberGuard AI avoid False Positives on newly launched legitimate startups?</strong></summary>
 
-> **Answer**: Domain age is only one factor (weighted at 20%). A newly registered domain that does *not* impersonate an established trademark, does *not* contain phishing keywords, and has clean lexical entropy is scored safely (~15/100). The Brand Contradiction Engine specifically protects startups from being misclassified.
+> **Answer**: Domain age is only weighted at 20% in the Bayesian risk fusion matrix. A newly registered domain that does *not* impersonate an established trademark, does *not* present credential harvesting inputs, and does *not* utilize high-entropy URL obfuscation receives a safe score (~12-15/100). The Brand-Domain Contradiction Engine specifically verifies whether a site is genuinely claiming to be an enterprise brand or simply operating as an independent business.
 </details>
 
 <details>
-<summary><strong>Q3: How does the x402 payment flow differ from traditional Stripe/credit card checkout?</strong></summary>
+<summary><strong>3. How does the x402 payment workflow differ from traditional credit card checkouts?</strong></summary>
 
-> **Answer**: Traditional checkouts require account signups, KYC, credit card numbers, and high minimum fees ($0.30 + 2.9%). With x402 on Algorand, payments occur **micro-metered on-chain (0.1 ALGO / ~$0.01)** in seconds with zero login friction, enabling autonomous AI agents and users to pay per API call.
+> **Answer**: Traditional payments require signups, authentication, credit card tokenization, and high minimum interchange fees ($0.30 + 2.9%). With x402 on Algorand Testnet, payments occur **micro-metered on-chain (0.1 ALGO / ~$0.01)** in sub-second consensus rounds without user accounts or credit cards, enabling both humans and autonomous AI agents to consume intelligence on a strict pay-per-call basis.
 </details>
 
 <details>
-<summary><strong>Q4: How do you handle fake or unregistered domains?</strong></summary>
+<summary><strong>4. How are unregistered or non-existent domains handled?</strong></summary>
 
-> **Answer**: We query Google DNS-over-HTTPS (`Status: 3 NXDOMAIN`) and authoritative ICANN RDAP (HTTP 404). If a domain is unregistered, the system outputs `UNREGISTERED`, suppresses fake headers, and displays `NXDOMAIN (No Host IP Assigned)`, guaranteeing 100% data integrity.
+> **Answer**: Queries are dispatched to authoritative Google DNS-over-HTTPS (`Status: 3 NXDOMAIN`) and ICANN RDAP (`HTTP 404`). If a domain is unallocated, CyberGuard AI immediately assigns the verdict `UNREGISTERED` and displays an explicit `NXDOMAIN (No Host IP Assigned)` status in the UI, suppressing fake SSL certificates, synthetic IP addresses, or simulated headers.
 </details>
 
 <details>
-<summary><strong>Q5: What prevents malicious target websites from attacking the Playwright crawler?</strong></summary>
+<summary><strong>5. What security controls protect the Playwright crawler from malicious targets?</strong></summary>
 
-> **Answer**: The Playwright sandbox operates in a strictly isolated headless Chromium process with an SSRF firewall, resource-blocking rules, disabled popup windows, and a strict 10-second timeout.
+> **Answer**: The Playwright sandbox operates in a strictly isolated headless Chromium process with an SSRF firewall preventing connections to internal or private subnets (RFC 1918), resource-blocking rules for untrusted scripts, disabled popup windows, and a strict 10-second timeout.
+</details>
+
+<details>
+<summary><strong>6. How is user privacy preserved in the Password Checker?</strong></summary>
+
+> **Answer**: The Password Checker utilizes the **k-anonymity mathematical model**. The client SHA-1 hashes the password locally, and only the **first 5 characters** of the 40-character hex hash are dispatched to the HaveIBeenPwned API (`/range/{prefix}`). The API returns approximately 500-1000 matching hash suffixes without ever knowing the user's full hash or actual password. The client searches the returned suffixes locally in browser memory.
 </details>
 
 ---
 
 ## 📄 License
-This project is licensed under the **MIT License**. Built for advanced cybersecurity intelligence, zero-trust vulnerability auditing, and decentralized Web3 payments.
+This project is licensed under the **MIT License**. Built for advanced cybersecurity intelligence, zero-trust vulnerability auditing, and decentralized Web3 micropayments.

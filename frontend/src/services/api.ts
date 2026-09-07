@@ -1201,53 +1201,85 @@ function generateClientChatResponse(message: string, report?: any): ChatResponse
 }
 
 export async function scanBulkUrls(urls: string[]): Promise<any> {
-  return apiFetch('/scan/bulk', {
+  const res = await apiFetch('/scan/bulk', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ urls }),
   });
+  if (res.ok) {
+    return await res.json();
+  }
+  throw new Error(`Bulk scan failed: ${res.statusText}`);
 }
 
 export async function fetchThreatStats(): Promise<any> {
-  return apiFetch('/threat/stats');
+  const res = await apiFetch('/threat/stats');
+  if (res.ok) {
+    return await res.json();
+  }
+  throw new Error(`Threat stats fetch failed: ${res.statusText}`);
 }
 
 export async function checkPasswordStrength(password: string): Promise<any> {
-  return apiFetch('/tools/password-strength', {
+  const res = await apiFetch('/tools/password-strength', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ password }),
   });
+  if (res.ok) {
+    return await res.json();
+  }
+  throw new Error(`Password check failed: ${res.statusText}`);
 }
 
 export async function lookupIpReputation(ip: string): Promise<any> {
-  return apiFetch('/tools/ip-reputation', {
+  const res = await apiFetch('/tools/ip-reputation', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ip }),
   });
+  if (res.ok) {
+    return await res.json();
+  }
+  throw new Error(`IP reputation lookup failed: ${res.statusText}`);
 }
 
 export async function screenshotUrl(url: string): Promise<any> {
-  return apiFetch('/tools/screenshot', {
+  const res = await apiFetch('/tools/screenshot', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ url }),
   });
+  if (res.ok) {
+    return await res.json();
+  }
+  throw new Error(`Screenshot failed: ${res.statusText}`);
 }
 
 export async function addToWatchlist(domain: string, label?: string): Promise<any> {
-  return apiFetch('/watchlist', {
+  const res = await apiFetch('/watchlist', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ domain, label }),
   });
+  if (res.ok) {
+    return await res.json();
+  }
+  throw new Error(`Add to watchlist failed: ${res.statusText}`);
 }
 
 export async function fetchWatchlist(): Promise<any> {
-  return apiFetch('/watchlist');
+  const res = await apiFetch('/watchlist');
+  if (res.ok) {
+    return await res.json();
+  }
+  throw new Error(`Fetch watchlist failed: ${res.statusText}`);
 }
 
 export async function removeFromWatchlist(id: string): Promise<any> {
-  return apiFetch(`/watchlist/${id}`, { method: 'DELETE' });
+  const res = await apiFetch(`/watchlist/${id}`, { method: 'DELETE' });
+  if (res.ok) {
+    return await res.json();
+  }
+  throw new Error(`Remove from watchlist failed: ${res.statusText}`);
 }

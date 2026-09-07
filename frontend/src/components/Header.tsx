@@ -33,12 +33,31 @@ export const Header: React.FC<HeaderProps> = ({
     const isActive = activeTab === tab;
     return (
       <motion.button
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.97 }}
         onClick={onClick || (() => setActiveTab(tab))}
-        className={`px-3 py-1.5 rounded-lg border-none flex items-center gap-1.5 text-xs font-bold shrink-0 transition-colors whitespace-nowrap ${isActive ? 'bg-cyan-600 text-white shadow-[0_0_10px_rgba(2,132,199,0.4)]' : 'bg-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'}`}
+        style={{
+          padding: '7px 12px',
+          borderRadius: '8px',
+          border: isActive ? '1px solid var(--accent-cyan)' : '1px solid transparent',
+          background: isActive
+            ? 'linear-gradient(135deg, rgba(0, 240, 255, 0.22) 0%, rgba(59, 130, 246, 0.22) 100%)'
+            : 'transparent',
+          color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
+          fontSize: '0.78rem',
+          fontWeight: isActive ? 800 : 600,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          whiteSpace: 'nowrap',
+          flexShrink: 0,
+          boxShadow: isActive ? '0 0 12px rgba(0, 240, 255, 0.35)' : 'none',
+          transition: 'all 0.2s ease',
+        }}
       >
-        <Icon size={14} /> {label}
+        <Icon size={14} color={isActive ? 'var(--accent-cyan)' : 'var(--text-secondary)'} />
+        <span>{label}</span>
       </motion.button>
     );
   };

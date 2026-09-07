@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Key, Eye, EyeOff, ShieldCheck, ShieldAlert, Lock, Hash, AlertCircle } from 'lucide-react';
+import { Key, Eye, EyeOff, ShieldCheck, ShieldAlert, Lock, Hash, AlertCircle, Sparkles, RefreshCw, Check, X } from 'lucide-react';
 
 interface PasswordCheckerProps {
   theme: 'dark' | 'light';
@@ -32,7 +32,7 @@ export const PasswordChecker: React.FC<PasswordCheckerProps> = ({ theme }) => {
     setEntropy(ent);
 
     const timer = setTimeout(() => {
-      if (password.length > 3) {
+      if (password.length > 2) {
         checkWithBackend(password);
       } else {
         setPwned(null);
@@ -42,7 +42,7 @@ export const PasswordChecker: React.FC<PasswordCheckerProps> = ({ theme }) => {
         setCrackTime('Instant');
         setStrength(0);
       }
-    }, 500);
+    }, 450);
     return () => clearTimeout(timer);
   }, [password]);
 
@@ -50,7 +50,11 @@ export const PasswordChecker: React.FC<PasswordCheckerProps> = ({ theme }) => {
     setChecking(true);
     try {
       const endpoint = '/api/tools/password-strength';
-      const opts = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pwd }) };
+      const opts = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pwd })
+      };
       let res = await fetch(endpoint, opts).catch(() => fetch('http://127.0.0.1:8000' + endpoint, opts));
       const data = await res.json();
       setStrength(typeof data.score === 'number' ? data.score : 0);
@@ -67,128 +71,324 @@ export const PasswordChecker: React.FC<PasswordCheckerProps> = ({ theme }) => {
     }
   };
 
-  const getBarColor = (index: number) => {
-    if (strength <= index) return 'bg-[var(--bg-primary)] border border-[var(--border-color)]';
-    if (strength <= 2) return 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]';
-    if (strength === 3) return 'bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]';
-    if (strength === 4) return 'bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.5)]';
-    return 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]';
+  const getSegmentColor = (idx: number) => {
+    if (strength <= idx) return 'var(--bg-primary)';
+    if (strength <= 1) return '#ef4444';
+    if (strength === 2) return '#f97316';
+    if (strength === 3) return '#eab308';
+    return '#10b981';
   };
 
-  return (
-    <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-8">
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
-        <h1 className="text-3xl md:text-4xl font-black mb-2 cyber-font flex items-center justify-center gap-3">
-          <Key className="w-8 h-8 text-cyan-400" />
-          <span className="cyber-gradient-text">Password Strength & Breach Checker</span>
-        </h1>
-        <p className="text-[var(--text-secondary)] font-medium flex items-center justify-center gap-2">
-          <Lock className="w-4 h-4" /> Uses k-anonymity — your password is never transmitted
-        </p>
-      </motion.div>
+  const hasLower = /[a-z]/.test(password);
+  const hasUpper = /[A-Z]/.test(password);
+  const hasNum = /[0-9]/.test(password);
+  const hasSpecial = /[^A-Za-z0-9]/.test(password);
 
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-panel p-6 rounded-2xl space-y-6">
-        <div className="relative">
+  return (
+    <div style={{ maxWidth: '960px', margin: '0 auto', padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      {/* Header */}
+      <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)',
+          border: '1px solid var(--accent-cyan)',
+          padding: '12px',
+          borderRadius: '16px',
+          display: 'inline-flex',
+          boxShadow: '0 0 20px rgba(0, 240, 255, 0.3)'
+        }}>
+          <Key size={32} color="var(--accent-cyan)" />
+        </div>
+        <h1 className="cyber-font" style={{ fontSize: '1.8rem', fontWeight: 900, margin: 0, color: 'var(--text-primary)' }}>
+          Password Strength &amp; Breach Checker
+        </h1>
+        <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Lock size={14} color="var(--accent-cyan)" />
+          <span>Uses cryptographic k-Anonymity — your raw password never leaves your browser</span>
+        </p>
+      </div>
+
+      {/* Main Glass Input Panel */}
+      <div className="glass-panel" style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* Input Row */}
+        <div style={{ position: 'relative', width: '100%' }}>
           <input
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-[var(--bg-primary)] border-2 border-[var(--border-color)] text-[var(--text-primary)] rounded-xl py-4 pl-4 pr-12 text-xl font-mono focus:border-cyan-400 focus:outline-none transition-colors"
-            placeholder="Type a password to check..."
+            placeholder="Enter a password to test..."
+            className="mono"
+            style={{
+              width: '100%',
+              padding: '16px 48px 16px 18px',
+              fontSize: '1.15rem',
+              borderRadius: '12px',
+              backgroundColor: 'var(--bg-primary)',
+              border: '2px solid var(--border-color)',
+              color: 'var(--text-primary)',
+              outline: 'none',
+              boxSizing: 'border-box',
+              transition: 'border-color 0.2s'
+            }}
           />
           <button
+            type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-cyan-400 transition-colors"
+            style={{
+              position: 'absolute',
+              right: '16px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-secondary)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center'
+            }}
           >
-            {showPassword ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         </div>
 
-        <div className="flex gap-2 h-3">
+        {/* Quick Test Preset Buttons */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700 }}>Quick Test:</span>
+          <button
+            type="button"
+            onClick={() => setPassword('P@ssw0rd123')}
+            style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.4)',
+              color: '#ef4444',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              fontSize: '0.72rem',
+              fontWeight: 800,
+              cursor: 'pointer'
+            }}
+          >
+            Common Breached (P@ssw0rd123)
+          </button>
+          <button
+            type="button"
+            onClick={() => setPassword('solar-flare-quantum-vault-2026!')}
+            style={{
+              background: 'rgba(16, 185, 129, 0.1)',
+              border: '1px solid rgba(16, 185, 129, 0.4)',
+              color: '#10b981',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              fontSize: '0.72rem',
+              fontWeight: 800,
+              cursor: 'pointer'
+            }}
+          >
+            High Entropy Passphrase
+          </button>
+          {password && (
+            <button
+              type="button"
+              onClick={() => setPassword('')}
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--border-color)',
+                color: 'var(--text-secondary)',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '0.72rem',
+                cursor: 'pointer'
+              }}
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        {/* 5-segment Strength Bar */}
+        <div style={{ display: 'flex', gap: '6px', height: '8px', width: '100%' }}>
           {[0, 1, 2, 3, 4].map((i) => (
-            <div key={i} className={`flex-1 rounded-full transition-all duration-500 ${getBarColor(i)}`} />
+            <div
+              key={i}
+              style={{
+                flex: 1,
+                borderRadius: '4px',
+                backgroundColor: getSegmentColor(i),
+                border: '1px solid var(--border-color)',
+                transition: 'background-color 0.3s'
+              }}
+            />
           ))}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-[var(--bg-primary)] border border-[var(--border-color)] p-4 rounded-xl text-center">
-            <span className="block text-xs text-[var(--text-secondary)] uppercase font-bold mb-1">Entropy</span>
-            <span className="text-xl font-mono font-bold">{entropy.toFixed(1)} bits</span>
+        {/* Strength Label */}
+        {strengthLabel && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 700 }}>VERDICT EVALUATION</span>
+            <span className="mono" style={{
+              fontSize: '0.88rem',
+              fontWeight: 900,
+              color: strength <= 1 ? '#ef4444' : strength === 2 ? '#f97316' : strength === 3 ? '#eab308' : '#10b981'
+            }}>
+              {strengthLabel}
+            </span>
           </div>
-          <div className="bg-[var(--bg-primary)] border border-[var(--border-color)] p-4 rounded-xl text-center">
-            <span className="block text-xs text-[var(--text-secondary)] uppercase font-bold mb-1">Crack Time</span>
-            <span className="text-xl font-mono font-bold text-cyan-400">{crackTime}</span>
+        )}
+
+        {/* Telemetry Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
+          {/* Entropy */}
+          <div style={{ background: 'var(--bg-primary)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+            <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Shannon Entropy</span>
+            <div className="mono" style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-primary)', marginTop: '4px' }}>
+              {entropy.toFixed(1)} bits
+            </div>
           </div>
-          <div className="bg-[var(--bg-primary)] border border-[var(--border-color)] p-4 rounded-xl text-center col-span-2 md:col-span-2 flex flex-col justify-center items-center">
-            <span className="block text-xs text-[var(--text-secondary)] uppercase font-bold mb-2">Character Types</span>
-            <div className="flex gap-2 flex-wrap justify-center">
-              <span className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${/[a-z]/.test(password) ? 'bg-cyan-500/20 text-cyan-400' : 'bg-gray-500/20 text-gray-500'}`}>abc</span>
-              <span className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${/[A-Z]/.test(password) ? 'bg-cyan-500/20 text-cyan-400' : 'bg-gray-500/20 text-gray-500'}`}>ABC</span>
-              <span className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${/[0-9]/.test(password) ? 'bg-cyan-500/20 text-cyan-400' : 'bg-gray-500/20 text-gray-500'}`}>123</span>
-              <span className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${/[^A-Za-z0-9]/.test(password) ? 'bg-cyan-500/20 text-cyan-400' : 'bg-gray-500/20 text-gray-500'}`}>!@#</span>
+
+          {/* Crack Time */}
+          <div style={{ background: 'var(--bg-primary)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+            <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Brute-Force Estimate</span>
+            <div className="mono" style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--accent-cyan)', marginTop: '6px' }}>
+              {crackTime}
+            </div>
+          </div>
+
+          {/* Character Diversity Chips */}
+          <div style={{ background: 'var(--bg-primary)', padding: '14px', borderRadius: '10px', border: '1px solid var(--border-color)', textAlign: 'center', gridColumn: 'span 2' }}>
+            <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Character Pool Diversity</span>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '8px', flexWrap: 'wrap' }}>
+              <span className="mono" style={{
+                padding: '3px 8px',
+                borderRadius: '6px',
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                background: hasLower ? 'rgba(0, 240, 255, 0.15)' : 'rgba(100, 116, 139, 0.2)',
+                color: hasLower ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                border: `1px solid ${hasLower ? 'var(--accent-cyan)' : 'transparent'}`
+              }}>
+                a-z
+              </span>
+              <span className="mono" style={{
+                padding: '3px 8px',
+                borderRadius: '6px',
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                background: hasUpper ? 'rgba(0, 240, 255, 0.15)' : 'rgba(100, 116, 139, 0.2)',
+                color: hasUpper ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                border: `1px solid ${hasUpper ? 'var(--accent-cyan)' : 'transparent'}`
+              }}>
+                A-Z
+              </span>
+              <span className="mono" style={{
+                padding: '3px 8px',
+                borderRadius: '6px',
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                background: hasNum ? 'rgba(0, 240, 255, 0.15)' : 'rgba(100, 116, 139, 0.2)',
+                color: hasNum ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                border: `1px solid ${hasNum ? 'var(--accent-cyan)' : 'transparent'}`
+              }}>
+                0-9
+              </span>
+              <span className="mono" style={{
+                padding: '3px 8px',
+                borderRadius: '6px',
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                background: hasSpecial ? 'rgba(0, 240, 255, 0.15)' : 'rgba(100, 116, 139, 0.2)',
+                color: hasSpecial ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                border: `1px solid ${hasSpecial ? 'var(--accent-cyan)' : 'transparent'}`
+              }}>
+                !@#$
+              </span>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Strength label from backend */}
-        {strengthLabel && (
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-[var(--text-secondary)]">Strength</span>
-            <span className={`text-sm font-bold ${strength <= 1 ? 'text-red-400' : strength === 2 ? 'text-orange-400' : strength === 3 ? 'text-yellow-400' : 'text-green-400'}`}>{strengthLabel}</span>
-          </div>
-        )}
-      </motion.div>
-
+      {/* Breach Warning Banner */}
       <AnimatePresence>
-        {password.length > 3 && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-4">
-            {/* Breach Status */}
-            <div className={`glass-panel p-6 rounded-xl border-2 flex items-start gap-4 ${checking ? 'border-[var(--border-color)]' : isPwned ? 'border-red-500 bg-red-500/5' : 'border-green-500 bg-green-500/5'}`}>
+        {password.length > 2 && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+          >
+            <div
+              className="glass-panel"
+              style={{
+                padding: '24px',
+                borderLeft: `4px solid ${checking ? 'var(--border-color)' : isPwned ? '#ef4444' : '#10b981'}`,
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '16px'
+              }}
+            >
               {checking ? (
-                <div className="w-10 h-10 border-4 border-[var(--border-color)] border-t-cyan-500 rounded-full animate-spin flex-shrink-0 mt-1" />
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  border: '3px solid var(--border-color)',
+                  borderTopColor: 'var(--accent-cyan)',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
+                  flexShrink: 0,
+                  marginTop: '4px'
+                }} />
               ) : isPwned ? (
-                <ShieldAlert className="w-12 h-12 text-red-500 flex-shrink-0" />
+                <ShieldAlert size={32} color="#ef4444" style={{ flexShrink: 0 }} />
               ) : (
-                <ShieldCheck className="w-12 h-12 text-green-500 flex-shrink-0" />
+                <ShieldCheck size={32} color="#10b981" style={{ flexShrink: 0 }} />
               )}
+
               <div>
-                <h3 className={`text-xl font-bold ${checking ? 'text-[var(--text-primary)]' : isPwned ? 'text-red-400' : 'text-green-400'}`}>
-                  {checking ? 'Checking HaveIBeenPwned...' : isPwned ? '⚠️ Password Compromised!' : '✅ No Breaches Found'}
-                </h3>
-                <p className="text-[var(--text-secondary)] mt-1 text-sm">
+                <h3 style={{
+                  fontSize: '1.15rem',
+                  fontWeight: 900,
+                  margin: 0,
+                  color: checking ? 'var(--text-primary)' : isPwned ? '#ef4444' : '#10b981'
+                }}>
                   {checking
-                    ? 'Querying HIBP k-anonymity API — your password hash is never sent...'
+                    ? 'Querying HaveIBeenPwned...'
                     : isPwned
-                    ? <>This password appeared in <strong className="text-red-400">{(pwned ?? 0).toLocaleString()}</strong> known data breaches. Change it immediately on all sites.</>
-                    : 'This password was not found in any known data breach databases.'}
+                    ? 'CRITICAL ALERT: Password Found in Known Data Breaches!'
+                    : 'Authentic: No Breaches Found in HIBP Registry'}
+                </h3>
+                <p style={{ margin: '6px 0 0 0', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                  {checking
+                    ? 'Computing SHA-1 prefix and querying HaveIBeenPwned k-anonymity endpoint...'
+                    : isPwned
+                    ? <>This exact password has appeared in <strong style={{ color: '#ef4444' }}>{(pwned ?? 0).toLocaleString()}</strong> known breach dumps. Attackers use credential stuffing dictionaries containing this password. Change it immediately.</>
+                    : 'This password does not match any compromised hash records in HaveIBeenPwned.'}
                 </p>
               </div>
             </div>
 
-            {/* Improvement Suggestions */}
+            {/* Suggestions */}
             {suggestions.length > 0 && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-panel p-5 rounded-xl">
-                <h3 className="text-sm font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" /> Improvement Suggestions
-                </h3>
-                <ul className="space-y-2">
-                  {suggestions.map((s, i) => (
-                    <motion.li key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
-                      className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-                      <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs font-bold flex-shrink-0">!</span>
+              <div className="glass-panel" style={{ padding: '20px' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  Hardening Suggestions
+                </span>
+                <ul style={{ margin: '10px 0 0 0', paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {suggestions.map((s, idx) => (
+                    <li key={idx} style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 600 }}>
                       {s}
-                    </motion.li>
+                    </li>
                   ))}
                 </ul>
-              </motion.div>
+              </div>
             )}
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="text-center text-xs text-[var(--text-muted)] flex items-center justify-center gap-2 py-2">
-        <Hash className="w-3 h-3" /> 🔒 Only first 5 chars of SHA1 hash sent to HIBP API. Your password is never transmitted in plaintext.
+      {/* Privacy Notice */}
+      <div style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+        <Hash size={14} />
+        <span>Only the first 5 characters of the SHA-1 hash are sent to HIBP. Your plaintext password never touches any network socket.</span>
       </div>
     </div>
   );
 };
+
