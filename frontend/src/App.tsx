@@ -8,6 +8,8 @@ import { PipelineStepper } from './components/PipelineStepper';
 import type { PipelineStep } from './components/PipelineStepper';
 import { RiskSummaryCard } from './components/RiskSummaryCard';
 import { BrandContradictionCard } from './components/BrandContradictionCard';
+import { InfrastructureIntelCard } from './components/InfrastructureIntelCard';
+import { ThreatVectorsCard } from './components/ThreatVectorsCard';
 import { SecurityPostureCard } from './components/SecurityPostureCard';
 import { AttackChainVisualizer } from './components/AttackChainVisualizer';
 import { EvidenceTable } from './components/EvidenceTable';
@@ -461,14 +463,18 @@ export function App() {
                     />
                   </motion.div>
 
-                  {/* Brand Contradiction & Exploitability Grid */}
+                  {/* Brand Contradiction, Infrastructure Intel & Exploitability Grid */}
                   <motion.div
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, delay: 0.12 }}
-                    style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '24px' }}
+                    style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '24px' }}
                   >
-                    <BrandContradictionCard brand={report.brand_analysis} domainIntel={report.domain_intel} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                      <BrandContradictionCard brand={report.brand_analysis} domainIntel={report.domain_intel} />
+                      <InfrastructureIntelCard domainIntel={report.domain_intel} crawlArtifacts={report.crawl_artifacts} targetDomain={report.canonical_domain} />
+                      <ThreatVectorsCard report={report} />
+                    </div>
                     <SecurityPostureCard audit={report.security_audit} aiInsights={report.ai_insights} domain={report.canonical_domain} />
                   </motion.div>
 
@@ -512,8 +518,12 @@ export function App() {
                   onExportClick={() => setShowExportModal(true)}
                   onSubmitFeedback={handleSubmitFeedback}
                 />
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '24px' }}>
-                  <BrandContradictionCard brand={report.brand_analysis} domainIntel={report.domain_intel} />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '24px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <BrandContradictionCard brand={report.brand_analysis} domainIntel={report.domain_intel} />
+                    <InfrastructureIntelCard domainIntel={report.domain_intel} crawlArtifacts={report.crawl_artifacts} targetDomain={report.canonical_domain} />
+                    <ThreatVectorsCard report={report} />
+                  </div>
                   <SecurityPostureCard audit={report.security_audit} aiInsights={report.ai_insights} domain={report.canonical_domain} />
                 </div>
                 <AttackChainVisualizer nodes={report.attack_chain} />

@@ -95,7 +95,7 @@ app.use(helmet({
   };
 
   return (
-    <div className="glass-panel" style={{ padding: '24px', margin: '0 24px 20px 24px', border: `1px solid ${isGradeGood ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)'}` }}>
+    <div className="glass-panel" style={{ padding: '24px', border: `1px solid ${isGradeGood ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)'}` }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', flexWrap: 'wrap', gap: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
