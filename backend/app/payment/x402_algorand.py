@@ -307,6 +307,24 @@ class X402Manager:
             "last-round": 67064500,
             "min-fee": 1000
         }
+    async def broadcast_raw_transaction(self, raw_txn_base64: str) -> Dict[str, Any]:
+        """Broadcasts a signed raw transaction (base64 encoded) to Algorand Testnet node."""
+        import base64
+        try:
+            raw_bytes = base64.b64decode(raw_txn_base64)
+            async with httpx.AsyncClient(timeout=8.0) as client:
+                res = await client.post(
+                    f"{settings.ALGOD_SERVER}/v2/transactions",
+                    headers={"Content-Type": "application/x-binary"},
+                    content=raw_bytes
+                )
+                if res.status_code == 200:
+                    data = res.json()
+                    return {"success": True, "txId": data.get("txId"), "error": None}
+                else:
+                    return {"success": False, "error": res.text, "status_code": res.status_code}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     def is_case_paid(self, case_id: str) -> bool:
         return case_id in self._verified_sessions

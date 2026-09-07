@@ -340,8 +340,35 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
         const signedTxns = await peraWalletRef.current.signTransaction([singleTxnGroups]);
 
         // Broadcast to Algorand Testnet node
-        const sendResult = await algodClientRef.current.sendRawTransaction(signedTxns).do();
-        const txId = sendResult.txId;
+        let txId = '';
+        try {
+          const sendResult = await algodClientRef.current.sendRawTransaction(signedTxns).do();
+          txId = sendResult.txId;
+        } catch (bErr: any) {
+          console.info('Direct Algod client broadcast failed, attempting backend relay broadcast...', bErr);
+          try {
+            const firstTxnBytes = Array.isArray(signedTxns) ? signedTxns[0] : signedTxns;
+            const uint8 = new Uint8Array(firstTxnBytes);
+            let binary = '';
+            for (let i = 0; i < uint8.byteLength; i++) {
+              binary += String.fromCharCode(uint8[i]);
+            }
+            const base64Txn = btoa(binary);
+            const bResp = await fetch(getBackendUrl('/payment/broadcast'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ raw_txn_base64: base64Txn })
+            });
+            if (bResp.ok) {
+              const bData = await bResp.json();
+              txId = bData.txId || txn.txID();
+            } else {
+              txId = txn.txID();
+            }
+          } catch {
+            txId = txn.txID();
+          }
+        }
 
         // Await confirmation
         const confirmedTxn = await algosdk.waitForConfirmation(algodClientRef.current, txId, 4).catch(() => null);

@@ -422,6 +422,16 @@ async def get_account_balance(address: str):
 async def get_suggested_params():
     return await x402_manager.get_suggested_params()
 
+class BroadcastTxRequest(BaseModel):
+    raw_txn_base64: str
+
+@router.post("/payment/broadcast")
+async def broadcast_signed_transaction(req: BroadcastTxRequest):
+    res = await x402_manager.broadcast_raw_transaction(req.raw_txn_base64)
+    if not res.get("success"):
+        raise HTTPException(status_code=400, detail=res.get("error", "Broadcast failed on Algorand Testnet."))
+    return res
+
 # -----------------------------------------------------------------------------------
 # 6. Deep Security Analysis (Full Multi-Modal Pipeline)
 # -----------------------------------------------------------------------------------
