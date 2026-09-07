@@ -338,6 +338,7 @@ export function App() {
             onLaunchScanner={handleLaunchScanner}
             onOpenExtension={() => setActiveTab('extension')}
             onOpenDiscovery={() => setActiveTab('discovery')}
+            onScanUrl={(url) => handleScan(url, true, false)}
           />
         )}
 
