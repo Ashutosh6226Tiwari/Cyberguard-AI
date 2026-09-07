@@ -29,6 +29,12 @@ import { WalletModal } from './components/WalletModal';
 import { HackerTransitionOverlay } from './components/HackerTransitionOverlay';
 import { CyberCopilotChat } from './components/CyberCopilotChat';
 import { AlgorandWalletProvider } from './context/AlgorandWalletContext';
+import { EmailPhishingScanner } from './components/EmailPhishingScanner';
+import { BulkScanner } from './components/BulkScanner';
+import { ThreatDashboard } from './components/ThreatDashboard';
+import { PasswordChecker } from './components/PasswordChecker';
+import { IpReputationPage } from './components/IpReputationPage';
+import { WatchlistPage } from './components/WatchlistPage';
 
 import type {
   RiskScoreReport,
@@ -605,6 +611,14 @@ export function App() {
             isLoading={isLoading}
           />
         )}
+
+        {/* New Pages */}
+        {activeTab === 'email-scanner' && <EmailPhishingScanner theme={theme} onScanUrl={(url) => handleScan(url, false, false)} />}
+        {activeTab === 'bulk-scanner' && <BulkScanner theme={theme} onScanUrl={(url) => handleScan(url, false, false)} />}
+        {activeTab === 'threat-dashboard' && <ThreatDashboard theme={theme} />}
+        {activeTab === 'password-checker' && <PasswordChecker theme={theme} />}
+        {activeTab === 'ip-reputation' && <IpReputationPage theme={theme} />}
+        {activeTab === 'watchlist' && <WatchlistPage theme={theme} onScanUrl={(url) => handleScan(url, false, false)} />}
             </motion.div>
           </AnimatePresence>
         </main>

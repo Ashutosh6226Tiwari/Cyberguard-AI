@@ -1199,3 +1199,55 @@ function generateClientChatResponse(message: string, report?: any): ChatResponse
     ]
   };
 }
+
+export async function scanBulkUrls(urls: string[]): Promise<any> {
+  return apiFetch('/scan/bulk', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ urls }),
+  });
+}
+
+export async function fetchThreatStats(): Promise<any> {
+  return apiFetch('/threat/stats');
+}
+
+export async function checkPasswordStrength(password: string): Promise<any> {
+  return apiFetch('/tools/password-strength', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password }),
+  });
+}
+
+export async function lookupIpReputation(ip: string): Promise<any> {
+  return apiFetch('/tools/ip-reputation', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ip }),
+  });
+}
+
+export async function screenshotUrl(url: string): Promise<any> {
+  return apiFetch('/tools/screenshot', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url }),
+  });
+}
+
+export async function addToWatchlist(domain: string, label?: string): Promise<any> {
+  return apiFetch('/watchlist', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ domain, label }),
+  });
+}
+
+export async function fetchWatchlist(): Promise<any> {
+  return apiFetch('/watchlist');
+}
+
+export async function removeFromWatchlist(id: string): Promise<any> {
+  return apiFetch(`/watchlist/${id}`, { method: 'DELETE' });
+}

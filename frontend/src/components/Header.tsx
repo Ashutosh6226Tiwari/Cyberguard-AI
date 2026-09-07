@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Activity, Database, Radar, Home, Puzzle, Sun, Moon, HelpCircle, Coins, History, LayoutDashboard, Terminal, Wallet } from 'lucide-react';
+import { Shield, Activity, Database, Radar, Home, Puzzle, Sun, Moon, HelpCircle, Coins, History, LayoutDashboard, Terminal, Wallet, Mail, Link, BarChart2, Key, Globe, Bell } from 'lucide-react';
 import { InfoTooltip } from './InfoTooltip';
 import { useAlgorandWallet } from '../context/AlgorandWalletContext';
 
@@ -28,6 +28,21 @@ export const Header: React.FC<HeaderProps> = ({
   hasActiveReport = false
 }) => {
   const { isConnected, address, balanceAlgo } = useAlgorandWallet();
+  
+  const TabButton = ({ tab, label, icon: Icon, onClick }: any) => {
+    const isActive = activeTab === tab;
+    return (
+      <motion.button
+        whileHover={{ scale: 1.04 }}
+        whileTap={{ scale: 0.96 }}
+        onClick={onClick || (() => setActiveTab(tab))}
+        className={`px-3 py-1.5 rounded-lg border-none flex items-center gap-1.5 text-xs font-bold shrink-0 transition-colors whitespace-nowrap ${isActive ? 'bg-cyan-600 text-white shadow-[0_0_10px_rgba(2,132,199,0.4)]' : 'bg-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)]'}`}
+      >
+        <Icon size={14} /> {label}
+      </motion.button>
+    );
+  };
+
   return (
     <header className="glass-panel" style={{ margin: '16px 24px', padding: '16px 20px', position: 'relative', zIndex: 100 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px' }}>
@@ -52,13 +67,6 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="badge-info mono" style={{ fontSize: '0.65rem', padding: '2px 6px', borderRadius: '10px', fontWeight: 800 }}>
                 x402 ALGORAND
               </span>
-              <InfoTooltip
-                title="CyberGuard AI Platform"
-                description="Zero-trust autonomous threat intelligence system that reconstructs full phishing attack chains, detects brand lookalikes, and audits web infrastructure exploitability with x402 Algorand micropayments."
-                securityImpact="Protects enterprise employees, website owners, and security teams against credential harvesting and malicious brand spoofs."
-                goodVsBad="Green scores (<30) indicate verified safety; high scores (>70) indicate malicious attack campaigns."
-                position="bottom"
-              />
             </div>
             <p className="mono" style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
               [AI-POWERED WEBSITE SECURITY &amp; THREAT INTELLIGENCE]
@@ -66,190 +74,34 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Navigation Tabs (All 7 Required Pages) */}
-        <div className="nav-tabs-container" style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--nav-bar-bg)', padding: '4px', borderRadius: '12px', border: '1px solid var(--border-color)', flexWrap: 'nowrap', overflowX: 'auto' }}>
-          <motion.button
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={() => setActiveTab('overview')}
-            style={{
-              padding: '7px 12px',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeTab === 'overview' ? 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)' : 'transparent',
-              color: activeTab === 'overview' ? '#ffffff' : 'var(--text-secondary)',
-              fontWeight: 700,
-              fontSize: '0.78rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-              boxShadow: activeTab === 'overview' ? '0 0 14px rgba(2, 132, 199, 0.4)' : 'none',
-              transition: 'all 0.15s'
-            }}
-          >
-            <Home size={14} /> Overview
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
+        {/* Navigation Tabs */}
+        <div className="nav-tabs-container" style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'var(--nav-bar-bg)', padding: '4px', borderRadius: '12px', border: '1px solid var(--border-color)', flexWrap: 'nowrap', overflowX: 'auto', maxWidth: '100%' }}>
+          <TabButton tab="overview" label="Overview" icon={Home} />
+          
+          <TabButton 
+            tab="scanner" 
+            label="Scanner" 
+            icon={Radar} 
             onClick={() => {
-              if (activeTab !== 'scanner' && onLaunchScanner) {
-                onLaunchScanner();
-              } else {
-                setActiveTab('scanner');
-              }
+              if (activeTab !== 'scanner' && onLaunchScanner) onLaunchScanner();
+              else setActiveTab('scanner');
             }}
-            style={{
-              padding: '7px 12px',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeTab === 'scanner' ? 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)' : 'transparent',
-              color: activeTab === 'scanner' ? '#ffffff' : 'var(--text-secondary)',
-              fontWeight: 700,
-              fontSize: '0.78rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-              boxShadow: activeTab === 'scanner' ? '0 0 14px rgba(2, 132, 199, 0.4)' : 'none',
-              transition: 'all 0.15s'
-            }}
-          >
-            <Radar size={14} /> Live Scanner
-          </motion.button>
-
-          {hasActiveReport && (
-            <motion.button
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => setActiveTab('results')}
-              style={{
-                padding: '7px 12px',
-                borderRadius: '8px',
-                border: 'none',
-                background: activeTab === 'results' ? 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)' : 'transparent',
-                color: activeTab === 'results' ? '#ffffff' : 'var(--text-secondary)',
-                fontWeight: 700,
-                fontSize: '0.78rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-                boxShadow: activeTab === 'results' ? '0 0 14px rgba(2, 132, 199, 0.4)' : 'none',
-                transition: 'all 0.15s'
-              }}
-            >
-              <LayoutDashboard size={14} /> Results
-            </motion.button>
-          )}
-
-          <motion.button
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={() => setActiveTab('x402')}
-            style={{
-              padding: '7px 12px',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeTab === 'x402' ? 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)' : 'transparent',
-              color: activeTab === 'x402' ? '#ffffff' : 'var(--text-secondary)',
-              fontWeight: 700,
-              fontSize: '0.78rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-              boxShadow: activeTab === 'x402' ? '0 0 14px rgba(2, 132, 199, 0.4)' : 'none',
-              transition: 'all 0.15s'
-            }}
-          >
-            <Coins size={14} /> x402 / Premium
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={() => setActiveTab('extension')}
-            style={{
-              padding: '7px 12px',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeTab === 'extension' ? 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)' : 'transparent',
-              color: activeTab === 'extension' ? '#ffffff' : 'var(--text-secondary)',
-              fontWeight: 700,
-              fontSize: '0.78rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-              boxShadow: activeTab === 'extension' ? '0 0 14px rgba(2, 132, 199, 0.4)' : 'none',
-              transition: 'all 0.15s'
-            }}
-          >
-            <Puzzle size={14} /> Extension
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={() => setActiveTab('history')}
-            style={{
-              padding: '7px 12px',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeTab === 'history' ? 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)' : 'transparent',
-              color: activeTab === 'history' ? '#ffffff' : 'var(--text-secondary)',
-              fontWeight: 700,
-              fontSize: '0.78rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-              boxShadow: activeTab === 'history' ? '0 0 14px rgba(2, 132, 199, 0.4)' : 'none',
-              transition: 'all 0.15s'
-            }}
-          >
-            <History size={14} /> Reports ({caseCount})
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={() => setActiveTab('about')}
-            style={{
-              padding: '7px 12px',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeTab === 'about' ? 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)' : 'transparent',
-              color: activeTab === 'about' ? '#ffffff' : 'var(--text-secondary)',
-              fontWeight: 700,
-              fontSize: '0.78rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-              boxShadow: activeTab === 'about' ? '0 0 14px rgba(2, 132, 199, 0.4)' : 'none',
-              transition: 'all 0.15s'
-            }}
-          >
-            <HelpCircle size={14} /> How It Works
-          </motion.button>
+          />
+          
+          <TabButton tab="email-scanner" label="Email Scan" icon={Mail} />
+          <TabButton tab="bulk-scanner" label="Bulk Scan" icon={Link} />
+          <TabButton tab="threat-dashboard" label="Threat Intel" icon={BarChart2} />
+          <TabButton tab="password-checker" label="Password" icon={Key} />
+          <TabButton tab="ip-reputation" label="IP Lookup" icon={Globe} />
+          <TabButton tab="watchlist" label="Watchlist" icon={Bell} />
+          
+          <TabButton tab="history" label={`History (${caseCount})`} icon={History} />
+          
+          {/* Grouped or less prominent existing tabs */}
+          {hasActiveReport && <TabButton tab="results" label="Results" icon={LayoutDashboard} />}
+          <TabButton tab="x402" label="Premium" icon={Coins} />
+          <TabButton tab="extension" label="Ext" icon={Puzzle} />
+          <TabButton tab="about" label="Info" icon={HelpCircle} />
         </div>
 
         {/* Global Controls & Theme Toggle */}
@@ -279,13 +131,13 @@ export const Header: React.FC<HeaderProps> = ({
             <Wallet size={14} />
             {isConnected && address ? (
               <>
-                <span className="mono">{address.slice(0, 5)}...{address.slice(-4)}</span>
+                <span className="mono hidden sm:inline">{address.slice(0, 5)}...{address.slice(-4)}</span>
                 <span style={{ background: 'rgba(0, 255, 136, 0.2)', padding: '1px 6px', borderRadius: '4px', fontSize: '0.68rem', fontWeight: 800 }}>
                   {balanceAlgo.toFixed(1)} ALGO
                 </span>
               </>
             ) : (
-              <span>Connect Wallet</span>
+              <span>Connect</span>
             )}
           </motion.button>
 
@@ -309,7 +161,7 @@ export const Header: React.FC<HeaderProps> = ({
             title="Discovery Feed - Real-time Certificate Transparency stream"
           >
             <Activity size={14} color="#f97316" />
-            <span>NRD Feed</span>
+            <span className="hidden md:inline">Feed</span>
           </motion.button>
 
           <motion.button

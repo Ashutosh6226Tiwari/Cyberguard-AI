@@ -247,3 +247,65 @@ class ChatResponse(BaseModel):
     reply: str
     suggested_actions: Optional[List[str]] = Field(default_factory=list)
 
+class BulkScanRequest(BaseModel):
+    urls: List[str]
+
+class BulkScanResponse(BaseModel):
+    results: List[FreeScanResult]
+    total: int
+    phishing_count: int
+    suspicious_count: int
+    benign_count: int
+    unregistered_count: int
+
+class PasswordStrengthRequest(BaseModel):
+    password: str
+
+class PasswordStrengthResponse(BaseModel):
+    score: int
+    strength: str
+    crack_time_display: str
+    entropy_bits: float
+    is_pwned: bool
+    pwned_count: int
+    suggestions: List[str]
+
+class IpReputationRequest(BaseModel):
+    ip: str
+
+class IpReputationResponse(BaseModel):
+    ip: str
+    is_valid: bool
+    country: Optional[str] = None
+    country_code: Optional[str] = None
+    region: Optional[str] = None
+    city: Optional[str] = None
+    isp: Optional[str] = None
+    org: Optional[str] = None
+    as_number: Optional[str] = None
+    is_proxy: bool = False
+    is_hosting: bool = False
+    is_tor: bool = False
+    abuse_score: int = 0
+    risk_level: str = "LOW"
+    blacklists: List[str] = []
+    reverse_dns: Optional[str] = None
+
+class ScreenshotRequest(BaseModel):
+    url: str
+
+class ScreenshotResponse(BaseModel):
+    url: str
+    available: bool
+    screenshot_b64: Optional[str] = None
+    title: Optional[str] = None
+    error: Optional[str] = None
+
+class WatchlistItem(BaseModel):
+    id: str
+    domain: str
+    label: Optional[str] = None
+    added_at: str
+    last_scan: Optional[str] = None
+    last_verdict: Optional[str] = None
+    last_risk_score: Optional[float] = None
