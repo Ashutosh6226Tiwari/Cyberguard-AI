@@ -954,157 +954,276 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
             {/* Standard Payment Box (When not confirmed & not processing) */}
             {paymentStage !== 'confirmed' && !isProcessing && (
               <div>
-                {/* Wallet Connection Status Bar */}
-                <div style={{ background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.3)', borderRadius: '10px', padding: '12px 14px', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: isConnected && shortenedAddress ? '#10b981' : '#f59e0b', boxShadow: isConnected ? '0 0 8px #10b981' : 'none' }} />
-                    <div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
-                        {isConnected && shortenedAddress ? 'Connected Wallet' : 'Wallet Status'}
+                {/* Mode Selector Tabs */}
+                <div style={{ display: 'flex', gap: '6px', marginBottom: '14px', background: 'rgba(0,0,0,0.3)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                  <button
+                    type="button"
+                    onClick={() => { setActiveTab('instant'); setErrorMessage(null); }}
+                    style={{
+                      flex: 1,
+                      background: activeTab === 'instant' ? 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)' : 'transparent',
+                      color: activeTab === 'instant' ? '#ffffff' : 'var(--text-secondary)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '7px',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <Zap size={14} />
+                    <span>Instant Wallet Payment</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setActiveTab('manual'); setErrorMessage(null); }}
+                    style={{
+                      flex: 1,
+                      background: activeTab === 'manual' ? 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)' : 'transparent',
+                      color: activeTab === 'manual' ? '#ffffff' : 'var(--text-secondary)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '7px',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <ShieldCheck size={14} />
+                    <span>Submit On-Chain TxID</span>
+                  </button>
+                </div>
+
+                {activeTab === 'instant' ? (
+                  <div>
+                    {/* Wallet Connection Status Bar */}
+                    <div style={{ background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.3)', borderRadius: '10px', padding: '12px 14px', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: isConnected && shortenedAddress ? '#10b981' : '#f59e0b', boxShadow: isConnected ? '0 0 8px #10b981' : 'none' }} />
+                        <div>
+                          <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                            {isConnected && shortenedAddress ? 'Connected Wallet' : 'Wallet Status'}
+                          </div>
+                          <div className="mono" style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                            {isConnected && shortenedAddress
+                              ? `${walletType === 'pera' ? '🟡 Pera' : walletType === 'defly' ? '🟣 Defly' : '🔑 Wallet'}: ${shortenedAddress}`
+                              : 'No Wallet Connected'}
+                          </div>
+                        </div>
                       </div>
-                      <div className="mono" style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                        {isConnected && shortenedAddress
-                          ? `${walletType === 'pera' ? '🟡 Pera' : walletType === 'defly' ? '🟣 Defly' : '🔑 Wallet'}: ${shortenedAddress}`
-                          : 'No Wallet Connected'}
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {isConnected && shortenedAddress && (
+                          <span className="mono" style={{ fontSize: '0.78rem', color: '#10b981', fontWeight: 700 }}>
+                            {balanceAlgo.toFixed(2)} ALGO
+                          </span>
+                        )}
+                        <button
+                          onClick={() => setModalView('wallet_select')}
+                          style={{
+                            background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '6px',
+                            padding: '6px 12px',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <Wallet size={13} />
+                          <span>{isConnected && shortenedAddress ? 'Change Wallet' : 'Connect Wallet'}</span>
+                        </button>
                       </div>
                     </div>
-                  </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {isConnected && shortenedAddress && (
-                      <span className="mono" style={{ fontSize: '0.78rem', color: '#10b981', fontWeight: 700 }}>
-                        {balanceAlgo.toFixed(2)} ALGO
-                      </span>
+                    {/* Routing Visualizer */}
+                    <div style={{ background: 'var(--code-box-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.05em' }}>
+                          ⚡ x402 MICROPAYMENT ROUTING
+                        </span>
+                        <span className="mono" style={{ fontSize: '0.68rem', color: '#10b981', background: 'rgba(16, 185, 129, 0.12)', padding: '2px 8px', borderRadius: '8px' }}>
+                          Facilitator: GoPlausible
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.75rem', background: 'rgba(0, 0, 0, 0.25)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(75, 85, 99, 0.3)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div>
+                            <span style={{ color: 'var(--text-secondary)' }}>From: </span>
+                            <span className="mono" style={{ color: '#38bdf8', fontWeight: 600 }}>
+                              {shortenedAddress || 'Select a wallet above'}
+                            </span>
+                          </div>
+                          <span className="mono" style={{ color: '#10b981', fontWeight: 700, fontSize: '0.72rem' }}>
+                            Bal: {balanceAlgo.toFixed(2)} ALGO
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '2px 0' }}>
+                          <div style={{ flex: 1, height: '1px', background: 'rgba(56, 189, 248, 0.3)' }} />
+                          <div style={{ background: 'rgba(6, 182, 212, 0.2)', border: '1px solid #38bdf8', padding: '2px 10px', borderRadius: '12px', color: '#38bdf8', fontWeight: 800, fontSize: '0.72rem' }}>
+                            Transfer: {selectedCurrency === 'ALGO' ? '0.10 ALGO' : '$0.01 USDC'}
+                          </div>
+                          <div style={{ flex: 1, height: '1px', background: 'rgba(56, 189, 248, 0.3)' }} />
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div>
+                            <span style={{ color: 'var(--text-secondary)' }}>To (CyberGuard Escrow): </span>
+                            <span className="mono" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
+                              {challenge.recipient_address.slice(0, 8)}...{challenge.recipient_address.slice(-6)}
+                            </span>
+                          </div>
+                          <span className="mono" style={{ color: 'var(--text-muted)', fontSize: '0.68rem' }}>
+                            Algorand Testnet
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Error Alert */}
+                    {errorMessage && (
+                      <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '8px', padding: '10px 14px', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.78rem', color: '#ef4444' }}>
+                        <AlertCircle size={16} style={{ flexShrink: 0 }} />
+                        <span>{errorMessage}</span>
+                      </div>
                     )}
+
+                    {/* Main Action Button */}
+                    {!isConnected || !shortenedAddress ? (
+                      <button
+                        onClick={() => setModalView('wallet_select')}
+                        style={{
+                          width: '100%',
+                          background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '10px',
+                          padding: '14px',
+                          fontWeight: 800,
+                          fontSize: '0.95rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          boxShadow: '0 0 20px rgba(2, 132, 199, 0.5)'
+                        }}
+                      >
+                        <Wallet size={18} />
+                        <span>Step 1: Select Wallet Provider (Pera / Defly) &rarr;</span>
+                      </button>
+                    ) : (
+                      <button
+                        disabled={isProcessing}
+                        onClick={handleInstantPayment}
+                        style={{
+                          width: '100%',
+                          background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '10px',
+                          padding: '14px',
+                          fontWeight: 800,
+                          fontSize: '0.95rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          boxShadow: '0 0 20px rgba(2, 132, 199, 0.5)'
+                        }}
+                      >
+                        <ShieldCheck size={18} />
+                        <span>Pay {selectedCurrency === 'ALGO' ? '0.1 ALGO' : '$0.01 USDC'} &amp; Unlock Premium Deep Audit</span>
+                        <ArrowRight size={16} />
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  /* Manual TxID Verification Form */
+                  <form onSubmit={handleManualVerification} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ background: 'var(--code-box-bg)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '14px', fontSize: '0.78rem' }}>
+                      <p style={{ color: 'var(--text-secondary)', marginBottom: '8px', lineHeight: 1.4 }}>
+                        Already sent 0.1 ALGO via Pera, AlgoKit, or Lute? Enter your Algorand Testnet Transaction ID to verify settlement on-chain:
+                      </p>
+                      <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px', borderRadius: '6px', fontSize: '0.72rem' }}>
+                        <span style={{ color: 'var(--text-muted)' }}>Escrow Address: </span>
+                        <span className="mono" style={{ color: '#38bdf8' }}>{challenge.recipient_address}</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 600 }}>
+                        Algorand Transaction ID (TxID):
+                      </label>
+                      <input
+                        type="text"
+                        value={manualTxId}
+                        onChange={(e) => setManualTxId(e.target.value)}
+                        placeholder="e.g. 7XYZ...52-char-base32-hash"
+                        className="mono"
+                        style={{
+                          width: '100%',
+                          background: 'rgba(0,0,0,0.4)',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '8px',
+                          padding: '12px',
+                          color: '#ffffff',
+                          fontSize: '0.82rem',
+                          outline: 'none'
+                        }}
+                      />
+                    </div>
+
+                    {errorMessage && (
+                      <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '8px', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.78rem', color: '#ef4444' }}>
+                        <AlertCircle size={16} style={{ flexShrink: 0 }} />
+                        <span>{errorMessage}</span>
+                      </div>
+                    )}
+
                     <button
-                      onClick={() => setModalView('wallet_select')}
+                      type="submit"
+                      disabled={isProcessing || !manualTxId.trim()}
                       style={{
+                        width: '100%',
                         background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
                         color: '#ffffff',
                         border: 'none',
-                        borderRadius: '6px',
-                        padding: '6px 12px',
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        cursor: 'pointer',
+                        borderRadius: '10px',
+                        padding: '14px',
+                        fontWeight: 800,
+                        fontSize: '0.95rem',
+                        cursor: isProcessing || !manualTxId.trim() ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '4px'
+                        justifyContent: 'center',
+                        gap: '8px',
+                        boxShadow: '0 0 20px rgba(2, 132, 199, 0.5)'
                       }}
                     >
-                      <Wallet size={13} />
-                      <span>{isConnected && shortenedAddress ? 'Change Wallet' : 'Connect Wallet'}</span>
+                      <ShieldCheck size={18} />
+                      <span>Verify TxID &amp; Unlock Deep Audit &rarr;</span>
                     </button>
-                  </div>
-                </div>
-
-                {/* Routing Visualizer */}
-                <div style={{ background: 'var(--code-box-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.05em' }}>
-                      ⚡ x402 MICROPAYMENT ROUTING
-                    </span>
-                    <span className="mono" style={{ fontSize: '0.68rem', color: '#10b981', background: 'rgba(16, 185, 129, 0.12)', padding: '2px 8px', borderRadius: '8px' }}>
-                      Facilitator: GoPlausible
-                    </span>
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.75rem', background: 'rgba(0, 0, 0, 0.25)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(75, 85, 99, 0.3)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div>
-                        <span style={{ color: 'var(--text-secondary)' }}>From: </span>
-                        <span className="mono" style={{ color: '#38bdf8', fontWeight: 600 }}>
-                          {shortenedAddress || 'Select a wallet above'}
-                        </span>
-                      </div>
-                      <span className="mono" style={{ color: '#10b981', fontWeight: 700, fontSize: '0.72rem' }}>
-                        Bal: {balanceAlgo.toFixed(2)} ALGO
-                      </span>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '2px 0' }}>
-                      <div style={{ flex: 1, height: '1px', background: 'rgba(56, 189, 248, 0.3)' }} />
-                      <div style={{ background: 'rgba(6, 182, 212, 0.2)', border: '1px solid #38bdf8', padding: '2px 10px', borderRadius: '12px', color: '#38bdf8', fontWeight: 800, fontSize: '0.72rem' }}>
-                        Transfer: {selectedCurrency === 'ALGO' ? '0.10 ALGO' : '$0.01 USDC'}
-                      </div>
-                      <div style={{ flex: 1, height: '1px', background: 'rgba(56, 189, 248, 0.3)' }} />
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div>
-                        <span style={{ color: 'var(--text-secondary)' }}>To (CyberGuard Escrow): </span>
-                        <span className="mono" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
-                          {challenge.recipient_address.slice(0, 8)}...{challenge.recipient_address.slice(-6)}
-                        </span>
-                      </div>
-                      <span className="mono" style={{ color: 'var(--text-muted)', fontSize: '0.68rem' }}>
-                        Algorand Testnet
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Error Alert */}
-                {errorMessage && (
-                  <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '8px', padding: '10px 14px', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.78rem', color: '#ef4444' }}>
-                    <AlertCircle size={16} style={{ flexShrink: 0 }} />
-                    <span>{errorMessage}</span>
-                  </div>
-                )}
-
-                {/* Main Action Button */}
-                {!isConnected || !shortenedAddress ? (
-                  <button
-                    onClick={() => setModalView('wallet_select')}
-                    style={{
-                      width: '100%',
-                      background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '10px',
-                      padding: '14px',
-                      fontWeight: 800,
-                      fontSize: '0.95rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      boxShadow: '0 0 20px rgba(2, 132, 199, 0.5)'
-                    }}
-                  >
-                    <Wallet size={18} />
-                    <span>Step 1: Select Wallet Provider (Pera / Defly) &rarr;</span>
-                  </button>
-                ) : (
-                  <button
-                    disabled={isProcessing}
-                    onClick={handleInstantPayment}
-                    style={{
-                      width: '100%',
-                      background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '10px',
-                      padding: '14px',
-                      fontWeight: 800,
-                      fontSize: '0.95rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      boxShadow: '0 0 20px rgba(2, 132, 199, 0.5)'
-                    }}
-                  >
-                    <ShieldCheck size={18} />
-                    <span>Pay {selectedCurrency === 'ALGO' ? '0.1 ALGO' : '$0.01 USDC'} &amp; Unlock Premium Deep Audit</span>
-                    <ArrowRight size={16} />
-                  </button>
+                  </form>
                 )}
 
                 {/* Testnet Dispenser Link */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', fontSize: '0.72rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '14px', fontSize: '0.72rem' }}>
                   <a
                     href="https://dispenser.testnet.algorand.network"
                     target="_blank"

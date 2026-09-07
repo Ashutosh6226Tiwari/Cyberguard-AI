@@ -256,6 +256,54 @@ class X402Manager:
             error_message=f"Transaction '{clean_txid}' could not be confirmed on Algorand Testnet ({settings.ALGOD_INDEXER}). Please ensure the transaction has been submitted and confirmed by the network."
         )
 
+    async def get_account_balance(self, address: str) -> Dict[str, Any]:
+        """Fetches account balance for address from Algorand Testnet node."""
+        clean_addr = address.strip()
+        if not clean_addr or len(clean_addr) != 58:
+            return {"address": clean_addr, "algo": 0.0, "usdc": 0.0, "amount_microalgos": 0}
+        
+        try:
+            async with httpx.AsyncClient(timeout=6.0) as client:
+                res = await client.get(f"{settings.ALGOD_SERVER}/v2/accounts/{clean_addr}")
+                if res.status_code == 200:
+                    data = res.json()
+                    microalgos = data.get("amount", 0)
+                    algo = microalgos / 1_000_000.0
+                    usdc = 0.0
+                    for asset in data.get("assets", []):
+                        if asset.get("asset-id") == USDC_TESTNET_ASA_ID:
+                            usdc = asset.get("amount", 0) / 1_000_000.0
+                            break
+                    return {
+                        "address": clean_addr,
+                        "algo": algo,
+                        "usdc": usdc,
+                        "amount_microalgos": microalgos,
+                        "round": data.get("round", 0)
+                    }
+        except Exception:
+            pass
+
+        return {"address": clean_addr, "algo": 0.0, "usdc": 0.0, "amount_microalgos": 0}
+
+    async def get_suggested_params(self) -> Dict[str, Any]:
+        """Fetches live suggested parameters from Algorand Testnet node."""
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                res = await client.get(f"{settings.ALGOD_SERVER}/v2/transactions/params")
+                if res.status_code == 200:
+                    return res.json()
+        except Exception:
+            pass
+        return {
+            "consensus-version": "https://github.com/algorandfoundation/specs/tree/abc630e20e8b832b83446006f157ff250e3034ce",
+            "fee": 1000,
+            "genesis-id": "testnet-v1.0",
+            "genesis-hash": "SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=",
+            "last-round": 67064500,
+            "min-fee": 1000
+        }
+
     def is_case_paid(self, case_id: str) -> bool:
         return case_id in self._verified_sessions
 

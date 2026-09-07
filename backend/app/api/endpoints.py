@@ -414,6 +414,14 @@ async def verify_payment_and_unlock(req: PaymentVerificationRequest):
 async def get_testnet_node_status():
     return await x402_manager.get_testnet_status()
 
+@router.get("/payment/account-balance/{address}")
+async def get_account_balance(address: str):
+    return await x402_manager.get_account_balance(address)
+
+@router.get("/payment/params")
+async def get_suggested_params():
+    return await x402_manager.get_suggested_params()
+
 # -----------------------------------------------------------------------------------
 # 6. Deep Security Analysis (Full Multi-Modal Pipeline)
 # -----------------------------------------------------------------------------------
