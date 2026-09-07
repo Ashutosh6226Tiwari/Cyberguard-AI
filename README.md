@@ -303,39 +303,64 @@ gitGraph
 ## ⛓️ Algorand Testnet & x402 Protocol Implementation
 
 ### What is x402?
-The **x402 protocol** leverages the long-dormant `HTTP 402 Payment Required` status code to enable seamless machine-to-machine and user-to-service micropayments on high-throughput blockchains.
+The **x402 protocol** leverages the native `HTTP 402 Payment Required` status code to enable frictionless, trustless micropayments on high-throughput blockchains. Unlike traditional SaaS paywalls, x402 requires **zero credit cards, zero subscriptions, and zero login accounts**.
 
-### Algorand Testnet Parameters
+### Supported Algorand Wallet Providers
+CyberGuard AI integrates with the official Algorand ecosystem wallets via WalletConnect v2:
+* 🟣 **Defly Wallet**: Mobile biometric signing with QR pairing.
+* 🟡 **Pera Wallet** *(Recommended)*: Official Algorand mobile wallet with instant WalletConnect deep-linking.
+* 🔷 **Exodus Wallet**: Multi-chain Web3 wallet with Algorand Testnet support.
+* 🟣 **Lute Wallet**: Algorand web-based developer wallet.
+* ⚡ **Direct Web Signer**: Instant testnet signature generator for automated agents.
+
+### Algorand Testnet Protocol Parameters
 * **Network CAIP-2 Identifier**: `algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=`
-* **CyberGuard AI Testnet Escrow Address**: `MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY`
+* **CyberGuard AI Escrow Address**: `MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY`
 * **Audit Price**: `100,000 microAlgos` (= **`0.1 ALGO`**) or **`$0.01 USDC`** (Testnet ASA `#10458941`).
+* **Minimum Consensus Transaction Fee**: `1,000 microAlgos` (`1mA` / `0.001 ALGO`).
+* **WalletConnect Cloud Project ID**: `2746fa499d042749f0e019a16c15cf39`
 * **GoPlausible Facilitator**: `https://facilitator.goplausible.xyz`
-* **Explorer Verification**: [Lora Algokit Testnet Explorer](https://lora.algokit.io/testnet)
+* **Public Algorand Node / Indexer**: `https://testnet-api.algonode.cloud` & `https://testnet-idx.algonode.cloud`
+* **Explorer Verification**: [LoRA Algokit Testnet Explorer](https://lora.algokit.io/testnet)
 
-### The x402 Header Specification
-When a client requests `/api/analyze` without payment, the server responds with:
+### The x402 HTTP Challenge & Verification Workflow
+When an unauthenticated client requests the Premium Deep Audit endpoint (`POST /api/premium-scan`), the server immediately issues an authentic `HTTP 402` response:
+
 ```http
 HTTP/1.1 402 Payment Required
+WWW-Authenticate: x402 realm="CyberGuard Premium Audit", network="algorand-testnet", caip2="algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=", recipient="MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY", amount="100000", currency="ALGO", facilitator="https://facilitator.goplausible.xyz"
+X-Payment-Required: true
 Content-Type: application/json
 
 {
-  "challenge_id": "x402-a1b2c3d4e5f6",
-  "network": "algorand-testnet",
-  "recipient_address": "MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY",
-  "amount_microalgos": 100000,
-  "amount_algo": 0.1,
-  "token_symbol": "ALGO",
-  "facilitator_url": "https://facilitator.goplausible.xyz",
-  "x402_header": "{\"v\":\"1.0\",\"net\":\"algorand-testnet\",\"to\":\"MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY\",\"amt\":100000,\"cur\":\"ALGO\"}"
+  "status": 402,
+  "error": "Payment Required",
+  "message": "Access to CyberGuard AI Premium Deep Security Audit requires an on-chain micropayment of 0.1 ALGO (100,000 µALGO) to MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY on Algorand Testnet.",
+  "challenge": {
+    "challenge_id": "x402-1aeacbb6af29",
+    "network": "algorand-testnet",
+    "caip2_network": "algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=",
+    "recipient_address": "MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY",
+    "amount_microalgos": 100000,
+    "amount_algo": 0.1,
+    "token_symbol": "ALGO",
+    "facilitator_url": "https://facilitator.goplausible.xyz"
+  }
 }
 ```
 
-The client submits an on-chain transaction and replays the request with:
+The client signs the transaction via Pera / Defly, broadcasts it to Algorand Testnet, and requests forensic unlocking:
 ```http
-POST /api/analyze HTTP/1.1
+POST /api/premium-scan HTTP/1.1
 Host: localhost:8000
 Content-Type: application/json
 X-Payment: 6V42OBUS4K5OIZ4Z44YVZZT7B22NPPZ7E5AECU3O4M6C3P67ZSQA
+
+{
+  "url": "https://campuskart.shop",
+  "deep_analysis": true,
+  "payment_tx_id": "6V42OBUS4K5OIZ4Z44YVZZT7B22NPPZ7E5AECU3O4M6C3P67ZSQA"
+}
 ```
 
 ---
@@ -417,6 +442,7 @@ PYTHONPATH=backend python3 backend/tests/test_backend.py
 ✓ test_triage_classifier passed
 ✓ test_brand_contradiction passed
 ✓ test_unregistered_domain_handling passed
+✓ test_x402_challenge passed
 ALL BACKEND UNIT TESTS PASSED!
 ```
 
