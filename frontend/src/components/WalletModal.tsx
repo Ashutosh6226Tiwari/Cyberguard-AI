@@ -106,9 +106,11 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
     }
   };
 
+  const wcProjectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || '2746fa499d042749f0e019a16c15cf39';
+
   // Algorand standard deep-link URI for Pera / Defly WalletConnect
-  const peraConnectionUri = `algorand://wc?uri=wc:cyberguard-ai-testnet-session-${Date.now()}@2?relay-protocol=irn&symKey=pera-wc-testnet`;
-  const deflyConnectionUri = `defly://wc?uri=wc:cyberguard-ai-testnet-session-${Date.now()}@2?relay-protocol=irn&symKey=defly-wc-testnet`;
+  const peraConnectionUri = `algorand://wc?uri=wc:cyberguard-ai-testnet-session-${Date.now()}@2?relay-protocol=irn&projectId=${wcProjectId}&symKey=pera-wc-testnet`;
+  const deflyConnectionUri = `defly://wc?uri=wc:cyberguard-ai-testnet-session-${Date.now()}@2?relay-protocol=irn&projectId=${wcProjectId}&symKey=defly-wc-testnet`;
 
   const shortenedAddress = address
     ? `${address.slice(0, 8)}...${address.slice(-6)}`
