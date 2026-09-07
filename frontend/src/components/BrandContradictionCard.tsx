@@ -56,7 +56,11 @@ export const BrandContradictionCard: React.FC<BrandContradictionCardProps> = ({ 
           </div>
         </div>
 
-        {isContradiction ? (
+        {isUnregistered ? (
+          <span className="badge-info mono" style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
+            UNREGISTERED / AVAILABLE DOMAIN
+          </span>
+        ) : isContradiction ? (
           <span className="badge-critical mono" style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
             CRITICAL CONTRADICTION DETECTED
           </span>

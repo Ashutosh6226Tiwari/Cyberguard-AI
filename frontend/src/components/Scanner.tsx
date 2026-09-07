@@ -16,6 +16,7 @@ export const Scanner: React.FC<ScannerProps> = ({ onScan, isLoading, benchmarkSa
   const [forceRefresh, setForceRefresh] = useState(false);
   const [selectedSample, setSelectedSample] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const [scannerFocus, setScannerFocus] = useState<'developer' | 'phishing'>('developer');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,11 +33,11 @@ export const Scanner: React.FC<ScannerProps> = ({ onScan, isLoading, benchmarkSa
   };
 
   const quickTargets = [
-    { label: 'campuskart.shop (43d NRD)', url: 'https://campuskart.shop', type: 'safe' },
-    { label: 'psit.ac.in (Edu 8142d)', url: 'https://psit.ac.in', type: 'safe' },
-    { label: 'zeyotech.in (380d)', url: 'https://zeyotech.in', type: 'safe' },
+    { label: 'psit.ac.in (Edu 8144d)', url: 'https://psit.ac.in', type: 'safe' },
+    { label: 'github.com (Hardened A+)', url: 'https://github.com', type: 'hardened' },
     { label: 'PayPal Lookalike (.xyz)', url: 'http://login-paypal-security-verification.xyz/auth/signin', type: 'phish' },
-    { label: 'github.com (Hardened)', url: 'https://github.com', type: 'hardened' }
+    { label: 'campuskart.shop (43d NRD)', url: 'https://campuskart.shop', type: 'safe' },
+    { label: 'unregistered-sample.com', url: 'https://thisisatestunregistereddomain123987456.com', type: 'unregistered' }
   ];
 
   return (
@@ -53,7 +54,54 @@ export const Scanner: React.FC<ScannerProps> = ({ onScan, isLoading, benchmarkSa
       }}
     >
       <form onSubmit={handleSubmit}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          {/* Dual-Feature Persona Mode Selector */}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => setScannerFocus('developer')}
+              style={{
+                background: scannerFocus === 'developer' ? 'linear-gradient(135deg, rgba(6, 182, 212, 0.25) 0%, rgba(59, 130, 246, 0.25) 100%)' : 'var(--code-box-bg)',
+                color: scannerFocus === 'developer' ? '#38bdf8' : 'var(--text-secondary)',
+                border: scannerFocus === 'developer' ? '1px solid #38bdf8' : '1px solid var(--border-color)',
+                borderRadius: '8px',
+                padding: '8px 14px',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.15s'
+              }}
+            >
+              <Shield size={16} color={scannerFocus === 'developer' ? '#38bdf8' : 'var(--text-muted)'} />
+              <span>Feature 1: Developer Website Security &amp; Anti-Hacking Audit</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setScannerFocus('phishing')}
+              style={{
+                background: scannerFocus === 'phishing' ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(249, 115, 22, 0.25) 100%)' : 'var(--code-box-bg)',
+                color: scannerFocus === 'phishing' ? '#f87171' : 'var(--text-secondary)',
+                border: scannerFocus === 'phishing' ? '1px solid #f87171' : '1px solid var(--border-color)',
+                borderRadius: '8px',
+                padding: '8px 14px',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.15s'
+              }}
+            >
+              <Zap size={16} color={scannerFocus === 'phishing' ? '#f87171' : 'var(--text-muted)'} />
+              <span>Feature 2: Phishing &amp; Fraud Intelligence Scanner</span>
+            </button>
+          </div>
+
           {/* Main Input Row (Stacks vertically on mobile) */}
           <div className="scanner-input-row" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
             <motion.div
@@ -75,7 +123,9 @@ export const Scanner: React.FC<ScannerProps> = ({ onScan, isLoading, benchmarkSa
               <Search size={18} color={isFocused ? 'var(--accent-cyan)' : 'var(--text-muted)'} />
               <input
                 type="text"
-                placeholder="Enter domain or URL (e.g. campuskart.shop, github.com, login-paypal-security-verification.xyz)"
+                placeholder={scannerFocus === 'developer'
+                  ? "Enter your website domain to audit defensive headers & anti-code injection posture (e.g. psit.ac.in, github.com)"
+                  : "Enter suspicious URL to inspect phishing brand spoofing & credential harvesting (e.g. login-paypal-verify.xyz)"}
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 onFocus={() => setIsFocused(true)}

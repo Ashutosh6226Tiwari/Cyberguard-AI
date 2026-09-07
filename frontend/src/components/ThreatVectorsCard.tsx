@@ -83,12 +83,18 @@ export const ThreatVectorsCard: React.FC<ThreatVectorsCardProps> = ({ report }) 
           </div>
         </div>
 
-        <span
-          className={report.overall_risk_score >= 70 ? 'badge-critical mono' : report.overall_risk_score >= 40 ? 'badge-high mono' : 'badge-safe mono'}
-          style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 700 }}
-        >
-          WEIGHTED RISK: {report.overall_risk_score}/100
-        </span>
+        {report.verdict === 'UNREGISTERED' || report.domain_intel?.is_registered === false ? (
+          <span className="badge-info mono" style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 700 }}>
+            UNREGISTERED DOMAIN (NXDOMAIN)
+          </span>
+        ) : (
+          <span
+            className={report.overall_risk_score >= 70 ? 'badge-critical mono' : report.overall_risk_score >= 40 ? 'badge-high mono' : 'badge-safe mono'}
+            style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 700 }}
+          >
+            WEIGHTED RISK: {report.overall_risk_score}/100
+          </span>
+        )}
       </div>
 
       {/* 5 Vector Progress Meters */}
@@ -142,9 +148,9 @@ export const ThreatVectorsCard: React.FC<ThreatVectorsCardProps> = ({ report }) 
               DOM &amp; Crawler Behavioral Signals
             </span>
           </div>
-          {crawl?.status_code && (
-            <span className="mono" style={{ fontSize: '0.68rem', color: crawl.status_code === 200 ? '#10b981' : '#f59e0b' }}>
-              HTTP {crawl.status_code} OK
+          {crawl?.status_code !== undefined && (
+            <span className="mono" style={{ fontSize: '0.68rem', color: crawl.status_code === 200 ? '#10b981' : crawl.status_code === 0 ? '#38bdf8' : '#f59e0b' }}>
+              {crawl.status_code === 0 ? 'NXDOMAIN / Host Inactive' : `HTTP ${crawl.status_code} OK`}
             </span>
           )}
         </div>

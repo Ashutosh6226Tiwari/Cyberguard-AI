@@ -16,18 +16,58 @@ export const InfrastructureIntelCard: React.FC<InfrastructureIntelCardProps> = (
 }) => {
   if (!domainIntel) return null;
 
-  const isTlsValid = domainIntel.tls_valid !== false;
+  const isUnregistered = domainIntel.is_registered === false;
+  const isTlsValid = domainIntel.tls_valid === true;
   const isSelfSigned = !!domainIntel.tls_is_self_signed;
-  const daysRemaining = domainIntel.tls_days_remaining ?? 90;
-  const isDaysUrgent = daysRemaining < 15;
+  const daysRemaining = domainIntel.tls_days_remaining;
+  const isDaysUrgent = daysRemaining !== undefined && daysRemaining !== null && daysRemaining < 15;
   const isNrd = !!domainIntel.is_newly_registered;
 
   const geo = domainIntel.ip_geolocation;
   const dns = domainIntel.dns;
 
-  const aRecords = dns?.a_records && dns.a_records.length > 0 ? dns.a_records : ['127.0.0.1 (Resolved)'];
-  const mxRecords = dns?.mx_records && dns.mx_records.length > 0 ? dns.mx_records : ['mx.routing.in (Managed)'];
-  const nsRecords = dns?.ns_records && dns.ns_records.length > 0 ? dns.ns_records : ['ns1.cloud-edge.net'];
+  const aRecords = dns?.a_records || [];
+  const mxRecords = dns?.mx_records || [];
+  const nsRecords = dns?.ns_records || [];
+
+  if (isUnregistered) {
+    return (
+      <div className="glass-panel" style={{ padding: '24px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.3)', padding: '8px', borderRadius: '8px' }}>
+              <Server size={20} color="#38bdf8" />
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                Infrastructure &amp; Network Origin Intel
+              </h3>
+              <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                Authoritative DNS &amp; ICANN Registry Telemetry
+              </p>
+            </div>
+          </div>
+          <span className="badge-info mono" style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 700 }}>
+            UNREGISTERED DOMAIN (NXDOMAIN)
+          </span>
+        </div>
+
+        <div style={{ background: 'var(--code-box-bg)', padding: '16px', borderRadius: '10px', border: '1px solid var(--border-color)', lineHeight: 1.5 }}>
+          <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#38bdf8', marginBottom: '6px' }}>
+            No Active Infrastructure or Server Hosting
+          </div>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+            This domain does not have active DNS A/AAAA records or assigned web servers. It is currently unregistered or inactive on authoritative root resolvers.
+          </div>
+          <div style={{ marginTop: '12px', display: 'flex', gap: '10px', fontSize: '0.75rem', flexWrap: 'wrap' }}>
+            <span style={{ color: 'var(--text-muted)' }}>DNS Status: <strong style={{ color: '#38bdf8' }}>{dns?.dns_status || 'NXDOMAIN'}</strong></span>
+            <span style={{ color: 'var(--text-muted)' }}>Registrar: <strong style={{ color: 'var(--text-primary)' }}>None (Unregistered)</strong></span>
+            <span style={{ color: 'var(--text-muted)' }}>TLS Handshake: <strong style={{ color: 'var(--text-muted)' }}>Inactive / No Server</strong></span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="glass-panel" style={{ padding: '24px' }}>
@@ -45,17 +85,17 @@ export const InfrastructureIntelCard: React.FC<InfrastructureIntelCardProps> = (
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                Infrastructure & Network Origin Intel
+                Infrastructure &amp; Network Origin Intel
               </h3>
               <InfoTooltip
-                title="Infrastructure & Network Intel"
+                title="Infrastructure &amp; Network Intel"
                 description="Verifies the physical hosting server origin, IP routing, ASN carrier, and TLS/SSL cryptographic integrity."
                 securityImpact="Attackers often host phishing pages on bulletproof VPS providers or newly registered domains with free temporary TLS certs."
-                goodVsBad="Long-standing enterprise ASNs & verified multi-year certs = High trust. Fast-flux IP hops & newly minted certs = Threat."
+                goodVsBad="Long-standing enterprise ASNs &amp; verified multi-year certs = High trust. Fast-flux IP hops &amp; newly minted certs = Threat."
               />
             </div>
             <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-              Physical hosting geolocation, routing ASN & cryptographic telemetry
+              Physical hosting geolocation, routing ASN &amp; cryptographic telemetry
             </p>
           </div>
         </div>
@@ -75,7 +115,7 @@ export const InfrastructureIntelCard: React.FC<InfrastructureIntelCardProps> = (
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
             <MapPin size={15} color="#38bdf8" />
             <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Host Geolocation & ASN
+              Host Geolocation &amp; ASN
             </span>
           </div>
 
@@ -83,14 +123,14 @@ export const InfrastructureIntelCard: React.FC<InfrastructureIntelCardProps> = (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Country / City:</span>
               <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
-                {geo?.country || 'India'} {geo?.city ? `(${geo.city})` : ''}
+                {geo?.country || 'Global Anycast'} {geo?.city && geo.city !== 'Unknown City' ? `(${geo.city})` : ''}
               </span>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Autonomous System:</span>
-              <span className="mono" style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 600 }}>
-                {geo?.asn || 'AS55836 (ERNET-IN)'}
+              <span className="mono" style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 600, maxWidth: '170px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {geo?.asn || (aRecords[0] ? `IP: ${aRecords[0]}` : 'Unresolved ASN')}
               </span>
             </div>
 
@@ -101,14 +141,14 @@ export const InfrastructureIntelCard: React.FC<InfrastructureIntelCardProps> = (
               </span>
             </div>
 
-            {crawlArtifacts?.crawl_time_ms && (
+            {crawlArtifacts?.crawl_time_ms ? (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ color: 'var(--text-secondary)' }}>Network RTT:</span>
                 <span className="mono" style={{ fontSize: '0.75rem', color: '#10b981' }}>
                   {crawlArtifacts.crawl_time_ms} ms
                 </span>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -126,14 +166,14 @@ export const InfrastructureIntelCard: React.FC<InfrastructureIntelCardProps> = (
               <span style={{ color: 'var(--text-secondary)' }}>Encryption Status:</span>
               <span style={{ fontWeight: 700, color: isTlsValid ? '#10b981' : '#ef4444', display: 'flex', alignItems: 'center', gap: '4px' }}>
                 {isTlsValid ? <CheckCircle2 size={13} /> : <ShieldAlert size={13} />}
-                {isTlsValid ? 'Active TLS 1.3' : 'Insecure'}
+                {isTlsValid ? 'Active TLS Handshake' : 'No TLS Handshake'}
               </span>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Certificate Issuer:</span>
               <span className="mono" style={{ fontSize: '0.74rem', color: 'var(--text-primary)', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {domainIntel.tls_issuer || "Let's Encrypt / DigiCert"}
+                {domainIntel.tls_issuer || (isTlsValid ? 'Public CA' : 'None Detected')}
               </span>
             </div>
 
@@ -141,14 +181,14 @@ export const InfrastructureIntelCard: React.FC<InfrastructureIntelCardProps> = (
               <span style={{ color: 'var(--text-secondary)' }}>Validity Window:</span>
               <span style={{ fontWeight: 600, color: isDaysUrgent ? '#f59e0b' : '#38bdf8', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <Clock size={12} />
-                {daysRemaining} days remaining
+                {daysRemaining !== undefined && daysRemaining !== null ? `${daysRemaining} days remaining` : (isTlsValid ? 'Active' : 'N/A')}
               </span>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Root Trust:</span>
-              <span style={{ fontSize: '0.72rem', color: isSelfSigned ? '#ef4444' : '#10b981', fontWeight: 700 }}>
-                {isSelfSigned ? 'Self-Signed (High Risk)' : 'Public CA Verified'}
+              <span style={{ fontSize: '0.72rem', color: isSelfSigned ? '#ef4444' : isTlsValid ? '#10b981' : 'var(--text-muted)', fontWeight: 700 }}>
+                {isSelfSigned ? 'Self-Signed (High Risk)' : isTlsValid ? 'Public CA Verified' : 'N/A'}
               </span>
             </div>
           </div>
@@ -164,8 +204,8 @@ export const InfrastructureIntelCard: React.FC<InfrastructureIntelCardProps> = (
               Active DNS Resolution Matrix
             </span>
           </div>
-          <span className="mono" style={{ fontSize: '0.68rem', color: '#10b981' }}>
-            DNS Status: {dns?.dns_status || 'RESOLVED_OK'}
+          <span className="mono" style={{ fontSize: '0.68rem', color: dns?.dns_status === 'RESOLVED' ? '#10b981' : '#f59e0b' }}>
+            DNS Status: {dns?.dns_status || 'RESOLVED'}
           </span>
         </div>
 
@@ -176,7 +216,7 @@ export const InfrastructureIntelCard: React.FC<InfrastructureIntelCardProps> = (
               A Records (IPv4 Host):
             </div>
             <div className="mono" style={{ fontSize: '0.72rem', color: '#38bdf8', wordBreak: 'break-all' }}>
-              {aRecords.slice(0, 2).join(', ')}
+              {aRecords.length > 0 ? aRecords.slice(0, 2).join(', ') : 'None Found'}
             </div>
           </div>
 
@@ -186,7 +226,7 @@ export const InfrastructureIntelCard: React.FC<InfrastructureIntelCardProps> = (
               MX Records (Mail Routing):
             </div>
             <div className="mono" style={{ fontSize: '0.72rem', color: '#a78bfa', wordBreak: 'break-all' }}>
-              {mxRecords.slice(0, 1).join(', ')}
+              {mxRecords.length > 0 ? mxRecords.slice(0, 1).join(', ') : 'None Published'}
             </div>
           </div>
 
@@ -196,7 +236,7 @@ export const InfrastructureIntelCard: React.FC<InfrastructureIntelCardProps> = (
               Authoritative Nameservers:
             </div>
             <div className="mono" style={{ fontSize: '0.72rem', color: '#34d399', wordBreak: 'break-all' }}>
-              {nsRecords.slice(0, 1).join(', ')}
+              {nsRecords.length > 0 ? nsRecords.slice(0, 1).join(', ') : 'None'}
             </div>
           </div>
         </div>
@@ -204,3 +244,4 @@ export const InfrastructureIntelCard: React.FC<InfrastructureIntelCardProps> = (
     </div>
   );
 };
+

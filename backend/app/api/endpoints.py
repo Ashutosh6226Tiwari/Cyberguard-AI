@@ -13,6 +13,7 @@ from app.schemas.analysis import (
     AnalysisRequest,
     RiskScoreReport,
     FreeScanResult,
+    CrawlArtifacts,
     PaymentChallengeRequest,
     PaymentChallengeResponse,
     PaymentVerificationRequest,

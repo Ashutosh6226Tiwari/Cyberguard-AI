@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, CheckCircle2, XCircle, Bot, Wrench, Lock, Copy, Check, Code } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, XCircle, Bot, Wrench, Lock, Copy, Check, Code, ShieldCheck } from 'lucide-react';
 import type { SecurityPostureAudit, GeminiAIInsight } from '../types';
 import { InfoTooltip } from './InfoTooltip';
 
@@ -10,10 +10,40 @@ interface SecurityPostureCardProps {
 }
 
 export const SecurityPostureCard: React.FC<SecurityPostureCardProps> = ({ audit, aiInsights, domain = 'Target Domain' }) => {
-  const [selectedSnippetTab, setSelectedSnippetTab] = useState<'nginx' | 'apache' | 'nextjs' | 'dns' | 'node'>('nginx');
+  const [selectedSnippetTab, setSelectedSnippetTab] = useState<'nginx' | 'apache' | 'nextjs' | 'dns' | 'node' | 'cloudflare'>('nginx');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
-  if (!audit) return null;
+  if (!audit) {
+    return (
+      <div className="glass-panel" style={{ padding: '24px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+          <div style={{ background: 'linear-gradient(135deg, #0284c7 0%, #1e1b4b 100%)', padding: '10px', borderRadius: '10px' }}>
+            <Lock size={22} color="#38bdf8" />
+          </div>
+          <div>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+              Developer Website Security &amp; Exploitability Audit
+            </h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+              Defensive hardening assessment for <strong>{domain}</strong>
+            </p>
+          </div>
+        </div>
+
+        <div style={{ background: 'var(--code-box-bg)', padding: '20px', borderRadius: '10px', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+          <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#38bdf8', marginBottom: '8px' }}>
+            Domain Not Registered / Inactive Web Host
+          </div>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: '520px', margin: '0 auto 16px auto' }}>
+            This domain is currently unregistered or does not run an active web service. Security header audits (HSTS, CSP, X-Frame-Options) and code injection exploitability checks can only be evaluated against live, hosted web applications.
+          </p>
+          <div style={{ background: 'rgba(56, 189, 248, 0.1)', border: '1px dashed rgba(56, 189, 248, 0.4)', borderRadius: '8px', padding: '12px 16px', textAlign: 'left', fontSize: '0.78rem', color: 'var(--text-primary)' }}>
+            <strong>💡 Developer Tip:</strong> To audit your own website's security posture and receive server hardening configurations, scan your active domain, staging environment, or public web app URL.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const isGradeGood = ['A+', 'A', 'B'].includes(audit.security_grade);
   const gradeColor = audit.security_grade === 'A+' ? '#10b981' : audit.security_grade === 'B' ? '#38bdf8' : audit.security_grade === 'C' ? '#f59e0b' : '#ef4444';
@@ -91,7 +121,15 @@ app.use(helmet({
     includeSubDomains: true,
     preload: true
   }
-}));`
+}));`,
+
+    cloudflare: `# Cloudflare Edge Rules & HTTP Response Headers for ${domain}
+# Cloudflare Dashboard -> Websites -> ${domain} -> Rules -> Transform Rules -> Modify Response Header:
+1. Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+2. X-Frame-Options           = "SAMEORIGIN"
+3. X-Content-Type-Options    = "nosniff"
+4. Content-Security-Policy   = "default-src 'self' https: data:; script-src 'self' 'unsafe-inline' https:; object-src 'none';"
+5. Referrer-Policy           = "strict-origin-when-cross-origin"`
   };
 
   return (
@@ -235,6 +273,51 @@ app.use(helmet({
         </table>
       </div>
 
+      {/* Anti-Hacking & Code Injection Immunity Breakdown */}
+      <div style={{
+        background: 'var(--hero-bg)',
+        border: '1px solid rgba(16, 185, 129, 0.3)',
+        borderRadius: '10px',
+        padding: '16px',
+        marginBottom: '22px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+          <ShieldCheck size={18} color="#10b981" />
+          <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#10b981', letterSpacing: '0.04em' }}>
+            ANTI-HACKING &amp; CODE INJECTION IMMUNITY GUIDANCE
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px', fontSize: '0.78rem' }}>
+          <div style={{ background: 'var(--code-box-bg)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+            <div style={{ fontWeight: 700, color: '#38bdf8', marginBottom: '4px' }}>
+              1. Code Injection &amp; XSS Defense
+            </div>
+            <div style={{ color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+              Setting a strict <code>Content-Security-Policy</code> stops hackers from injecting unauthorized JavaScript, evaluating external scripts, or exfiltrating session tokens.
+            </div>
+          </div>
+
+          <div style={{ background: 'var(--code-box-bg)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+            <div style={{ fontWeight: 700, color: '#38bdf8', marginBottom: '4px' }}>
+              2. Clickjacking UI Framing Defense
+            </div>
+            <div style={{ color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+              Setting <code>X-Frame-Options: SAMEORIGIN</code> prevents adversaries from framing your website in invisible click-stealing overlays or credential traps.
+            </div>
+          </div>
+
+          <div style={{ background: 'var(--code-box-bg)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+            <div style={{ fontWeight: 700, color: '#38bdf8', marginBottom: '4px' }}>
+              3. MIME Confusion &amp; SSL Stripping
+            </div>
+            <div style={{ color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+              <code>X-Content-Type-Options: nosniff</code> blocks executable disguise attacks, while <code>Strict-Transport-Security</code> forces permanent HTTPS encryption.
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Actionable Website Hardening & Fix Recommendations */}
       <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
@@ -302,6 +385,7 @@ app.use(helmet({
               { id: 'apache', label: 'Apache' },
               { id: 'nextjs', label: 'Next.js / Vercel' },
               { id: 'dns', label: 'DNS (SPF/DMARC)' },
+              { id: 'cloudflare', label: 'Cloudflare Edge' },
               { id: 'node', label: 'Node.js Express' },
             ].map((tab) => (
               <button
