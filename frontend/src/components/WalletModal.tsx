@@ -348,6 +348,14 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
               </h4>
             </div>
 
+            {/* Pera Network Requirement Note */}
+            <div style={{ background: 'rgba(234, 179, 8, 0.15)', border: '1px solid rgba(234, 179, 8, 0.4)', borderRadius: '10px', padding: '10px 14px', marginBottom: '14px', fontSize: '0.75rem', color: '#fef08a', lineHeight: 1.4 }}>
+              <strong>⚙️ Mobile Network Requirement:</strong> Ensure your Pera Wallet mobile app is set to <strong>TestNet</strong> before scanning: <br />
+              <span style={{ color: '#ffffff', opacity: 0.9 }}>
+                Pera App &rarr; Settings ⚙️ &rarr; Developer Settings &rarr; Node Settings &rarr; select <strong>TestNet</strong>
+              </span>
+            </div>
+
             {/* QR Code Container */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#ffffff', padding: '16px', borderRadius: '14px', maxWidth: '220px', margin: '0 auto 16px auto', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
               <QRCodeSVG
@@ -372,18 +380,22 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
             </div>
 
             {/* Actions */}
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <button
-                onClick={handleConnectPera}
+                onClick={() => {
+                  connectCustomWallet('MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY');
+                  setCurrentView('select');
+                  onClose();
+                }}
                 style={{
-                  flex: 1,
-                  background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
-                  color: '#ffffff',
-                  border: 'none',
+                  width: '100%',
+                  background: 'rgba(16, 185, 129, 0.15)',
+                  border: '1px solid rgba(16, 185, 129, 0.4)',
+                  color: '#10b981',
                   borderRadius: '10px',
-                  padding: '12px',
+                  padding: '10px',
                   fontWeight: 700,
-                  fontSize: '0.85rem',
+                  fontSize: '0.82rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -391,25 +403,49 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
                   gap: '6px'
                 }}
               >
-                <RefreshCw size={15} />
-                <span>Launch Official Pera Modal</span>
+                <Zap size={14} />
+                <span>Instant Connect Address (MZM62...6YFY)</span>
               </button>
 
-              <button
-                onClick={() => setCurrentView('select')}
-                style={{
-                  background: 'var(--code-box-bg)',
-                  border: '1px solid var(--border-color)',
-                  color: 'var(--text-secondary)',
-                  borderRadius: '10px',
-                  padding: '12px 18px',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}
-              >
-                Cancel
-              </button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={handleConnectPera}
+                  style={{
+                    flex: 1,
+                    background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '10px',
+                    padding: '12px',
+                    fontWeight: 700,
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <RefreshCw size={15} />
+                  <span>Launch Official Pera Modal</span>
+                </button>
+
+                <button
+                  onClick={() => setCurrentView('select')}
+                  style={{
+                    background: 'var(--code-box-bg)',
+                    border: '1px solid var(--border-color)',
+                    color: 'var(--text-secondary)',
+                    borderRadius: '10px',
+                    padding: '12px 18px',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         ) : currentView === 'defly_qr' ? (
