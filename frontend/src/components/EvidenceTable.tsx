@@ -1,14 +1,15 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, Layers } from 'lucide-react';
+import { TrendingUp, TrendingDown, Layers, HelpCircle } from 'lucide-react';
 import type { EvidenceItem } from '../types';
 import { InfoTooltip } from './InfoTooltip';
 
 interface EvidenceTableProps {
   evidenceList?: EvidenceItem[];
   evidence?: EvidenceItem[];
+  onOpenAbout?: (topicId?: string) => void;
 }
 
-export const EvidenceTable: React.FC<EvidenceTableProps> = ({ evidenceList, evidence }) => {
+export const EvidenceTable: React.FC<EvidenceTableProps> = ({ evidenceList, evidence, onOpenAbout }) => {
   const items = evidence || evidenceList || [];
 
   return (
@@ -36,9 +37,33 @@ export const EvidenceTable: React.FC<EvidenceTableProps> = ({ evidenceList, evid
           </div>
         </div>
 
-        <span className="mono" style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-          {items.length} Extracted Signals
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span className="mono" style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+            {items.length} Extracted Signals
+          </span>
+          {onOpenAbout && (
+            <button
+              onClick={() => onOpenAbout('evidence-breakdown')}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              title="About Evidence Matrix"
+            >
+              <HelpCircle size={13} color="var(--accent-cyan)" />
+              <span>About</span>
+            </button>
+          )}
+        </div>
       </div>
 
       <div style={{ overflowX: 'auto' }}>

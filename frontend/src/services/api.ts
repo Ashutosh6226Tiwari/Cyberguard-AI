@@ -6,7 +6,9 @@ import type {
   TestnetStatus,
   CaseSummary,
   FeedItem,
-  BenchmarkSample
+  BenchmarkSample,
+  ChatMessage,
+  ChatResponse
 } from '../types';
 
 export const getApiBase = () => {
@@ -1129,5 +1131,71 @@ async function generateLiveClientAudit(inputUrl: string, txId?: string): Promise
     payment_timestamp: new Date().toISOString(),
     payment_amount_algo: 0.1,
     explorer_url: txId ? `https://lora.algokit.io/testnet/transaction/${txId}` : undefined
+  };
+}
+
+/**
+ * 9. AI Cyber Copilot Chat Endpoint (/api/chat)
+ */
+export async function sendChatMessage(
+  message: string,
+  report?: any,
+  history?: { role: string; content: string }[]
+): Promise<ChatResponse> {
+  try {
+    const response = await apiFetch('/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, report, history })
+    });
+    if (response && response.ok) {
+      return await response.json();
+    }
+  } catch (err) {
+    console.warn('Backend chat offline, generating local copilot response...', err);
+  }
+
+  // Graceful client-side fallback
+  return generateClientChatResponse(message, report);
+}
+
+function generateClientChatResponse(message: string, report?: any): ChatResponse {
+  const domain = report?.canonical_domain || report?.domain || 'target website';
+  const verdict = report?.verdict || 'UNKNOWN';
+  const riskScore = report?.overall_risk_score ?? report?.fast_risk_score ?? 0;
+  const grade = report?.security_audit?.security_grade || report?.security_grade || 'N/A';
+  const isContradiction = !!report?.brand_analysis?.is_contradiction;
+  const brandName = report?.brand_analysis?.brand_display_name;
+  const msgLower = message.toLowerCase();
+
+  let reply = '';
+  if (msgLower.includes('safe') || msgLower.includes('password') || msgLower.includes('login') || msgLower.includes('credential')) {
+    if (verdict === 'PHISHING' || isContradiction) {
+      reply = `⚠️ **DO NOT SUBMIT PASSWORDS OR CREDENTIALS.**\n\n\`${domain}\` is flagged as **${verdict}** (Risk Score: **${riskScore}/100**). ${brandName ? `It is impersonating **${brandName}** on an unauthorized domain.` : 'It exhibits malicious deception markers.'} Any input will be captured by adversaries.`;
+    } else if (verdict === 'UNREGISTERED') {
+      reply = `ℹ️ **This domain is unregistered.**\n\n\`${domain}\` has no active DNS or hosting infrastructure. No authentic website or login form is present.`;
+    } else {
+      reply = `✅ **Target website is verified authentic.**\n\n\`${domain}\` shows legitimate registration, authentic domain standing, and matching brand identity (Risk: **${riskScore}/100**). Always confirm the browser address bar shows \`https://${domain}\`.`;
+    }
+  } else if (msgLower.includes('grade') || msgLower.includes('posture') || msgLower.includes('score') || msgLower.includes('why')) {
+    reply = `🛡️ **Security Grade Breakdown for \`${domain}\` (Grade: ${grade}):**\n\nThe security grade audits defensive HTTP response headers that protect your users from code injection, framing attacks, and SSL downgrade:\n\n- **Strict-Transport-Security (HSTS):** Enforces HTTPS encryption for 1 year.\n- **Content-Security-Policy (CSP):** Immunizes your pages from XSS script execution.\n- **X-Frame-Options:** Prevents invisible framing and clickjacking.\n- **X-Content-Type-Options:** Prevents MIME-sniffing exploits.`;
+  } else if (msgLower.includes('code injection') || msgLower.includes('xss') || msgLower.includes('csp')) {
+    reply = `🔒 **Immunizing \`${domain}\` Against Code Injection (XSS):**\n\nAttackers inject malicious JavaScript to steal auth cookies, tokens, and sensitive keystrokes. Deploy a strict **Content-Security-Policy (CSP)**:\n\n\`\`\`http\nContent-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https:; object-src 'none'; frame-ancestors 'self';\n\`\`\`\n\n**Best Practices:**\n1. Disallow \`eval()\`.\n2. Sanitize and escape all HTML user inputs.\n3. Store auth tokens in \`HttpOnly\`, \`Secure\`, \`SameSite=Strict\` cookies.`;
+  } else if (msgLower.includes('nginx') || msgLower.includes('apache') || msgLower.includes('cloudflare') || msgLower.includes('config') || msgLower.includes('fix')) {
+    reply = `⚙️ **Hardening Configuration for \`${domain}\`:**\n\n**Nginx Server Block (\`/etc/nginx/conf.d/security.conf\`):**\n\`\`\`nginx\nadd_header X-Frame-Options "SAMEORIGIN" always;\nadd_header X-Content-Type-Options "nosniff" always;\nadd_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;\nadd_header Content-Security-Policy "default-src 'self' https: data:; script-src 'self' 'unsafe-inline' https:; object-src 'none';" always;\nadd_header Referrer-Policy "strict-origin-when-cross-origin" always;\n\`\`\`\n\n**Cloudflare Edge Rule:**\nGo to *Rules → Transform Rules → Modify Response Header* and inject HSTS, X-Frame-Options, and CSP headers.`;
+  } else if (msgLower.includes('brand') || msgLower.includes('contradiction') || msgLower.includes('logo')) {
+    reply = `🔍 **Brand-Domain Contradiction Engine:**\n\nPhishers steal corporate logos (${brandName || 'PayPal, Microsoft, Apple, Google'}) and place them on deceptive domains. Our neural engine compares logo perceptual hashes against official trademark registries. If a page displays a brand logo but does not match the company's verified domain list, it triggers a critical brand contradiction alert.`;
+  } else {
+    reply = `🤖 **CyberGuard AI Copilot Analysis:**\n\nTarget: \`${domain}\`\nVerdict: **${verdict}** | Risk Score: **${riskScore}/100** | Posture Grade: **${grade}**\n\nYou can ask me:\n- *"How do I fix Security Grade ${grade}?"*\n- *"How do I prevent code injection (XSS) on my website?"*\n- *"Is it safe to log into this site?"*\n- *"Generate Nginx / Cloudflare security headers"*`;
+  }
+
+  return {
+    reply,
+    suggested_actions: [
+      `How to fix Security Grade ${grade}?`,
+      'How to prevent code injection & XSS?',
+      'Generate Nginx / Apache hardening headers',
+      'Explain Brand Contradiction'
+    ]
   };
 }

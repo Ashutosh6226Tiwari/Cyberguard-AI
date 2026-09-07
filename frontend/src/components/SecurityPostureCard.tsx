@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, CheckCircle2, XCircle, Bot, Wrench, Lock, Copy, Check, Code, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, XCircle, Bot, Wrench, Lock, Copy, Check, Code, ShieldCheck, HelpCircle } from 'lucide-react';
 import type { SecurityPostureAudit, GeminiAIInsight } from '../types';
 import { InfoTooltip } from './InfoTooltip';
 
@@ -7,9 +7,10 @@ interface SecurityPostureCardProps {
   audit?: SecurityPostureAudit;
   aiInsights?: GeminiAIInsight;
   domain?: string;
+  onOpenAbout?: (topicId?: string) => void;
 }
 
-export const SecurityPostureCard: React.FC<SecurityPostureCardProps> = ({ audit, aiInsights, domain = 'Target Domain' }) => {
+export const SecurityPostureCard: React.FC<SecurityPostureCardProps> = ({ audit, aiInsights, domain = 'Target Domain', onOpenAbout }) => {
   const [selectedSnippetTab, setSelectedSnippetTab] = useState<'nginx' | 'apache' | 'nextjs' | 'dns' | 'node' | 'cloudflare'>('nginx');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -158,15 +159,40 @@ app.use(helmet({
           </div>
         </div>
 
-        {/* Grade Badge */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', background: 'var(--bg-secondary)', padding: '6px 16px', borderRadius: '12px', border: `1px solid ${gradeColor}` }}>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 700 }}>SECURITY GRADE</div>
-            <div className="mono" style={{ fontSize: '0.75rem', color: 'var(--text-primary)' }}>{audit.score_percentage}% Pass Rate</div>
+        {/* Grade Badge & About Button */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', background: 'var(--bg-secondary)', padding: '6px 16px', borderRadius: '12px', border: `1px solid ${gradeColor}` }}>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 700 }}>SECURITY GRADE</div>
+              <div className="mono" style={{ fontSize: '0.75rem', color: 'var(--text-primary)' }}>{audit.score_percentage}% Pass Rate</div>
+            </div>
+            <div style={{ fontSize: '2rem', fontWeight: 900, color: gradeColor }} className="mono">
+              {audit.security_grade}
+            </div>
           </div>
-          <div style={{ fontSize: '2rem', fontWeight: 900, color: gradeColor }} className="mono">
-            {audit.security_grade}
-          </div>
+
+          {onOpenAbout && (
+            <button
+              onClick={() => onOpenAbout('security-headers')}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '8px',
+                padding: '8px 12px',
+                fontSize: '0.74rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+              title="About Security Posture & Exploitability"
+            >
+              <HelpCircle size={14} color="var(--accent-cyan)" />
+              <span>About</span>
+            </button>
+          )}
         </div>
       </div>
 

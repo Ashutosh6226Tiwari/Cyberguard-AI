@@ -27,6 +27,7 @@ import { ReportExportModal } from './components/ReportExportModal';
 import { AboutModal } from './components/AboutModal';
 import { WalletModal } from './components/WalletModal';
 import { HackerTransitionOverlay } from './components/HackerTransitionOverlay';
+import { CyberCopilotChat } from './components/CyberCopilotChat';
 import { AlgorandWalletProvider } from './context/AlgorandWalletContext';
 
 import type {
@@ -87,11 +88,24 @@ export function App() {
 
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
   const [showAboutModal, setShowAboutModal] = useState<boolean>(false);
+  const [aboutInitialTopic, setAboutInitialTopic] = useState<string>('all');
   const [showWalletModal, setShowWalletModal] = useState<boolean>(false);
+  const [showCopilotChat, setShowCopilotChat] = useState<boolean>(false);
+  const [pendingCopilotPrompt, setPendingCopilotPrompt] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleLaunchScanner = () => {
     setShowHackerOverlay(true);
+  };
+
+  const handleOpenAboutTopic = (topicId?: string) => {
+    setAboutInitialTopic(topicId || 'all');
+    setShowAboutModal(true);
+  };
+
+  const handleAskCopilot = (question: string) => {
+    setPendingCopilotPrompt(question);
+    setShowCopilotChat(true);
   };
 
   // Apply theme to DOM
@@ -436,6 +450,7 @@ export function App() {
                   <FreeScanDetailedCard
                     result={freeScanResult}
                     onUnlockDeepAudit={handleOpenPaymentForFreeScan}
+                    onOpenAbout={handleOpenAboutTopic}
                   />
                 </motion.div>
               )}
@@ -460,6 +475,7 @@ export function App() {
                       report={report}
                       onExportClick={() => setShowExportModal(true)}
                       onSubmitFeedback={handleSubmitFeedback}
+                      onOpenAbout={handleOpenAboutTopic}
                     />
                   </motion.div>
 
@@ -471,11 +487,11 @@ export function App() {
                     style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '24px' }}
                   >
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                      <BrandContradictionCard brand={report.brand_analysis} domainIntel={report.domain_intel} />
-                      <InfrastructureIntelCard domainIntel={report.domain_intel} crawlArtifacts={report.crawl_artifacts} targetDomain={report.canonical_domain} />
-                      <ThreatVectorsCard report={report} />
+                      <BrandContradictionCard brand={report.brand_analysis} domainIntel={report.domain_intel} onOpenAbout={handleOpenAboutTopic} />
+                      <InfrastructureIntelCard domainIntel={report.domain_intel} crawlArtifacts={report.crawl_artifacts} targetDomain={report.canonical_domain} onOpenAbout={handleOpenAboutTopic} />
+                      <ThreatVectorsCard report={report} onOpenAbout={handleOpenAboutTopic} />
                     </div>
-                    <SecurityPostureCard audit={report.security_audit} aiInsights={report.ai_insights} domain={report.canonical_domain} />
+                    <SecurityPostureCard audit={report.security_audit} aiInsights={report.ai_insights} domain={report.canonical_domain} onOpenAbout={handleOpenAboutTopic} />
                   </motion.div>
 
                   {/* Attack Chain & Forensic Evidence */}
@@ -484,7 +500,7 @@ export function App() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, delay: 0.2 }}
                   >
-                    <AttackChainVisualizer nodes={report.attack_chain} />
+                    <AttackChainVisualizer nodes={report.attack_chain} onOpenAbout={handleOpenAboutTopic} />
                   </motion.div>
 
                   <motion.div
@@ -492,7 +508,7 @@ export function App() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, delay: 0.28 }}
                   >
-                    <EvidenceTable evidence={report.evidence_breakdown} />
+                    <EvidenceTable evidence={report.evidence_breakdown} onOpenAbout={handleOpenAboutTopic} />
                   </motion.div>
 
                   <motion.div
@@ -500,7 +516,7 @@ export function App() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, delay: 0.35 }}
                   >
-                    <TechnicalInspector report={report} />
+                    <TechnicalInspector report={report} onOpenAbout={handleOpenAboutTopic} />
                   </motion.div>
                 </motion.div>
               )}
@@ -517,18 +533,19 @@ export function App() {
                   report={report}
                   onExportClick={() => setShowExportModal(true)}
                   onSubmitFeedback={handleSubmitFeedback}
+                  onOpenAbout={handleOpenAboutTopic}
                 />
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '24px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    <BrandContradictionCard brand={report.brand_analysis} domainIntel={report.domain_intel} />
-                    <InfrastructureIntelCard domainIntel={report.domain_intel} crawlArtifacts={report.crawl_artifacts} targetDomain={report.canonical_domain} />
-                    <ThreatVectorsCard report={report} />
+                    <BrandContradictionCard brand={report.brand_analysis} domainIntel={report.domain_intel} onOpenAbout={handleOpenAboutTopic} />
+                    <InfrastructureIntelCard domainIntel={report.domain_intel} crawlArtifacts={report.crawl_artifacts} targetDomain={report.canonical_domain} onOpenAbout={handleOpenAboutTopic} />
+                    <ThreatVectorsCard report={report} onOpenAbout={handleOpenAboutTopic} />
                   </div>
-                  <SecurityPostureCard audit={report.security_audit} aiInsights={report.ai_insights} domain={report.canonical_domain} />
+                  <SecurityPostureCard audit={report.security_audit} aiInsights={report.ai_insights} domain={report.canonical_domain} onOpenAbout={handleOpenAboutTopic} />
                 </div>
-                <AttackChainVisualizer nodes={report.attack_chain} />
-                <EvidenceTable evidence={report.evidence_breakdown} />
-                <TechnicalInspector report={report} />
+                <AttackChainVisualizer nodes={report.attack_chain} onOpenAbout={handleOpenAboutTopic} />
+                <EvidenceTable evidence={report.evidence_breakdown} onOpenAbout={handleOpenAboutTopic} />
+                <TechnicalInspector report={report} onOpenAbout={handleOpenAboutTopic} />
               </>
             ) : (
               <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
@@ -634,8 +651,20 @@ export function App() {
           <AboutModal
             isOpen={showAboutModal}
             onClose={() => setShowAboutModal(false)}
+            initialTopicId={aboutInitialTopic}
+            onAskCopilot={handleAskCopilot}
           />
         )}
+
+        {/* Interactive Cyber AI Copilot Chatbot */}
+        <CyberCopilotChat
+          report={report || freeScanResult}
+          isOpen={showCopilotChat}
+          onToggle={() => setShowCopilotChat((prev) => !prev)}
+          pendingPrompt={pendingCopilotPrompt}
+          onClearPendingPrompt={() => setPendingCopilotPrompt(null)}
+          onOpenAboutTopic={handleOpenAboutTopic}
+        />
       </div>
     </AlgorandWalletProvider>
   );

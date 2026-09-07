@@ -1,5 +1,5 @@
 import React from 'react';
-import { Server, Lock, ShieldAlert, MapPin, Database, CheckCircle2, Clock } from 'lucide-react';
+import { Server, Lock, ShieldAlert, MapPin, Database, CheckCircle2, Clock, HelpCircle } from 'lucide-react';
 import type { DomainIntel, CrawlArtifacts } from '../types';
 import { InfoTooltip } from './InfoTooltip';
 
@@ -7,12 +7,14 @@ interface InfrastructureIntelCardProps {
   domainIntel?: DomainIntel;
   crawlArtifacts?: CrawlArtifacts;
   targetDomain?: string;
+  onOpenAbout?: (topicId?: string) => void;
 }
 
 export const InfrastructureIntelCard: React.FC<InfrastructureIntelCardProps> = ({
   domainIntel,
   crawlArtifacts,
-  targetDomain = 'Target Domain'
+  targetDomain = 'Target Domain',
+  onOpenAbout
 }) => {
   if (!domainIntel) return null;
 
@@ -47,9 +49,33 @@ export const InfrastructureIntelCard: React.FC<InfrastructureIntelCardProps> = (
               </p>
             </div>
           </div>
-          <span className="badge-info mono" style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 700 }}>
-            UNREGISTERED DOMAIN (NXDOMAIN)
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="badge-info mono" style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 700 }}>
+              UNREGISTERED DOMAIN (NXDOMAIN)
+            </span>
+            {onOpenAbout && (
+              <button
+                onClick={() => onOpenAbout('infrastructure-intel')}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '6px',
+                  padding: '4px 8px',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+                title="About Infrastructure Intel"
+              >
+                <HelpCircle size={13} color="var(--accent-cyan)" />
+                <span>About</span>
+              </button>
+            )}
+          </div>
         </div>
 
         <div style={{ background: 'var(--code-box-bg)', padding: '16px', borderRadius: '10px', border: '1px solid var(--border-color)', lineHeight: 1.5 }}>
@@ -100,12 +126,36 @@ export const InfrastructureIntelCard: React.FC<InfrastructureIntelCardProps> = (
           </div>
         </div>
 
-        <span
-          className={isNrd ? 'badge-critical mono' : 'badge-safe mono'}
-          style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 700 }}
-        >
-          {isNrd ? 'SUSPICIOUS NRD INFRASTRUCTURE' : 'VERIFIED HOSTING ORIGIN'}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span
+            className={isNrd ? 'badge-critical mono' : 'badge-safe mono'}
+            style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 700 }}
+          >
+            {isNrd ? 'SUSPICIOUS NRD INFRASTRUCTURE' : 'VERIFIED HOSTING ORIGIN'}
+          </span>
+          {onOpenAbout && (
+            <button
+              onClick={() => onOpenAbout('infrastructure-intel')}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              title="About Infrastructure Intel"
+            >
+              <HelpCircle size={13} color="var(--accent-cyan)" />
+              <span>About</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Grid: 2 Subsections (IP & ASN Origin | TLS Cryptography) */}

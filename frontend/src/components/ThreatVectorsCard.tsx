@@ -1,13 +1,14 @@
 import React from 'react';
-import { Activity, ShieldAlert, ShieldCheck, Cpu, Code2, AlertTriangle, CheckCircle2, Globe, FileCode2 } from 'lucide-react';
+import { Activity, ShieldAlert, ShieldCheck, Cpu, Code2, AlertTriangle, CheckCircle2, Globe, FileCode2, HelpCircle } from 'lucide-react';
 import type { RiskScoreReport } from '../types';
 import { InfoTooltip } from './InfoTooltip';
 
 interface ThreatVectorsCardProps {
   report: RiskScoreReport;
+  onOpenAbout?: (topicId?: string) => void;
 }
 
-export const ThreatVectorsCard: React.FC<ThreatVectorsCardProps> = ({ report }) => {
+export const ThreatVectorsCard: React.FC<ThreatVectorsCardProps> = ({ report, onOpenAbout }) => {
   const crawl = report.crawl_artifacts;
   const triage = report.triage;
 
@@ -83,18 +84,43 @@ export const ThreatVectorsCard: React.FC<ThreatVectorsCardProps> = ({ report }) 
           </div>
         </div>
 
-        {report.verdict === 'UNREGISTERED' || report.domain_intel?.is_registered === false ? (
-          <span className="badge-info mono" style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 700 }}>
-            UNREGISTERED DOMAIN (NXDOMAIN)
-          </span>
-        ) : (
-          <span
-            className={report.overall_risk_score >= 70 ? 'badge-critical mono' : report.overall_risk_score >= 40 ? 'badge-high mono' : 'badge-safe mono'}
-            style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 700 }}
-          >
-            WEIGHTED RISK: {report.overall_risk_score}/100
-          </span>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {report.verdict === 'UNREGISTERED' || report.domain_intel?.is_registered === false ? (
+            <span className="badge-info mono" style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 700 }}>
+              UNREGISTERED DOMAIN (NXDOMAIN)
+            </span>
+          ) : (
+            <span
+              className={report.overall_risk_score >= 70 ? 'badge-critical mono' : report.overall_risk_score >= 40 ? 'badge-high mono' : 'badge-safe mono'}
+              style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 700 }}
+            >
+              WEIGHTED RISK: {report.overall_risk_score}/100
+            </span>
+          )}
+
+          {onOpenAbout && (
+            <button
+              onClick={() => onOpenAbout('threat-vectors')}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              title="About Threat Vectors Radar"
+            >
+              <HelpCircle size={13} color="var(--accent-cyan)" />
+              <span>About</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* 5 Vector Progress Meters */}

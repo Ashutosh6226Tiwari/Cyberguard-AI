@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { GitCommit, ArrowRight, ShieldAlert, Globe, Server, CornerDownRight, KeyRound, Radio, CheckCircle2 } from 'lucide-react';
+import { GitCommit, ArrowRight, ShieldAlert, Globe, Server, CornerDownRight, KeyRound, Radio, CheckCircle2, HelpCircle } from 'lucide-react';
 import type { AttackChainNode } from '../types';
 import { InfoTooltip } from './InfoTooltip';
 
 interface AttackChainVisualizerProps {
   nodes?: AttackChainNode[];
+  onOpenAbout?: (topicId?: string) => void;
 }
 
-export const AttackChainVisualizer: React.FC<AttackChainVisualizerProps> = ({ nodes = [] }) => {
+export const AttackChainVisualizer: React.FC<AttackChainVisualizerProps> = ({ nodes = [], onOpenAbout }) => {
   const safeNodes = nodes || [];
   const [selectedNode, setSelectedNode] = useState<AttackChainNode | null>(safeNodes.length > 0 ? safeNodes[0] : null);
 
@@ -44,9 +45,33 @@ export const AttackChainVisualizer: React.FC<AttackChainVisualizerProps> = ({ no
             Forensic chronological path from ingress to credential exfiltration
           </p>
         </div>
-        <span className="badge-info mono" style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: '12px' }}>
-          {nodes.length} Observed Forensic Stages
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span className="badge-info mono" style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: '12px' }}>
+            {nodes.length} Observed Forensic Stages
+          </span>
+          {onOpenAbout && (
+            <button
+              onClick={() => onOpenAbout('attack-chain')}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              title="About Attack Chain Reconstruction"
+            >
+              <HelpCircle size={13} color="var(--accent-cyan)" />
+              <span>About</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Horizontal Flow Chart / Nodes */}

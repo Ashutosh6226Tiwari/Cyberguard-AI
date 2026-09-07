@@ -248,3 +248,20 @@ export interface BenchmarkSample {
   expected_brand?: string;
   description: string;
 }
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp?: string;
+}
+
+export interface ChatRequest {
+  message: string;
+  report?: any;
+  history?: { role: string; content: string }[];
+}
+
+export interface ChatResponse {
+  reply: string;
+  suggested_actions?: string[];
+}

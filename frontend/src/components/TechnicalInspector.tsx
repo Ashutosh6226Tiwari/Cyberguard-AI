@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Camera, Globe, Lock, Code, FileJson, Shield, AlertTriangle, CheckCircle, ExternalLink, RefreshCw, Eye } from 'lucide-react';
+import { Camera, Globe, Lock, Code, FileJson, Shield, AlertTriangle, CheckCircle, ExternalLink, RefreshCw, Eye, HelpCircle } from 'lucide-react';
 import type { RiskScoreReport } from '../types';
 
 interface TechnicalInspectorProps {
   report: RiskScoreReport;
+  onOpenAbout?: (topicId?: string) => void;
 }
 
-export const TechnicalInspector: React.FC<TechnicalInspectorProps> = ({ report }) => {
+export const TechnicalInspector: React.FC<TechnicalInspectorProps> = ({ report, onOpenAbout }) => {
   const [activeTab, setActiveTab] = useState<'screenshot' | 'dns_tls' | 'dom_forms' | 'raw_json'>('screenshot');
   const [viewMode, setViewMode] = useState<'snapshot' | 'live_iframe'>('live_iframe');
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -114,9 +115,33 @@ export const TechnicalInspector: React.FC<TechnicalInspectorProps> = ({ report }
           </button>
         </div>
 
-        <span className="mono" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-          Target: {report.canonical_domain}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span className="mono" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+            Target: {report.canonical_domain}
+          </span>
+          {onOpenAbout && (
+            <button
+              onClick={() => onOpenAbout('technical-inspector')}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              title="About Technical Inspector"
+            >
+              <HelpCircle size={13} color="var(--accent-cyan)" />
+              <span>About</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tab 1: Screenshot & Live Sandbox Viewport */}

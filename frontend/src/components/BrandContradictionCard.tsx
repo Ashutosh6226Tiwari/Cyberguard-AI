@@ -1,14 +1,15 @@
 import React from 'react';
-import { ShieldAlert, ShieldCheck, ArrowRight, AlertTriangle } from 'lucide-react';
+import { ShieldAlert, ShieldCheck, ArrowRight, AlertTriangle, HelpCircle } from 'lucide-react';
 import type { BrandMatch, DomainIntel } from '../types';
 import { InfoTooltip } from './InfoTooltip';
 
 interface BrandContradictionCardProps {
   brand: BrandMatch;
   domainIntel?: DomainIntel;
+  onOpenAbout?: (topicId?: string) => void;
 }
 
-export const BrandContradictionCard: React.FC<BrandContradictionCardProps> = ({ brand, domainIntel }) => {
+export const BrandContradictionCard: React.FC<BrandContradictionCardProps> = ({ brand, domainIntel, onOpenAbout }) => {
   const hasBrand = !!brand?.matched_brand;
   const isContradiction = !!brand?.is_contradiction;
 
@@ -56,23 +57,48 @@ export const BrandContradictionCard: React.FC<BrandContradictionCardProps> = ({ 
           </div>
         </div>
 
-        {isUnregistered ? (
-          <span className="badge-info mono" style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
-            UNREGISTERED / AVAILABLE DOMAIN
-          </span>
-        ) : isContradiction ? (
-          <span className="badge-critical mono" style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
-            CRITICAL CONTRADICTION DETECTED
-          </span>
-        ) : hasBrand ? (
-          <span className="badge-safe mono" style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
-            AUTHENTIC BRAND DOMAIN
-          </span>
-        ) : (
-          <span className="badge-info mono" style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
-            GENERIC / UNBRANDED DOMAIN
-          </span>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {isUnregistered ? (
+            <span className="badge-info mono" style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
+              UNREGISTERED / AVAILABLE DOMAIN
+            </span>
+          ) : isContradiction ? (
+            <span className="badge-critical mono" style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
+              CRITICAL CONTRADICTION DETECTED
+            </span>
+          ) : hasBrand ? (
+            <span className="badge-safe mono" style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
+              AUTHENTIC BRAND DOMAIN
+            </span>
+          ) : (
+            <span className="badge-info mono" style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 700 }}>
+              GENERIC / UNBRANDED DOMAIN
+            </span>
+          )}
+
+          {onOpenAbout && (
+            <button
+              onClick={() => onOpenAbout('brand-engine')}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              title="About Brand Contradiction Engine"
+            >
+              <HelpCircle size={13} color="var(--accent-cyan)" />
+              <span>About</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Side-by-Side Identity Comparison */}

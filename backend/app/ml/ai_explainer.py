@@ -112,3 +112,177 @@ Return a valid JSON object with the following three fields ONLY (no markdown for
         hacker_perspective_audit=hacker_audit,
         remediation_recommendations=recommendations
     )
+
+
+async def ask_cyber_copilot(
+    message: str,
+    report: Optional[Dict[str, Any]] = None,
+    history: Optional[list] = None
+) -> Dict[str, Any]:
+    """
+    Interactive Cyber Security Copilot answering questions about scan results,
+    vulnerabilities, brand contradiction, code injection immunity, and server hardening.
+    """
+    report = report or {}
+    domain = report.get("canonical_domain") or report.get("domain") or "target website"
+    verdict = report.get("verdict") or "UNKNOWN"
+    risk_score = report.get("overall_risk_score") or 0
+    security_audit = report.get("security_audit") or {}
+    grade = security_audit.get("security_grade") or security_audit.get("grade") or "N/A"
+    missing_headers = [f.get("name") for f in security_audit.get("findings", []) if isinstance(f, dict) and f.get("status") in ["FAIL", "WARNING"]]
+    brand = report.get("brand_analysis") or {}
+    brand_matched = brand.get("brand_display_name")
+    is_contradiction = brand.get("is_contradiction", False)
+    contradiction_explanation = brand.get("contradiction_explanation", "")
+
+    # Context block
+    context_summary = f"""
+TARGET SECURITY SCAN CONTEXT:
+- Domain: {domain}
+- Overall Risk Score: {risk_score} / 100
+- Threat Verdict: {verdict}
+- Security Posture Grade: {grade}
+- Missing Defense Headers: {', '.join(missing_headers) if missing_headers else 'None (Fully Hardened)'}
+- Brand Impersonation: {brand_matched or 'No brand spoofing detected'}
+- Brand Contradiction: {'CRITICAL PHISHING MISMATCH' if is_contradiction else 'Consistent / Authentic Domain'}
+{f'- Contradiction Finding: {contradiction_explanation}' if contradiction_explanation else ''}
+""" if report else "No active URL scan report loaded. General cybersecurity assistance mode."
+
+    system_prompt = f"""You are CyberGuard AI Copilot, a world-class defensive web security engineer and ethical hacker assistant.
+You help developers, security analysts, and end-users understand scan results, prevent code injection (XSS, SQLi, framing), harden server configurations (Nginx, Apache, Next.js, Cloudflare, Node.js), and detect phishing threats.
+Be concise, authoritative, professional, and actionable. Use markdown formatting with code snippets where helpful.
+
+{context_summary}
+"""
+
+    # 1. Try Google Gemini API if key is available
+    if settings.GEMINI_API_KEY:
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
+            contents = [{"parts": [{"text": system_prompt}]}]
+            if history:
+                for h in history[-4:]:
+                    role = "model" if getattr(h, "role", "") == "assistant" or (isinstance(h, dict) and h.get("role") == "assistant") else "user"
+                    content_text = getattr(h, "content", "") if not isinstance(h, dict) else h.get("content", "")
+                    contents.append({"parts": [{"text": f"[{role.upper()}]: {content_text}"}]})
+            contents.append({"parts": [{"text": f"USER QUESTION: {message}"}]})
+
+            payload = {
+                "contents": contents,
+                "generationConfig": {"temperature": 0.3, "maxOutputTokens": 800}
+            }
+            async with httpx.AsyncClient(timeout=8.0) as client:
+                resp = await client.post(url, json=payload)
+                if resp.status_code == 200:
+                    result = resp.json()
+                    reply_text = result["candidates"][0]["content"]["parts"][0]["text"].strip()
+                    return {
+                        "reply": reply_text,
+                        "suggested_actions": [
+                            f"How to fix Security Grade {grade}?",
+                            "How do hackers exploit code injection?",
+                            "Generate Nginx hardening config",
+                            "Explain Brand Contradiction"
+                        ]
+                    }
+        except Exception:
+            pass
+
+    # 2. High-fidelity built-in cybersecurity knowledge engine
+    msg_lower = message.lower()
+
+    if "safe" in msg_lower or "password" in msg_lower or "credential" in msg_lower or "login" in msg_lower:
+        if verdict == "PHISHING" or is_contradiction:
+            reply = f"⚠️ **DO NOT ENTER CREDENTIALS OR PASSWORDS.**\n\n`{domain}` has been confirmed as **{verdict}** (Risk Score: **{risk_score}/100**). It is impersonating **{brand_matched or 'a recognized service'}** on an unauthorized domain. Any submitted passwords or sensitive data will be exfiltrated to the adversary's command server."
+        elif verdict == "UNREGISTERED":
+            reply = f"ℹ️ **This domain is unregistered.**\n\n`{domain}` is currently not registered on ICANN/RDAP registries (NXDOMAIN). There is no active server or login portal hosted here."
+        else:
+            reply = f"✅ **Target is verified benign / authentic.**\n\n`{domain}` has an authentic registration profile and consistent brand identity (Risk Score: **{risk_score}/100**). However, ensure your browser shows a secure green padlock (`https://`) before authenticating."
+
+    elif "grade" in msg_lower or "posture" in msg_lower or "f" in msg_lower or "score" in msg_lower or "why" in msg_lower:
+        if security_audit:
+            reply = f"🛡️ **Security Grade Breakdown for `{domain}` ({grade} - {security_audit.get('score_percentage', 0)}% Pass Rate):**\n\n"
+            reply += f"The grade evaluates essential defensive HTTP headers that immunize your website against attacker exploits:\n"
+            for f in security_audit.get("findings", []):
+                icon = "✅" if f.get("status") == "PASS" else "❌" if f.get("status") == "FAIL" else "⚠️"
+                reply += f"- {icon} **{f.get('name')}**: {f.get('exploit_risk')}\n"
+            reply += f"\n**Key Weakness:** {security_audit.get('hacker_perspective_summary', 'Missing key security headers.')}"
+        else:
+            reply = f"The domain `{domain}` received a threat score of **{risk_score}/100** with verdict **{verdict}** based on multi-signal neural fusion across lexical entropy, brand logo vision, and domain registration age."
+
+    elif "code injection" in msg_lower or "xss" in msg_lower or "csp" in msg_lower:
+        reply = (
+            "🔒 **How to Immunize Your Website Against Code Injection (XSS):**\n\n"
+            "Code injection occurs when an attacker injects unauthorized JavaScript into your web pages to hijack user sessions or capture keystrokes. "
+            "Deploying a strict **`Content-Security-Policy (CSP)`** completely stops this by telling the browser to only execute trusted scripts:\n\n"
+            "```http\n"
+            "Content-Security-Policy: default-src 'self' https: data:; script-src 'self' 'unsafe-inline' https:; object-src 'none';\n"
+            "```\n"
+            "**Key Principles:**\n"
+            "1. Disallow `eval()` and inline untrusted scripts.\n"
+            "2. Restrict script origins to your own domain (`'self'`).\n"
+            "3. Always sanitize and HTML-encode user input before rendering."
+        )
+
+    elif "clickjack" in msg_lower or "iframe" in msg_lower or "frame" in msg_lower:
+        reply = (
+            "🖼️ **Clickjacking (UI Redressing) Immunity:**\n\n"
+            "Attackers frame your website inside an invisible `<iframe>` on a malicious site, tricking visitors into clicking sensitive buttons on your app without realizing it.\n\n"
+            "**Fix:** Enforce the `X-Frame-Options` or CSP `frame-ancestors` directive:\n"
+            "```http\n"
+            "X-Frame-Options: SAMEORIGIN\n"
+            "# Or via CSP:\n"
+            "Content-Security-Policy: frame-ancestors 'self';\n"
+            "```"
+        )
+
+    elif "nginx" in msg_lower or "apache" in msg_lower or "cloudflare" in msg_lower or "fix" in msg_lower or "config" in msg_lower:
+        reply = (
+            f"⚙️ **Hardening Configuration Snippet for `{domain}`:**\n\n"
+            "**Nginx Configuration (Inside `server {{ ... }}` block):**\n"
+            "```nginx\n"
+            "add_header X-Frame-Options \"SAMEORIGIN\" always;\n"
+            "add_header X-Content-Type-Options \"nosniff\" always;\n"
+            "add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains; preload\" always;\n"
+            "add_header Content-Security-Policy \"default-src 'self' https: data:; script-src 'self' 'unsafe-inline' https:; object-src 'none';\" always;\n"
+            "add_header Referrer-Policy \"strict-origin-when-cross-origin\" always;\n"
+            "```\n\n"
+            "**Cloudflare Transform Rule (Rules → Transform Rules → Modify Response Header):**\n"
+            "- Set `Strict-Transport-Security` to `max-age=31536000; includeSubDomains; preload`\n"
+            "- Set `X-Frame-Options` to `SAMEORIGIN`\n"
+            "- Set `X-Content-Type-Options` to `nosniff`"
+        )
+
+    elif "brand" in msg_lower or "contradiction" in msg_lower or "logo" in msg_lower:
+        reply = (
+            "🔍 **What is the Brand-Domain Contradiction Engine?**\n\n"
+            "Phishing pages typically steal high-trust corporate logos (PayPal, Microsoft, Apple, Google, Chase) and display them on lookalike domains (`login-paypal-verify.xyz`).\n\n"
+            "Our engine renders the page in an isolated headless sandbox, runs perceptual hashing (`pHash`) against verified brand trademark catalogs, and cross-references the hosting domain against authorized brand registries.\n\n"
+            f"- **Target Domain:** `{domain}`\n"
+            f"- **Claimed Brand:** {brand_matched or 'Generic / None'}\n"
+            f"- **Contradiction Status:** {'🚨 CRITICAL MISMATCH (Phishing Impersonation)' if is_contradiction else '✅ Consistent / Genuine'}"
+        )
+
+    else:
+        reply = (
+            f"🤖 **CyberGuard AI Copilot Analysis for `{domain}`:**\n\n"
+            f"- **Verdict:** `{verdict}` (Risk Score: **{risk_score}/100**)\n"
+            f"- **Security Grade:** **{grade}** ({len(missing_headers)} defensive headers missing)\n"
+            f"- **Brand Safety:** {'Brand Contradiction Detected' if is_contradiction else 'No brand trademark spoofing detected'}\n\n"
+            f"You can ask me:\n"
+            f"- *'How to fix Security Grade {grade}?'*\n"
+            f"- *'How can hackers exploit code injection on this site?'*\n"
+            f"- *'Is it safe to login on this website?'*\n"
+            f"- *'Give me the Nginx/Cloudflare hardening rules'*."
+        )
+
+    return {
+        "reply": reply,
+        "suggested_actions": [
+            f"How to fix Security Grade {grade}?",
+            "How do hackers exploit code injection?",
+            "Generate Nginx hardening config",
+            "Explain Brand Contradiction"
+        ]
+    }
+

@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertOctagon, AlertTriangle, CheckCircle, FileText, Globe } from 'lucide-react';
+import { AlertOctagon, AlertTriangle, CheckCircle, FileText, Globe, HelpCircle } from 'lucide-react';
 import type { RiskScoreReport } from '../types';
 import { InfoTooltip } from './InfoTooltip';
 
@@ -8,13 +8,15 @@ interface RiskSummaryCardProps {
   onOpenExport?: () => void;
   onExportClick?: () => void;
   onSubmitFeedback?: (caseId: string, verdict: string, notes?: string) => void;
+  onOpenAbout?: (topicId?: string) => void;
 }
 
 export const RiskSummaryCard: React.FC<RiskSummaryCardProps> = ({
   report,
   onOpenExport,
   onExportClick,
-  onSubmitFeedback
+  onSubmitFeedback,
+  onOpenAbout
 }) => {
   const handleExport = onExportClick || onOpenExport || (() => {});
   const isUnregistered = report.verdict === 'UNREGISTERED' || report.domain_intel?.is_registered === false;
@@ -193,8 +195,8 @@ export const RiskSummaryCard: React.FC<RiskSummaryCardProps> = ({
           </div>
         </div>
 
-        {/* Action Button */}
-        <div>
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <button
             onClick={handleExport}
             style={{
@@ -208,6 +210,7 @@ export const RiskSummaryCard: React.FC<RiskSummaryCardProps> = ({
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '8px',
               boxShadow: '0 0 15px rgba(2, 132, 199, 0.3)',
               transition: 'all 0.15s'
@@ -216,6 +219,38 @@ export const RiskSummaryCard: React.FC<RiskSummaryCardProps> = ({
             <FileText size={16} />
             <span>Export Forensic Report</span>
           </button>
+
+          {onOpenAbout && (
+            <button
+              onClick={() => onOpenAbout('risk-score')}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '8px',
+                padding: '8px 14px',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                transition: 'all 0.15s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--accent-cyan)';
+                e.currentTarget.style.color = 'var(--text-primary)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border-color)';
+                e.currentTarget.style.color = 'var(--text-secondary)';
+              }}
+            >
+              <HelpCircle size={14} color="var(--accent-cyan)" />
+              <span>About Risk Score</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

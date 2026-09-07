@@ -1,15 +1,17 @@
 import React from 'react';
-import { Shield, ShieldAlert, ShieldCheck, Globe, Lock, Terminal, Database, CheckCircle2, XCircle, AlertTriangle, Coins, ArrowRight, Zap, Eye, Cpu } from 'lucide-react';
+import { Shield, ShieldAlert, ShieldCheck, Globe, Lock, Terminal, Database, CheckCircle2, XCircle, AlertTriangle, Coins, ArrowRight, Zap, Eye, Cpu, HelpCircle } from 'lucide-react';
 import type { FreeScanResult } from '../types';
 
 interface FreeScanDetailedCardProps {
   result: FreeScanResult;
   onUnlockDeepAudit: () => void;
+  onOpenAbout?: (topicId?: string) => void;
 }
 
 export const FreeScanDetailedCard: React.FC<FreeScanDetailedCardProps> = ({
   result,
-  onUnlockDeepAudit
+  onUnlockDeepAudit,
+  onOpenAbout
 }) => {
   const isUnregistered = result.verdict === 'UNREGISTERED' || result.is_registered === false;
   const isPhishing = result.verdict === 'PHISHING';
@@ -38,27 +40,52 @@ export const FreeScanDetailedCard: React.FC<FreeScanDetailedCardProps> = ({
             </div>
           </div>
 
-          <button
-            onClick={onUnlockDeepAudit}
-            style={{
-              background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '10px',
-              padding: '12px 22px',
-              fontWeight: 700,
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              boxShadow: '0 0 20px rgba(2, 132, 199, 0.5)'
-            }}
-          >
-            <Coins size={16} />
-            <span>Unlock Premium Deep Audit (0.1 ALGO via x402)</span>
-            <ArrowRight size={15} />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <button
+              onClick={onUnlockDeepAudit}
+              style={{
+                background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '10px',
+                padding: '12px 22px',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                boxShadow: '0 0 20px rgba(2, 132, 199, 0.5)'
+              }}
+            >
+              <Coins size={16} />
+              <span>Unlock Premium Deep Audit (0.1 ALGO via x402)</span>
+              <ArrowRight size={15} />
+            </button>
+
+            {onOpenAbout && (
+              <button
+                onClick={() => onOpenAbout('risk-score')}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '10px',
+                  padding: '11px 16px',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+                title="About Free Quick Scan Methodology"
+              >
+                <HelpCircle size={15} color="var(--accent-cyan)" />
+                <span>About Scan</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* 3 Metric Cards */}

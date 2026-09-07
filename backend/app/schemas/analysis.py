@@ -233,3 +233,17 @@ class FeedItem(BaseModel):
     is_escalated: bool = False
     status: str  # queued, triaged, deep_analyzed, ignored
     tags: List[str] = Field(default_factory=list)
+
+class ChatMessage(BaseModel):
+    role: str  # "user" or "assistant"
+    content: str
+
+class ChatRequest(BaseModel):
+    message: str
+    report: Optional[Dict[str, Any]] = None
+    history: Optional[List[ChatMessage]] = Field(default_factory=list)
+
+class ChatResponse(BaseModel):
+    reply: str
+    suggested_actions: Optional[List[str]] = Field(default_factory=list)
+
