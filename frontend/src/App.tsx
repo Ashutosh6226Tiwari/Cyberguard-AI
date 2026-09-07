@@ -352,13 +352,15 @@ export function App() {
             />
 
             {/* Real-time Scanning Telemetry HUD with Animation */}
-            {isLoading && currentScanningUrl && (
-              <ScanningTelemetryHUD targetUrl={currentScanningUrl} isDeep={agentIsPaid} />
-            )}
+            <AnimatePresence mode="wait">
+              {isLoading && currentScanningUrl && (
+                <ScanningTelemetryHUD targetUrl={currentScanningUrl} isDeep={agentIsPaid} />
+              )}
+            </AnimatePresence>
 
             {/* Pipeline Stepper (Active during scan or when target URL is entered) */}
             {!isLoading && currentScanningUrl && (
-              <PipelineStepper steps={pipelineSteps} />
+              <PipelineStepper steps={pipelineSteps} currentStepIndex={currentAgentStage} />
             )}
 
             {/* Agentic Workflow HUD */}
@@ -374,7 +376,9 @@ export function App() {
 
             {/* Error Banner */}
             {errorMessage && (
-              <div
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
                 style={{
                   background: 'rgba(239, 68, 68, 0.15)',
                   border: '1px solid rgba(239, 68, 68, 0.4)',
@@ -386,39 +390,86 @@ export function App() {
                 }}
               >
                 <strong>Scan Error: </strong>{errorMessage}
-              </div>
+              </motion.div>
             )}
 
             {/* Comprehensive Free Quick Scan Breakdown (Stages 1-2 & Lexical ML + DNS/TLS) */}
-            {freeScanResult && !report && !isLoading && (
-              <FreeScanDetailedCard
-                result={freeScanResult}
-                onUnlockDeepAudit={handleOpenPaymentForFreeScan}
-              />
-            )}
+            <AnimatePresence>
+              {freeScanResult && !report && !isLoading && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <FreeScanDetailedCard
+                    result={freeScanResult}
+                    onUnlockDeepAudit={handleOpenPaymentForFreeScan}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* Complete Real Live Scan Report (Displayed directly on Scanner page) */}
-            {report && !isLoading && (
-              <div style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                {/* Top Risk & Verdict Summary */}
-                <RiskSummaryCard
-                  report={report}
-                  onExportClick={() => setShowExportModal(true)}
-                  onSubmitFeedback={handleSubmitFeedback}
-                />
+            {/* Complete Real Live Scan Report (Displayed directly on Scanner page with Staggered Entrance) */}
+            <AnimatePresence>
+              {report && !isLoading && (
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: '24px' }}
+                >
+                  {/* Top Risk & Verdict Summary */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: 0.05 }}
+                  >
+                    <RiskSummaryCard
+                      report={report}
+                      onExportClick={() => setShowExportModal(true)}
+                      onSubmitFeedback={handleSubmitFeedback}
+                    />
+                  </motion.div>
 
-                {/* Brand Contradiction & Exploitability Grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '24px' }}>
-                  <BrandContradictionCard brand={report.brand_analysis} domainIntel={report.domain_intel} />
-                  <SecurityPostureCard audit={report.security_audit} aiInsights={report.ai_insights} domain={report.canonical_domain} />
-                </div>
+                  {/* Brand Contradiction & Exploitability Grid */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: 0.12 }}
+                    style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '24px' }}
+                  >
+                    <BrandContradictionCard brand={report.brand_analysis} domainIntel={report.domain_intel} />
+                    <SecurityPostureCard audit={report.security_audit} aiInsights={report.ai_insights} domain={report.canonical_domain} />
+                  </motion.div>
 
-                {/* Attack Chain & Forensic Evidence */}
-                <AttackChainVisualizer nodes={report.attack_chain} />
-                <EvidenceTable evidence={report.evidence_breakdown} />
-                <TechnicalInspector report={report} />
-              </div>
-            )}
+                  {/* Attack Chain & Forensic Evidence */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: 0.2 }}
+                  >
+                    <AttackChainVisualizer nodes={report.attack_chain} />
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: 0.28 }}
+                  >
+                    <EvidenceTable evidence={report.evidence_breakdown} />
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: 0.35 }}
+                  >
+                    <TechnicalInspector report={report} />
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
 
