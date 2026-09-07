@@ -155,62 +155,87 @@ export function App() {
     setPipelineSteps([...steps]);
     setCurrentAgentStage(0);
 
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
     try {
-      // Step 1 -> Step 2 transition
-      const timer1 = setTimeout(() => {
+      if (!deep) {
+        // Free Quick Scan (Triage stages 0, 1, 2)
+        const freeScanPromise = executeFreeScan(cleanUrl);
+
+        // Stage 0 -> Stage 1 (Lexical Triage)
+        await sleep(650);
         steps[0].status = 'completed';
         steps[1].status = 'running';
         setPipelineSteps([...steps]);
         setCurrentAgentStage(1);
-      }, 300);
 
-      // Step 2 -> Step 3 transition
-      const timer2 = setTimeout(() => {
+        // Stage 1 -> Stage 2 (Google DoH & RDAP)
+        await sleep(650);
         steps[1].status = 'completed';
         steps[2].status = 'running';
         setPipelineSteps([...steps]);
         setCurrentAgentStage(2);
-      }, 600);
 
-      if (!deep) {
-        // Free Quick Scan
-        const freeRes = await executeFreeScan(cleanUrl);
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-
-        steps[0].status = 'completed';
-        steps[1].status = 'completed';
+        // Stage 2 (SSL/TLS & Posture)
+        await sleep(650);
         steps[2].status = 'completed';
         setPipelineSteps([...steps]);
+
+        const freeRes = await freeScanPromise;
         setCurrentAgentStage(3); // Paused for x402 payment
         setFreeScanResult(freeRes);
         setActiveChallenge(freeRes.x402_challenge || null);
       } else {
-        // Full Deep Security Audit (x402)
-        const timer3 = setTimeout(() => {
-          steps[2].status = 'completed';
-          steps[3].status = 'running';
-          setPipelineSteps([...steps]);
-          setCurrentAgentStage(4);
-        }, 900);
+        // Full Deep Security Audit (Stages 0 through 5)
+        const analysisPromise = analyzeDomain(cleanUrl, true, forceRefresh);
 
-        const timer4 = setTimeout(() => {
-          steps[3].status = 'completed';
-          steps[4].status = 'running';
-          setPipelineSteps([...steps]);
-          setCurrentAgentStage(5);
-        }, 1300);
+        // Stage 0: Lexical Triage (<15ms ML tensor)
+        await sleep(620);
+        steps[0].status = 'completed';
+        steps[1].status = 'running';
+        setPipelineSteps([...steps]);
+        setCurrentAgentStage(1);
 
-        const result = await analyzeDomain(cleanUrl, true, forceRefresh);
+        // Stage 1: Google DoH & RDAP Resolution
+        await sleep(620);
+        steps[1].status = 'completed';
+        steps[2].status = 'running';
+        setPipelineSteps([...steps]);
+        setCurrentAgentStage(2);
 
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-        clearTimeout(timer3);
-        clearTimeout(timer4);
+        // Stage 2: SSL/TLS & Defensive Posture
+        await sleep(620);
+        steps[2].status = 'completed';
+        steps[3].status = 'running';
+        setPipelineSteps([...steps]);
+        setCurrentAgentStage(3);
 
-        const finalSteps: PipelineStep[] = DEFAULT_PIPELINE_STEPS.map((s) => ({ ...s, status: 'completed' }));
-        setPipelineSteps(finalSteps);
+        // Stage 3: Playwright Chromium Sandbox Crawl
+        await sleep(650);
+        steps[3].status = 'completed';
+        steps[4].status = 'running';
+        setPipelineSteps([...steps]);
+        setCurrentAgentStage(4);
+
+        // Stage 4: pHash Visual Brand Contradiction
+        await sleep(650);
+        steps[4].status = 'completed';
+        steps[5].status = 'running';
+        setPipelineSteps([...steps]);
+        setCurrentAgentStage(5);
+
+        // Stage 5: Multi-Signal Fusion & Algorand x402 Micropayments
+        const [result] = await Promise.all([
+          analysisPromise,
+          sleep(650)
+        ]);
+
+        steps[5].status = 'completed';
+        setPipelineSteps([...steps]);
         setCurrentAgentStage(6); // Multi-signal complete
+
+        // Brief celebration pause before revealing dossier
+        await sleep(350);
 
         setReport(result);
         loadInitialData();

@@ -103,11 +103,12 @@ export const ScanningTelemetryHUD: React.FC<ScanningTelemetryHUDProps> = ({ targ
       const diff = Date.now() - start;
       setElapsedMs(diff);
 
-      const stepTime = isDeep ? 420 : 250;
-      const stepIdx = Math.min(steps.length - 1, Math.floor(diff / stepTime));
+      const stepDuration = isDeep ? 620 : 700;
+      const totalExpected = isDeep ? stepDuration * steps.length : stepDuration * 3;
+      const stepIdx = Math.min(steps.length - 1, Math.floor(diff / stepDuration));
       setCurrentStep(stepIdx);
 
-      const logIdx = Math.min(terminalLogs.length - 1, Math.floor(diff / (stepTime * 0.85)));
+      const logIdx = Math.min(terminalLogs.length - 1, Math.floor(diff / (stepDuration * 0.45)));
       setActiveLogIndex(logIdx);
 
       // Random fluctuating entropy & memory address for dynamic cyber feel
@@ -115,12 +116,14 @@ export const ScanningTelemetryHUD: React.FC<ScanningTelemetryHUDProps> = ({ targ
       setEntropySim(simEnt);
       const hex = '0x' + Math.floor(Math.random() * 0xFFFFFFF).toString(16).toUpperCase().padStart(8, '0');
       setActiveHex(hex);
-    }, 60);
+    }, 50);
 
     return () => clearInterval(interval);
   }, [targetUrl, isDeep]);
 
-  const progressPercent = Math.min(100, Math.round(((currentStep + 1) / steps.length) * 100));
+  const stepDuration = isDeep ? 620 : 700;
+  const totalExpectedMs = isDeep ? stepDuration * steps.length : stepDuration * 3;
+  const progressPercent = Math.min(100, Math.round((elapsedMs / totalExpectedMs) * 100));
 
   return (
     <motion.div
