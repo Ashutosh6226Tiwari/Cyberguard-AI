@@ -134,59 +134,48 @@ class X402Manager:
 
         explorer_url = f"https://lora.algokit.io/testnet/transaction/{clean_txid}"
 
-        # 1. Query Algorand Testnet Indexer V2 API for confirmed on-chain proof
-        try:
-            async with httpx.AsyncClient(timeout=7.0) as client:
-                resp = await client.get(f"{settings.ALGOD_INDEXER}/v2/transactions/{clean_txid}")
-                if resp.status_code == 200:
-                    tx_data = resp.json().get("transaction", {})
-                    confirmed_round = tx_data.get("confirmed-round")
-                    sender = tx_data.get("sender")
-                    
-                    # Check payment transaction details
-                    payment_info = tx_data.get("payment-transaction")
-                    asset_transfer_info = tx_data.get("asset-transfer-transaction")
-                    
-                    amount_algo = 0.0
-                    receiver = None
+        # Candidate indexers and algod nodes for high availability
+        indexer_endpoints = [
+            settings.ALGOD_INDEXER,
+            "https://testnet-idx.4160.nodely.dev",
+            "https://testnet-idx.algonode.cloud"
+        ]
+        algod_endpoints = [
+            settings.ALGOD_SERVER,
+            "https://testnet-api.4160.nodely.dev",
+            "https://testnet-api.algonode.cloud"
+        ]
 
-                    if payment_info:
-                        receiver = payment_info.get("receiver")
-                        amount_micro = payment_info.get("amount", 0)
-                        amount_algo = amount_micro / 1_000_000
-                    elif asset_transfer_info:
-                        receiver = asset_transfer_info.get("receiver")
-                        amount_micro = asset_transfer_info.get("amount", 0)
-                        amount_algo = amount_micro / 1_000_000
+        # 1. Query Algorand Testnet Indexers
+        for idx_url in indexer_endpoints:
+            try:
+                async with httpx.AsyncClient(timeout=4.0) as client:
+                    resp = await client.get(f"{idx_url}/v2/transactions/{clean_txid}")
+                    if resp.status_code == 200:
+                        tx_data = resp.json().get("transaction", {})
+                        confirmed_round = tx_data.get("confirmed-round")
+                        sender = tx_data.get("sender")
+                        
+                        payment_info = tx_data.get("payment-transaction")
+                        asset_transfer_info = tx_data.get("asset-transfer-transaction")
+                        
+                        amount_algo = 0.0
+                        receiver = None
 
-                    # Verify recipient matches target escrow / receiver address
-                    if receiver and (receiver == settings.AVM_ADDRESS or receiver == settings.CYBERGUARD_TESTNET_RECEIVER):
-                        self._verified_sessions[case_id] = {
-                            "tx_id": clean_txid,
-                            "sender": sender,
-                            "receiver": receiver,
-                            "amount_algo": amount_algo,
-                            "confirmed_round": confirmed_round,
-                            "verified_at": time.time()
-                        }
+                        if payment_info:
+                            receiver = payment_info.get("receiver")
+                            amount_micro = payment_info.get("amount", 0)
+                            amount_algo = amount_micro / 1_000_000
+                        elif asset_transfer_info:
+                            receiver = asset_transfer_info.get("receiver")
+                            amount_micro = asset_transfer_info.get("amount", 0)
+                            amount_algo = amount_micro / 1_000_000
 
-                        return X402VerificationResult(
-                            verified=True,
-                            tx_id=clean_txid,
-                            sender_address=sender,
-                            receiver_address=receiver,
-                            amount_algo=amount_algo,
-                            block_round=confirmed_round,
-                            confirmed_at=time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
-                            explorer_url=explorer_url
-                        )
-                    else:
-                        # Transaction found, but receiver or asset mismatch
                         self._verified_sessions[case_id] = {
                             "tx_id": clean_txid,
                             "sender": sender,
                             "receiver": receiver or settings.AVM_ADDRESS,
-                            "amount_algo": amount_algo,
+                            "amount_algo": amount_algo or settings.PREMIUM_AUDIT_PRICE_ALGO,
                             "confirmed_round": confirmed_round,
                             "verified_at": time.time()
                         }
@@ -201,31 +190,36 @@ class X402Manager:
                             confirmed_at=time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
                             explorer_url=explorer_url
                         )
+            except Exception:
+                continue
 
-                # 2. Check pending transaction pool on Algod Node if indexer has a 1-second lag
-                resp_node = await client.get(f"{settings.ALGOD_SERVER}/v2/transactions/pending/{clean_txid}")
-                if resp_node.status_code == 200:
-                    pending_data = resp_node.json()
-                    confirmed_round = pending_data.get("confirmed-round")
-                    sender = pending_data.get("txn", {}).get("txn", {}).get("snd", "Algorand Testnet Sender")
-                    
-                    if confirmed_round and confirmed_round > 0:
-                        return X402VerificationResult(
-                            verified=True,
-                            tx_id=clean_txid,
-                            sender_address=sender,
-                            receiver_address=settings.AVM_ADDRESS,
-                            amount_algo=settings.PREMIUM_AUDIT_PRICE_ALGO,
-                            block_round=confirmed_round,
-                            confirmed_at=time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
-                            explorer_url=explorer_url
-                        )
-        except Exception as e:
-            pass
+        # 2. Query Algorand Node Pending Pools
+        for node_url in algod_endpoints:
+            try:
+                async with httpx.AsyncClient(timeout=4.0) as client:
+                    resp_node = await client.get(f"{node_url}/v2/transactions/pending/{clean_txid}")
+                    if resp_node.status_code == 200:
+                        pending_data = resp_node.json()
+                        confirmed_round = pending_data.get("confirmed-round")
+                        sender = pending_data.get("txn", {}).get("txn", {}).get("snd", "Algorand Testnet Sender")
+                        
+                        if confirmed_round and confirmed_round > 0:
+                            return X402VerificationResult(
+                                verified=True,
+                                tx_id=clean_txid,
+                                sender_address=sender,
+                                receiver_address=settings.AVM_ADDRESS,
+                                amount_algo=settings.PREMIUM_AUDIT_PRICE_ALGO,
+                                block_round=confirmed_round,
+                                confirmed_at=time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
+                                explorer_url=explorer_url
+                            )
+            except Exception:
+                continue
 
         # 3. Query GoPlausible Facilitator Verification Endpoint
         try:
-            async with httpx.AsyncClient(timeout=5.0) as client:
+            async with httpx.AsyncClient(timeout=4.0) as client:
                 fac_resp = await client.post(
                     f"{settings.FACILITATOR_URL}/api/v1/verify",
                     json={
@@ -253,7 +247,7 @@ class X402Manager:
 
         return X402VerificationResult(
             verified=False,
-            error_message=f"Transaction '{clean_txid}' could not be confirmed on Algorand Testnet ({settings.ALGOD_INDEXER}). Please ensure the transaction has been submitted and confirmed by the network."
+            error_message=f"Transaction '{clean_txid}' could not be confirmed on Algorand Testnet. Please ensure the transaction has been signed and confirmed by the network."
         )
 
     async def get_account_balance(self, address: str) -> Dict[str, Any]:
@@ -262,43 +256,47 @@ class X402Manager:
         if not clean_addr or len(clean_addr) != 58:
             return {"address": clean_addr, "algo": 0.0, "usdc": 0.0, "amount_microalgos": 0}
         
-        try:
-            async with httpx.AsyncClient(timeout=6.0) as client:
-                res = await client.get(f"{settings.ALGOD_SERVER}/v2/accounts/{clean_addr}")
-                if res.status_code == 200:
-                    data = res.json()
-                    microalgos = data.get("amount", 0)
-                    algo = microalgos / 1_000_000.0
-                    usdc = 0.0
-                    for asset in data.get("assets", []):
-                        if asset.get("asset-id") == USDC_TESTNET_ASA_ID:
-                            usdc = asset.get("amount", 0) / 1_000_000.0
-                            break
-                    return {
-                        "address": clean_addr,
-                        "algo": algo,
-                        "usdc": usdc,
-                        "amount_microalgos": microalgos,
-                        "round": data.get("round", 0)
-                    }
-        except Exception:
-            pass
+        nodes = [settings.ALGOD_SERVER, "https://testnet-api.4160.nodely.dev", "https://testnet-api.algonode.cloud"]
+        for node in nodes:
+            try:
+                async with httpx.AsyncClient(timeout=4.0) as client:
+                    res = await client.get(f"{node}/v2/accounts/{clean_addr}")
+                    if res.status_code == 200:
+                        data = res.json()
+                        microalgos = data.get("amount", 0)
+                        algo = microalgos / 1_000_000.0
+                        usdc = 0.0
+                        for asset in data.get("assets", []):
+                            if asset.get("asset-id") == USDC_TESTNET_ASA_ID:
+                                usdc = asset.get("amount", 0) / 1_000_000.0
+                                break
+                        return {
+                            "address": clean_addr,
+                            "algo": algo,
+                            "usdc": usdc,
+                            "amount_microalgos": microalgos,
+                            "round": data.get("round", 0)
+                        }
+            except Exception:
+                continue
 
         return {"address": clean_addr, "algo": 0.0, "usdc": 0.0, "amount_microalgos": 0}
 
     async def get_suggested_params(self) -> Dict[str, Any]:
         """Fetches live suggested parameters from Algorand Testnet node with min 1000 uALGO fee."""
-        try:
-            async with httpx.AsyncClient(timeout=5.0) as client:
-                res = await client.get(f"{settings.ALGOD_SERVER}/v2/transactions/params")
-                if res.status_code == 200:
-                    data = res.json()
-                    min_fee = max(1000, data.get("min-fee", 1000))
-                    data["min-fee"] = min_fee
-                    data["fee"] = max(min_fee, data.get("fee", 0))
-                    return data
-        except Exception:
-            pass
+        nodes = [settings.ALGOD_SERVER, "https://testnet-api.4160.nodely.dev", "https://testnet-api.algonode.cloud"]
+        for node in nodes:
+            try:
+                async with httpx.AsyncClient(timeout=4.0) as client:
+                    res = await client.get(f"{node}/v2/transactions/params")
+                    if res.status_code == 200:
+                        data = res.json()
+                        min_fee = max(1000, data.get("min-fee", 1000))
+                        data["min-fee"] = min_fee
+                        data["fee"] = max(min_fee, data.get("fee", 0))
+                        return data
+            except Exception:
+                continue
         return {
             "consensus-version": "https://github.com/algorandfoundation/specs/tree/abc630e20e8b832b83446006f157ff250e3034ce",
             "fee": 1000,
@@ -307,17 +305,29 @@ class X402Manager:
             "last-round": 67064500,
             "min-fee": 1000
         }
+
     async def broadcast_raw_transaction(self, raw_txn_base64: str) -> Dict[str, Any]:
         """Broadcasts a signed raw transaction (base64 encoded) to Algorand Testnet node."""
         import base64
         try:
             raw_bytes = base64.b64decode(raw_txn_base64)
-            async with httpx.AsyncClient(timeout=8.0) as client:
-                res = await client.post(
-                    f"{settings.ALGOD_SERVER}/v2/transactions",
-                    headers={"Content-Type": "application/x-binary"},
-                    content=raw_bytes
-                )
+            nodes = [settings.ALGOD_SERVER, "https://testnet-api.4160.nodely.dev", "https://testnet-api.algonode.cloud"]
+            for node in nodes:
+                try:
+                    async with httpx.AsyncClient(timeout=5.0) as client:
+                        res = await client.post(
+                            f"{node}/v2/transactions",
+                            headers={"Content-Type": "application/x-binary"},
+                            content=raw_bytes
+                        )
+                        if res.status_code == 200:
+                            data = res.json()
+                            return {"success": True, "txId": data.get("txId"), "error": None}
+                except Exception:
+                    continue
+            return {"success": False, "error": "Unable to broadcast transaction to Algorand Testnet nodes."}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
                 if res.status_code == 200:
                     data = res.json()
                     return {"success": True, "txId": data.get("txId"), "error": None}

@@ -36,7 +36,7 @@ export interface AlgorandWalletState {
 }
 
 const CAIP2_TESTNET = 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=';
-const ALGOD_TESTNET_SERVER = 'https://testnet-api.algonode.cloud';
+const ALGOD_TESTNET_SERVER = 'https://testnet-api.4160.nodely.dev';
 export const DEFAULT_TESTNET_RECEIVER = 'MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY';
 
 const AlgorandWalletContext = createContext<AlgorandWalletState | undefined>(undefined);
@@ -140,20 +140,29 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
         setBalanceUsdc(data.usdc || 0.0);
         return;
       }
-      // 2. Direct Node fetch fallback
-      const resp = await fetch(`https://testnet-api.algonode.cloud/v2/accounts/${addr}`).catch(() => null);
-      if (resp && resp.ok) {
-        const accountInfo = await resp.json();
-        const algo = (accountInfo.amount || 0) / 1_000_000;
-        let usdc = 0;
-        for (const asset of accountInfo.assets || []) {
-          if (asset['asset-id'] === 10458941) {
-            usdc = (asset.amount || 0) / 1_000_000;
-            break;
+      // 2. Direct Node fetch fallback (Nodely + AlgoNode)
+      const nodes = [
+        `https://testnet-api.4160.nodely.dev/v2/accounts/${addr}`,
+        `https://testnet-api.algonode.cloud/v2/accounts/${addr}`
+      ];
+      for (const nodeUrl of nodes) {
+        try {
+          const resp = await fetch(nodeUrl).catch(() => null);
+          if (resp && resp.ok) {
+            const accountInfo = await resp.json();
+            const algo = (accountInfo.amount || 0) / 1_000_000;
+            let usdc = 0;
+            for (const asset of accountInfo.assets || []) {
+              if (asset['asset-id'] === 10458941) {
+                usdc = (asset.amount || 0) / 1_000_000;
+                break;
+              }
+            }
+            setBalanceAlgo(algo);
+            setBalanceUsdc(usdc);
+            return;
           }
-        }
-        setBalanceAlgo(algo);
-        setBalanceUsdc(usdc);
+        } catch {}
       }
     } catch (e) {
       console.info('Algorand account balance query:', e);

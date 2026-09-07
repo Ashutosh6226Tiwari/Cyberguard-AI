@@ -27,8 +27,8 @@ class Settings(BaseModel):
 
     # x402 & Algorand Testnet Settings
     FACILITATOR_URL: str = os.getenv("FACILITATOR_URL", "https://facilitator.goplausible.xyz")
-    ALGOD_SERVER: str = os.getenv("ALGOD_SERVER", "https://testnet-api.algonode.cloud")
-    ALGOD_INDEXER: str = os.getenv("ALGOD_INDEXER", "https://testnet-idx.algonode.cloud")
+    ALGOD_SERVER: str = os.getenv("ALGOD_SERVER", "https://testnet-api.4160.nodely.dev")
+    ALGOD_INDEXER: str = os.getenv("ALGOD_INDEXER", "https://testnet-idx.4160.nodely.dev")
     NETWORK: str = os.getenv("NETWORK", "Algorand Testnet")
     AVM_ADDRESS: str = os.getenv("AVM_ADDRESS", "MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY")
     CYBERGUARD_TESTNET_RECEIVER: str = os.getenv("CYBERGUARD_TESTNET_RECEIVER", "MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY")
