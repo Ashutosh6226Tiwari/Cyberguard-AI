@@ -717,15 +717,16 @@ async function generateClientFreeScan(inputUrl: string): Promise<FreeScanResult>
   const isSuspicious = domain.includes('login') || domain.includes('verify') || intel.isNrd;
   const isInstitutional = domain.endsWith('.ac.in') || domain.endsWith('.edu') || domain.endsWith('.gov') || domain.endsWith('.edu.in');
   
-  let basicScore = 4.4;
+  let basicScore = 0.0;
   if (intel.isNrd && isSuspicious) {
     basicScore = 88.0;
   } else if (intel.isNrd) {
     basicScore = 45.0;
-  } else if (isSuspicious) {
-    basicScore = 65.0;
+  } else if (isSuspicious && !intel.isNrd) {
+    // Only flag as suspicious if also newly registered — established domains with 'login' in URL are fine
+    basicScore = 0.0;
   } else if (isInstitutional) {
-    basicScore = 0.5;
+    basicScore = 0.0;
   }
 
   return {
@@ -736,7 +737,7 @@ async function generateClientFreeScan(inputUrl: string): Promise<FreeScanResult>
     basic_risk_score: basicScore,
     verdict: basicScore >= 70.0 ? 'PHISHING' : basicScore >= 35.0 ? 'SUSPICIOUS' : 'BENIGN',
     confidence: 0.94,
-    lexical_score: isSuspicious ? 0.78 : 0.02,
+    lexical_score: isSuspicious && intel.isNrd ? 0.78 : 0.0,
     is_newly_registered: intel.isNrd,
     domain_age_days: intel.domainAgeDays,
     creation_date: intel.creationDateStr,
@@ -750,9 +751,10 @@ async function generateClientFreeScan(inputUrl: string): Promise<FreeScanResult>
     tls_valid: intel.aRecords.length > 0,
     tls_issuer: 'Public CA',
     entropy_score: 3.42,
-    triage_reason: isSuspicious
-      ? 'Suspicious lexical tokens or newly registered domain profile'
-      : 'Standard lexical entropy and baseline domain history',
+    triage_reason: (isSuspicious && intel.isNrd)
+      ? 'Suspicious lexical tokens on newly registered domain'
+      : 'Lexical features within normal baseline parameters.',
+    feature_attributions: {},
     deep_audit_locked: true,
     x402_challenge: challenge
   };
@@ -930,7 +932,10 @@ async function generateLiveClientAudit(inputUrl: string, txId?: string): Promise
   const isSuspiciousTLD = ['xyz', 'top', 'click', 'site', 'live'].includes(intel.tld);
   const isMalicious = hasBrandContradiction || (intel.isNrd && isSuspiciousTLD && domain.includes('login'));
 
-  let riskScore = 0.4;
+  // Established domain = registered > 180 days, no brand contradiction
+  const isEstablishedDomain = !intel.isNrd && !hasBrandContradiction && (intel.domainAgeDays === undefined || intel.domainAgeDays > 180);
+
+  let riskScore = 0.0;
   if (isMalicious) {
     riskScore = Math.min(96.5, 75.0 + (intel.isNrd ? 15.0 : 5.0) + (hasBrandContradiction ? 10.0 : 0.0));
   } else if (hasBrandContradiction) {
@@ -938,12 +943,13 @@ async function generateLiveClientAudit(inputUrl: string, txId?: string): Promise
   } else if (intel.isNrd) {
     riskScore = 15.6;
   } else if (isInstitutional) {
-    riskScore = 0.4;
+    riskScore = 0.0;
   } else {
-    riskScore = 2.5;
+    riskScore = 0.0;
   }
 
-  const isEmailSpoofable = !intel.hasDmarc;
+  // For established clean domains, DMARC missing is advisory only (not "SPOOFABLE")
+  const isEmailSpoofable = isEstablishedDomain ? false : !intel.hasDmarc;
 
   return {
     case_id: 'case-' + Math.random().toString(36).substring(2, 9),
@@ -954,18 +960,18 @@ async function generateLiveClientAudit(inputUrl: string, txId?: string): Promise
     verdict: isMalicious ? 'PHISHING' : 'BENIGN',
     confidence: 0.96,
     recommended_action: isMalicious ? 'CRITICAL: Isolate host, block domain at DNS/Gateway level.' : 'SAFE: Domain matches legitimate baseline; allow traffic.',
-    score_lexical: isMalicious ? 0.82 : 0.014,
+    score_lexical: isMalicious ? 0.82 : 0.0,
     score_infrastructure: intel.isNrd ? 0.35 : 0.0,
     score_content_behavior: isMalicious ? 0.85 : 0.0,
     score_visual_brand: hasBrandContradiction ? 0.94 : 0.0,
     score_reputation: isMalicious ? 0.80 : 0.0,
     triage: {
-      lexical_score: isMalicious ? 0.82 : 0.014,
+      lexical_score: isMalicious ? 0.82 : 0.0,
       is_suspicious: isMalicious,
       triage_reason: isMalicious
         ? 'Brand keyword overlap detected on unauthorized domain'
-        : 'Clean lexical patterns & verified registrar',
-      feature_attributions: { 'domain_entropy': 0.1, 'subdomain_count': 0.1 }
+        : 'Lexical features within normal baseline parameters.',
+      feature_attributions: isMalicious ? { 'domain_entropy': 0.1, 'subdomain_count': 0.1 } : {}
     },
     evidence_breakdown: [
       {
@@ -1069,8 +1075,8 @@ async function generateLiveClientAudit(inputUrl: string, txId?: string): Promise
       }
     ],
     security_audit: {
-      security_grade: isMalicious ? 'F' : !intel.hasDmarc ? 'B' : 'A+',
-      score_percentage: isMalicious ? 33.3 : !intel.hasDmarc ? 75.0 : 100.0,
+      security_grade: isMalicious ? 'F' : (isEstablishedDomain || intel.hasDmarc) ? 'A+' : 'B',
+      score_percentage: isMalicious ? 33.3 : (isEstablishedDomain || intel.hasDmarc) ? 100.0 : 75.0,
       is_clickjackable: isMalicious,
       is_email_spoofable: isEmailSpoofable,
       has_hsts: !isMalicious,
@@ -1085,11 +1091,15 @@ async function generateLiveClientAudit(inputUrl: string, txId?: string): Promise
           remediation: 'Add Strict-Transport-Security: max-age=31536000; includeSubDomains; preload.'
         },
         {
-          name: 'Email Spoofing Defense (SPF / DMARC)',
-          status: intel.hasDmarc ? 'PASS' : intel.hasSpf ? 'WARNING' : 'FAIL',
-          value: intel.hasDmarc ? 'SPF & DMARC active in DNS' : 'No SPF/DMARC records',
-          severity: intel.hasDmarc ? 'INFO' : 'HIGH',
-          exploit_risk: isEmailSpoofable ? 'SPOOFABLE: Anyone can send fake emails from your domain.' : 'Protected: Strict anti-spoofing policy active.',
+          name: intel.hasDmarc ? 'Email Spoofing Defense (SPF / DMARC)' : (isEstablishedDomain ? 'Email Spoofing Defense (SPF & DMARC — Recommended)' : 'Email Spoofing Defense (SPF & DMARC Missing)'),
+          status: intel.hasDmarc ? 'PASS' : (isEstablishedDomain ? 'WARNING' : (intel.hasSpf ? 'WARNING' : 'FAIL')),
+          value: intel.hasDmarc ? 'SPF & DMARC active in DNS' : (isEstablishedDomain ? 'No SPF/DMARC in DNS' : 'No SPF/DMARC records'),
+          severity: intel.hasDmarc ? 'INFO' : (isEstablishedDomain ? 'MEDIUM' : 'HIGH'),
+          exploit_risk: intel.hasDmarc
+            ? 'Protected: Strict anti-spoofing policy active.'
+            : (isEstablishedDomain
+              ? 'RECOMMENDED: Publishing SPF and DMARC records would further harden email authentication for this domain.'
+              : 'DMARC NOT ENFORCED: Attackers can send fake emails from your domain.'),
           remediation: 'Publish SPF & DMARC TXT records in DNS.'
         },
         {
@@ -1117,11 +1127,13 @@ async function generateLiveClientAudit(inputUrl: string, txId?: string): Promise
       threat_intel_analysis: isMalicious
         ? `Adversary profile matches credential phishing kits on unauthorized domain.`
         : `Domain verified with registration standing (Registered: ${intel.creationDateStr}) under registrar ${intel.registrarName}.`,
-      hacker_perspective_audit: isEmailSpoofable
-        ? `Vulnerabilities present: Domain lacks strict DMARC enforcement, enabling attackers to forge emails.`
-        : `Defensive posture is solid with enforced HTTPS and anti-framing protections.`,
+      hacker_perspective_audit: isMalicious
+        ? `Critical exposure: Credential harvesting infrastructure on unauthorized domain.`
+        : (isEmailSpoofable
+          ? `Vulnerabilities present: Domain lacks strict DMARC enforcement, enabling attackers to forge emails.`
+          : `Defensive posture is solid with enforced HTTPS, anti-framing protections, and verified domain registration.`),
       remediation_recommendations: [
-        `Publish a DMARC TXT record in DNS (v=DMARC1; p=reject; rua=mailto:security@${domain})`,
+        ...(isEmailSpoofable ? [`Publish a DMARC TXT record in DNS (v=DMARC1; p=reject; rua=mailto:security@${domain})`] : []),
         'Deploy X-Frame-Options: SAMEORIGIN header to eliminate clickjacking.',
         'Configure Strict-Transport-Security (HSTS) with 1-year preload duration.'
       ]
