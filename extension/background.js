@@ -2,18 +2,28 @@
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' && tab.url && tab.url.startsWith('http')) {
     try {
-      const response = await fetch('http://localhost:8000/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: tab.url, deep_analysis: false, force_refresh: false })
-      });
+      const hosts = ['http://localhost:8000', 'http://127.0.0.1:8000'];
+      let data = null;
 
-      if (response.ok) {
-        const data = await response.json();
+      for (const host of hosts) {
+        try {
+          const response = await fetch(`${host}/api/scan/free`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: tab.url })
+          });
+          if (response.ok) {
+            data = await response.json();
+            break;
+          }
+        } catch (e) {}
+      }
+
+      if (data) {
         if (data.verdict === 'PHISHING') {
           chrome.action.setBadgeText({ text: 'ALERT', tabId });
           chrome.action.setBadgeBackgroundColor({ color: '#EF4444', tabId });
-        } else if (data.verdict === 'SUSPICIOUS') {
+        } else if (data.verdict === 'SUSPICIOUS' || data.verdict === 'UNREGISTERED') {
           chrome.action.setBadgeText({ text: 'WARN', tabId });
           chrome.action.setBadgeBackgroundColor({ color: '#F97316', tabId });
         } else {
