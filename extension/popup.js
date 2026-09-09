@@ -25,15 +25,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   const settingsToggleBtn = document.getElementById('settingsToggleBtn');
   const settingsDrawer = document.getElementById('settingsDrawer');
   const backendUrlInput = document.getElementById('backendUrlInput');
+  const frontendUrlInput = document.getElementById('frontendUrlInput');
   const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 
-  // Load configured backend URL
+  // Load configured backend URL and frontend URL
   let backendUrl = 'http://localhost:8000';
+  let frontendUrl = 'http://localhost:5173';
   try {
-    const stored = await chrome.storage.local.get(['cyberguard_backend_url']);
+    const stored = await chrome.storage.local.get(['cyberguard_backend_url', 'cyberguard_frontend_url']);
     if (stored && stored.cyberguard_backend_url) {
       backendUrl = stored.cyberguard_backend_url;
       backendUrlInput.value = backendUrl;
+    }
+    if (stored && stored.cyberguard_frontend_url) {
+      frontendUrl = stored.cyberguard_frontend_url;
+      if (frontendUrlInput) frontendUrlInput.value = frontendUrl;
     }
   } catch (e) {}
 
@@ -44,12 +50,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   saveSettingsBtn.addEventListener('click', async () => {
     const val = backendUrlInput.value.trim().replace(/\/+$/, '');
+    const feVal = frontendUrlInput ? frontendUrlInput.value.trim().replace(/\/+$/, '') : '';
     if (val) {
       backendUrl = val;
       await chrome.storage.local.set({ cyberguard_backend_url: val });
-      settingsDrawer.style.display = 'none';
-      evaluateTarget();
     }
+    if (feVal) {
+      frontendUrl = feVal;
+      await chrome.storage.local.set({ cyberguard_frontend_url: feVal });
+    }
+    settingsDrawer.style.display = 'none';
+    evaluateTarget();
   });
 
   // Query Active Tab
@@ -196,7 +207,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const isRiskyTld = riskyTlds.includes(tld.toLowerCase());
 
     // Score calculation
-    let score = 1.0;
+    let score = 0.0;
     let verdict = 'BENIGN';
 
     if (!isRegistered) {
@@ -243,7 +254,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     riskScoreEl.innerText = `${score}/100`;
 
     // Visual Progress Bar
-    riskBarEl.style.width = `${Math.min(100, Math.max(3, score))}%`;
+    riskBarEl.style.width = `${Math.min(100, Math.max(0, score))}%`;
     if (score >= 70) {
       riskBarEl.style.background = '#ef4444';
       riskScoreEl.style.color = '#ef4444';
@@ -319,8 +330,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const hasSpf = data.has_spf !== undefined ? data.has_spf : (data.domain_intel?.dns?.txt_records?.some(t => t.includes('v=spf1')) || false);
     const hasDmarc = data.has_dmarc !== undefined ? data.has_dmarc : (data.domain_intel?.dns?.txt_records?.some(t => t.includes('v=dmarc1')) || false);
-    teleMailEl.innerText = (hasSpf && hasDmarc) ? 'SPF + DMARC' : (hasSpf ? 'SPF Only' : 'Missing DMARC');
-    teleMailEl.style.color = (hasSpf && hasDmarc) ? '#34d399' : (hasSpf ? '#fbbf24' : '#94a3b8');
+    const isCleanDomain = score <= 5 && data.tls_valid && data.is_registered !== false;
+    if (hasSpf && hasDmarc) {
+      teleMailEl.innerText = 'SPF + DMARC ✓';
+      teleMailEl.style.color = '#34d399';
+    } else if (hasSpf) {
+      teleMailEl.innerText = isCleanDomain ? 'SPF ✓ (DMARC Advisory)' : 'SPF Only (DMARC Missing)';
+      teleMailEl.style.color = isCleanDomain ? '#fbbf24' : '#f97316';
+    } else {
+      teleMailEl.innerText = isCleanDomain ? 'DMARC Recommended' : 'No SPF/DMARC';
+      teleMailEl.style.color = isCleanDomain ? '#94a3b8' : '#ef4444';
+    }
 
     if (data.domain_age_days) {
       teleAgeEl.innerText = `${data.domain_age_days}d old`;
@@ -360,7 +380,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Deep Scan Button
   deepScanBtn.addEventListener('click', () => {
-    chrome.tabs.create({ url: `http://localhost:5173/?scan=${encodeURIComponent(currentUrl)}` });
+    chrome.tabs.create({ url: `${frontendUrl}/?scan=${encodeURIComponent(currentUrl)}` });
   });
 
   // Copy Brief Button
