@@ -132,6 +132,9 @@ class FastTriageClassifier:
 
         is_suspicious = prob_phishing >= 0.40 or len(attributions) >= 2
         
+        # Clamp statistical floor noise for clean benign domains with 0 risk attributions
+        clean_score = 0.0 if (len(attributions) == 0 and prob_phishing < 0.03) else prob_phishing
+
         if prob_phishing >= 0.75:
             reason = "High-risk lexical signatures and target brand tokens detected."
         elif is_suspicious:
@@ -140,7 +143,7 @@ class FastTriageClassifier:
             reason = "Lexical features within normal baseline parameters."
 
         return TriageScore(
-            lexical_score=round(prob_phishing, 4),
+            lexical_score=round(clean_score, 4),
             is_suspicious=is_suspicious,
             triage_reason=reason,
             feature_attributions=attributions

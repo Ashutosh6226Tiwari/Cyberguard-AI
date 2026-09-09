@@ -250,9 +250,13 @@ async def free_security_scan(req: AnalysisRequest):
         confidence = 0.98
         triage_msg = "Domain is not registered in global RDAP / DNS registries. Host is inactive."
     else:
-        basic_score = round(triage.lexical_score * 70.0 + (25.0 if domain_intel.is_newly_registered else 0.0), 1)
+        # For clean domains with zero risk attributions, score is 0.0
+        if triage.lexical_score == 0.0 and not domain_intel.is_newly_registered:
+            basic_score = 0.0
+        else:
+            basic_score = round(triage.lexical_score * 70.0 + (25.0 if domain_intel.is_newly_registered else 0.0), 1)
         verdict = "PHISHING" if basic_score >= 70.0 else "SUSPICIOUS" if basic_score >= 35.0 else "BENIGN"
-        confidence = 0.94
+        confidence = 0.98 if basic_score == 0.0 else 0.94
         triage_msg = triage.triage_reason
 
     # Create x402 payment challenge for upgrading to Premium Deep Audit
