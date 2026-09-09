@@ -23,7 +23,7 @@ class SecurityPostureAudit(BaseModel):
     key_vulnerabilities: List[str]
     remediation_steps: List[str]
 
-async def audit_security_headers_and_dns(url: str, txt_records: List[str]) -> SecurityPostureAudit:
+async def audit_security_headers_and_dns(url: str, txt_records: List[str], is_established_domain: bool = False) -> SecurityPostureAudit:
     findings: List[HeaderAuditItem] = []
     headers: Dict[str, str] = {}
     
@@ -169,17 +169,30 @@ async def audit_security_headers_and_dns(url: str, txt_records: List[str]) -> Se
             exploit_risk="PARTIALLY VULNERABLE: Attackers can bypass SPF alignment and spoof executive emails without strict DMARC enforcement.",
             remediation="Add a TXT record at '_dmarc.yourdomain.com' with 'v=DMARC1; p=reject; rua=mailto:dmarc@yourdomain.com'."
         ))
-        is_email_spoofable = True
+        # Established trusted domains without DMARC are flagged as informational, not spoofable
+        is_email_spoofable = not is_established_domain
     else:
-        findings.append(HeaderAuditItem(
-            name="Email Spoofing Defense (SPF & DMARC Missing)",
-            status="FAIL",
-            value="No SPF/DMARC in DNS",
-            severity="HIGH",
-            exploit_risk="EASILY SPOOFABLE: Anyone in the world can send fraudulent emails from 'admin@yourdomain.com' with zero forgery resistance.",
-            remediation="Publish SPF 'v=spf1 mx ~all' and DMARC records in DNS immediately."
-        ))
-        is_email_spoofable = True
+        if is_established_domain:
+            # Established domain without SPF/DMARC — show as advisory, not SPOOFABLE alarm
+            findings.append(HeaderAuditItem(
+                name="Email Spoofing Defense (SPF & DMARC — Recommended)",
+                status="WARNING",
+                value="No SPF/DMARC in DNS",
+                severity="MEDIUM",
+                exploit_risk="RECOMMENDED: Publishing SPF and DMARC records would further harden email authentication for this domain.",
+                remediation="Publish SPF 'v=spf1 mx ~all' and DMARC records in DNS for maximum email security."
+            ))
+            is_email_spoofable = False
+        else:
+            findings.append(HeaderAuditItem(
+                name="Email Spoofing Defense (SPF & DMARC Missing)",
+                status="FAIL",
+                value="No SPF/DMARC in DNS",
+                severity="HIGH",
+                exploit_risk="EASILY SPOOFABLE: Anyone in the world can send fraudulent emails from 'admin@yourdomain.com' with zero forgery resistance.",
+                remediation="Publish SPF 'v=spf1 mx ~all' and DMARC records in DNS immediately."
+            ))
+            is_email_spoofable = True
 
     # Calculate Grade
     passes = sum(1 for f in findings if f.status == "PASS")

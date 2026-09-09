@@ -132,8 +132,11 @@ class FastTriageClassifier:
 
         is_suspicious = prob_phishing >= 0.40 or len(attributions) >= 2
         
-        # Clamp statistical floor noise for clean benign domains with 0 risk attributions
-        clean_score = 0.0 if (len(attributions) == 0 and prob_phishing < 0.03) else prob_phishing
+        # Clamp statistical floor noise for clean benign domains with 0 risk attributions.
+        # The calibrated Random Forest + Platt sigmoid produces a baseline floor of ~0.0142
+        # for perfectly clean URLs. When there are zero risk attributions, this is pure
+        # statistical noise — zero it out unconditionally.
+        clean_score = 0.0 if len(attributions) == 0 else prob_phishing
 
         if prob_phishing >= 0.75:
             reason = "High-risk lexical signatures and target brand tokens detected."

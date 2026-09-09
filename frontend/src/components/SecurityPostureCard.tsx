@@ -248,7 +248,7 @@ app.use(helmet({
           <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 600 }}>EMAIL SPOOFING DEFENSE (DMARC)</div>
           <div style={{ fontSize: '0.95rem', fontWeight: 700, color: audit.is_email_spoofable ? 'var(--threat-high)' : 'var(--threat-safe)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             {audit.is_email_spoofable ? <AlertTriangle size={16} /> : <CheckCircle2 size={16} />}
-            <span>{audit.is_email_spoofable ? 'SPOOFABLE (Missing DMARC)' : 'ENFORCED (Anti-Phish)'}</span>
+            <span>{audit.is_email_spoofable ? 'DMARC NOT ENFORCED' : 'ENFORCED (Anti-Phish)'}</span>
           </div>
         </div>
 

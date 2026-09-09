@@ -177,9 +177,17 @@ async def _execute_full_deep_audit(
         )
         
         # 6. Website Security Posture & Exploitability Audit
+        # For established/trusted domains (age > 180 days, no brand contradiction), downgrade
+        # DMARC-missing from SPOOFABLE alarm to advisory recommendation only.
+        is_established_domain = (
+            not domain_intel.is_newly_registered
+            and (domain_intel.domain_age_days or 0) > 180
+            and not brand_match.is_contradiction
+        )
         security_audit = await audit_security_headers_and_dns(
             url=canonical_url,
-            txt_records=domain_intel.dns.txt_records
+            txt_records=domain_intel.dns.txt_records,
+            is_established_domain=is_established_domain
         )
         report.security_audit = security_audit
 
@@ -250,8 +258,8 @@ async def free_security_scan(req: AnalysisRequest):
         confidence = 0.98
         triage_msg = "Domain is not registered in global RDAP / DNS registries. Host is inactive."
     else:
-        # For clean domains with zero risk attributions, score is 0.0
-        if triage.lexical_score == 0.0 and not domain_intel.is_newly_registered:
+        # For clean domains with zero risk attributions, score is 0.0 (suppresses statistical floor noise)
+        if len(triage.feature_attributions) == 0 and not domain_intel.is_newly_registered:
             basic_score = 0.0
         else:
             basic_score = round(triage.lexical_score * 70.0 + (25.0 if domain_intel.is_newly_registered else 0.0), 1)
