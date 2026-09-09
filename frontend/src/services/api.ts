@@ -714,17 +714,14 @@ async function generateClientFreeScan(inputUrl: string): Promise<FreeScanResult>
   }
 
   // If registered, evaluate risk
-  const isSuspicious = domain.includes('login') || domain.includes('verify') || intel.isNrd;
+  const hasSuspiciousKeywords = domain.includes('login') || domain.includes('verify');
   const isInstitutional = domain.endsWith('.ac.in') || domain.endsWith('.edu') || domain.endsWith('.gov') || domain.endsWith('.edu.in');
   
   let basicScore = 0.0;
-  if (intel.isNrd && isSuspicious) {
+  if (intel.isNrd && hasSuspiciousKeywords) {
     basicScore = 88.0;
   } else if (intel.isNrd) {
     basicScore = 45.0;
-  } else if (isSuspicious && !intel.isNrd) {
-    // Only flag as suspicious if also newly registered — established domains with 'login' in URL are fine
-    basicScore = 0.0;
   } else if (isInstitutional) {
     basicScore = 0.0;
   }
@@ -737,7 +734,7 @@ async function generateClientFreeScan(inputUrl: string): Promise<FreeScanResult>
     basic_risk_score: basicScore,
     verdict: basicScore >= 70.0 ? 'PHISHING' : basicScore >= 35.0 ? 'SUSPICIOUS' : 'BENIGN',
     confidence: 0.94,
-    lexical_score: isSuspicious && intel.isNrd ? 0.78 : 0.0,
+    lexical_score: hasSuspiciousKeywords && intel.isNrd ? 0.78 : 0.0,
     is_newly_registered: intel.isNrd,
     domain_age_days: intel.domainAgeDays,
     creation_date: intel.creationDateStr,
@@ -751,7 +748,7 @@ async function generateClientFreeScan(inputUrl: string): Promise<FreeScanResult>
     tls_valid: intel.aRecords.length > 0,
     tls_issuer: 'Public CA',
     entropy_score: 3.42,
-    triage_reason: (isSuspicious && intel.isNrd)
+    triage_reason: (hasSuspiciousKeywords && intel.isNrd)
       ? 'Suspicious lexical tokens on newly registered domain'
       : 'Lexical features within normal baseline parameters.',
     feature_attributions: {},
@@ -933,7 +930,7 @@ async function generateLiveClientAudit(inputUrl: string, txId?: string): Promise
   const isMalicious = hasBrandContradiction || (intel.isNrd && isSuspiciousTLD && domain.includes('login'));
 
   // Established domain = registered > 180 days, no brand contradiction
-  const isEstablishedDomain = !intel.isNrd && !hasBrandContradiction && (intel.domainAgeDays === undefined || intel.domainAgeDays > 180);
+  const isEstablishedDomain = !intel.isNrd && !hasBrandContradiction && (intel.domainAgeDays !== undefined && intel.domainAgeDays > 180);
 
   let riskScore = 0.0;
   if (isMalicious) {
