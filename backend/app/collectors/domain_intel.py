@@ -67,7 +67,7 @@ async def query_dns_records(domain: str) -> DNSRecords:
                 return dns_res
             if dns_res.dns_status == "NXDOMAIN":
                 return dns_res
-    except Exception:
+    except Exception as e:
         pass
 
     # 2. Local DNS Resolver Fallback
@@ -83,13 +83,13 @@ async def query_dns_records(domain: str) -> DNSRecords:
             dns_res.dns_status = "RESOLVED"
         except dns.resolver.NXDOMAIN:
             dns_res.dns_status = "NXDOMAIN"
-        except Exception:
+        except Exception as e:
             pass
 
         try:
             answers = await asyncio.to_thread(resolver.resolve, domain, "TXT")
             dns_res.txt_records = [str(r).strip('"') for r in answers]
-        except Exception:
+        except Exception as e:
             pass
 
         try:
@@ -97,9 +97,9 @@ async def query_dns_records(domain: str) -> DNSRecords:
             dns_res.ns_records = [str(r.target).rstrip(".") for r in answers]
             if dns_res.ns_records:
                 dns_res.dns_status = "RESOLVED"
-        except Exception:
+        except Exception as e:
             pass
-    except Exception:
+    except Exception as e:
         pass
 
     return dns_res
@@ -175,7 +175,7 @@ async def get_ip_geolocation(ip: Optional[str]) -> Dict[str, str]:
                         "city": data.get("city", "Cloud Edge"),
                         "asn": asn_info
                     }
-    except Exception:
+    except Exception as e:
         pass
     return {"country": "Global Anycast", "city": "Routed Edge", "asn": f"IP: {ip}"}
 
@@ -239,7 +239,7 @@ async def fetch_real_domain_age(registrable_domain: str, tld: str) -> Tuple[Opti
                                     dt = dt.replace(tzinfo=timezone.utc)
                                 creation_dt = dt
                                 break
-                            except Exception:
+                            except Exception as e:
                                 pass
                 
                 # Extract registrar name
@@ -334,7 +334,7 @@ async def fetch_real_domain_age(registrable_domain: str, tld: str) -> Tuple[Opti
                         return age_days, dt.strftime("%Y-%m-%d"), registrar, "REGISTERED"
                     elif registrar:
                         return None, None, registrar, "REGISTERED"
-            except Exception:
+            except Exception as e:
                 pass
             return None, None, None, "UNKNOWN"
 

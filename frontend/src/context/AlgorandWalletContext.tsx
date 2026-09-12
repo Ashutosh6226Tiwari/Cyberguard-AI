@@ -37,7 +37,7 @@ export interface AlgorandWalletState {
 
 const CAIP2_TESTNET = 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=';
 const ALGOD_TESTNET_SERVER = 'https://testnet-api.4160.nodely.dev';
-export const DEFAULT_TESTNET_RECEIVER = 'MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY';
+export const DEFAULT_TESTNET_RECEIVER = import.meta.env.VITE_ALGORAND_RECEIVER || '';
 
 const AlgorandWalletContext = createContext<AlgorandWalletState | undefined>(undefined);
 const STORAGE_KEY = 'cyberguard_algorand_wallet';
@@ -125,7 +125,8 @@ export const AlgorandWalletProvider: React.FC<{ children: React.ReactNode }> = (
     try {
       return await fetch(`/api${path}`, init);
     } catch {
-      return await fetch(`http://127.0.0.1:8000/api${path}`, init);
+      const directApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      return await fetch(`${directApiUrl}/api${path}`, init);
     }
   };
 

@@ -31,7 +31,7 @@ async def audit_security_headers_and_dns(url: str, txt_records: List[str], is_es
         async with httpx.AsyncClient(timeout=4.0, follow_redirects=True, verify=False) as client:
             resp = await client.get(url, headers={"User-Agent": "CyberGuardSecurityAuditor/2.0"})
             headers = {k.lower(): v for k, v in resp.headers.items()}
-    except Exception:
+    except Exception as e:
         pass
 
     # 1. Content Security Policy (CSP)

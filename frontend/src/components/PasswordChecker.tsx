@@ -55,7 +55,8 @@ export const PasswordChecker: React.FC<PasswordCheckerProps> = ({ theme }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: pwd })
       };
-      let res = await fetch(endpoint, opts).catch(() => fetch('http://127.0.0.1:8000' + endpoint, opts));
+      const directApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      let res = await fetch(endpoint, opts).catch(() => fetch(directApiUrl + endpoint, opts));
       const data = await res.json();
       setStrength(typeof data.score === 'number' ? data.score : 0);
       setStrengthLabel(data.strength || '');

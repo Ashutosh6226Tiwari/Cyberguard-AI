@@ -20,16 +20,17 @@ export const API_BASE = getApiBase();
 /**
  * Universal resilient fetcher:
  * 1. Attempts Vite dev server proxy '/api/...' (same-origin)
- * 2. If proxy returns 502/504 or network fails, automatically tries direct backend 'http://127.0.0.1:8000/api/...'
+ * 2. If proxy returns 502/504 or network fails, automatically tries direct backend
  */
 export async function apiFetch(endpoint: string, init?: RequestInit): Promise<Response> {
   const cleanPath = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const directApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
   try {
     const res = await fetch(`/api${cleanPath}`, init);
     // If Vite proxy returned 502 Bad Gateway or 504 Gateway Timeout, retry against direct backend
     if (res.status === 502 || res.status === 504) {
       try {
-        const directRes = await fetch(`http://127.0.0.1:8000/api${cleanPath}`, init);
+        const directRes = await fetch(`${directApiUrl}/api${cleanPath}`, init);
         return directRes;
       } catch {
         return res;
@@ -38,7 +39,7 @@ export async function apiFetch(endpoint: string, init?: RequestInit): Promise<Re
     return res;
   } catch (err) {
     try {
-      return await fetch(`http://127.0.0.1:8000/api${cleanPath}`, init);
+      return await fetch(`${directApiUrl}/api${cleanPath}`, init);
     } catch {
       throw err;
     }
@@ -133,7 +134,7 @@ export async function requestPremiumScan(url: string, paymentTxId?: string): Pro
       isPaid: false,
       errorMessage: errJson.detail || errJson.message || `Server responded with status ${response.status}`
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.warn('API request failed:', err);
     if (paymentTxId) {
       // If we have an on-chain transaction ID, generate verified live audit report
@@ -213,7 +214,7 @@ export async function fetchPaymentChallenge(url: string, caseId: string): Promis
 
   const now = Math.floor(Date.now() / 1000);
   const challengeId = `x402-${Math.random().toString(16).slice(2, 14)}`;
-  const receiver = 'MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY';
+  const receiver = import.meta.env.VITE_ALGORAND_RECEIVER || '';
   
   return {
     challenge_id: challengeId,
@@ -282,7 +283,7 @@ export async function verifyAlgorandPayment(
   return {
     verified: true,
     tx_id: txId,
-    sender_address: 'MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY',
+    sender_address: import.meta.env.VITE_ALGORAND_RECEIVER || '',
     amount_algo: 0.1,
     block_round: 66998100,
     confirmed_at: new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC',

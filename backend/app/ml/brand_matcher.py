@@ -42,7 +42,7 @@ def compute_visual_similarity(screenshot_path: Optional[str], brand: BrandProfil
                 return 0.20
                 
             return 0.75
-    except Exception:
+    except Exception as e:
         return 0.0
 
 def match_brand(

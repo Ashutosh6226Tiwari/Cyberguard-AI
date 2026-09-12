@@ -23,7 +23,7 @@ import {
 import { QRCodeSVG } from 'qrcode.react';
 import type { PaymentChallenge, PaymentVerificationResponse, RiskScoreReport } from '../types';
 import { requestPremiumScan, verifyAlgorandPayment } from '../services/api';
-import { useAlgorandWallet, type PaymentSubmissionResult } from '../context/AlgorandWalletContext';
+import { useAlgorandWallet, type PaymentSubmissionResult, DEFAULT_TESTNET_RECEIVER } from '../context/AlgorandWalletContext';
 
 interface X402PaymentModalProps {
   isOpen: boolean;
@@ -161,7 +161,7 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
           : 'Preparing and signing cryptographic payment transaction on Algorand Testnet...'
       );
 
-      const recipient = challenge.recipient_address || 'MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY';
+      const recipient = challenge.recipient_address || DEFAULT_TESTNET_RECEIVER;
       const amount = selectedCurrency === 'ALGO' ? 0.1 : 0.01;
 
       // Real on-chain signing & broadcast
@@ -245,7 +245,7 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
         setConfirmedTx({
           txId: manualTxId.trim(),
           confirmedRound: 66998124,
-          senderAddress: address || 'MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY',
+          senderAddress: address || DEFAULT_TESTNET_RECEIVER,
           recipientAddress: challenge.recipient_address,
           amountAlgo: 0.1,
           explorerUrl: `https://lora.algokit.io/testnet/transaction/${manualTxId.trim()}`
@@ -256,7 +256,7 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
         const verResp: PaymentVerificationResponse = {
           verified: true,
           tx_id: manualTxId.trim(),
-          sender_address: address || 'MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY',
+          sender_address: address || DEFAULT_TESTNET_RECEIVER,
           amount_algo: 0.1,
           block_round: 66998124,
           confirmed_at: new Date().toISOString(),
@@ -560,7 +560,7 @@ export const X402PaymentModal: React.FC<X402PaymentModalProps> = ({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <button
                 onClick={() => {
-                  connectCustomWallet('MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY');
+                  connectCustomWallet(DEFAULT_TESTNET_RECEIVER || 'MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY');
                   setModalView('payment');
                 }}
                 style={{

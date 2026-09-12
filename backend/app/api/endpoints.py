@@ -713,7 +713,7 @@ async def bulk_scan(req: BulkScanRequest):
                 deep_audit_locked=True,
                 x402_challenge=challenge.model_dump()
             )
-        except Exception:
+        except Exception as e:
             # Fallback
             return FreeScanResult(
                 case_id=case_id,
@@ -856,7 +856,7 @@ async def check_password_strength(req: PasswordStrengthRequest):
                         pwned_count = int(parts[1])
                         is_pwned = True
                         break
-    except Exception:
+    except Exception as e:
         pass
         
     if is_pwned:
@@ -883,7 +883,7 @@ async def check_ip_reputation(req: IpReputationRequest):
         async with httpx.AsyncClient(timeout=5) as client:
             resp = await client.get(f"http://ip-api.com/json/{ip}?fields=status,message,country,countryCode,region,city,isp,org,as,proxy,hosting")
             geo_data = resp.json()
-    except Exception:
+    except Exception as e:
         pass
         
     is_valid = geo_data.get("status") == "success"
@@ -893,7 +893,7 @@ async def check_ip_reputation(req: IpReputationRequest):
         reverse_dns = socket.getfqdn(ip)
         if reverse_dns == ip:
             reverse_dns = None
-    except Exception:
+    except Exception as e:
         pass
 
     org = geo_data.get("org", "")

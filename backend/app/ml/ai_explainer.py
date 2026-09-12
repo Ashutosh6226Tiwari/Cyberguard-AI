@@ -185,7 +185,7 @@ Be concise, authoritative, professional, and actionable. Use markdown formatting
                             "Explain Brand Contradiction"
                         ]
                     }
-        except Exception:
+        except Exception as e:
             pass
 
     # 2. High-fidelity built-in cybersecurity knowledge engine

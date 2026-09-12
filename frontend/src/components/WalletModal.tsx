@@ -17,7 +17,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { useAlgorandWallet, type WalletType } from '../context/AlgorandWalletContext';
+import { useAlgorandWallet, type WalletType, DEFAULT_TESTNET_RECEIVER } from '../context/AlgorandWalletContext';
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -383,7 +383,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <button
                 onClick={() => {
-                  connectCustomWallet('MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY');
+                  connectCustomWallet(DEFAULT_TESTNET_RECEIVER || 'MZM62WIYCYOFBA76RGWOYLSIP54PNFVYEFMC3ZYFUJZBBUDLR7MAOX6YFY');
                   setCurrentView('select');
                   onClose();
                 }}

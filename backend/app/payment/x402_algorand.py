@@ -105,7 +105,7 @@ class X402Manager:
                         "facilitator": settings.FACILITATOR_URL,
                         "avm_receiver": settings.AVM_ADDRESS
                     }
-        except Exception:
+        except Exception as e:
             pass
         return {
             "online": False,
@@ -190,7 +190,7 @@ class X402Manager:
                             confirmed_at=time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
                             explorer_url=explorer_url
                         )
-            except Exception:
+            except Exception as e:
                 continue
 
         # 2. Query Algorand Node Pending Pools
@@ -214,7 +214,7 @@ class X402Manager:
                                 confirmed_at=time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
                                 explorer_url=explorer_url
                             )
-            except Exception:
+            except Exception as e:
                 continue
 
         # 3. Query GoPlausible Facilitator Verification Endpoint
@@ -242,7 +242,7 @@ class X402Manager:
                             confirmed_at=time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
                             explorer_url=explorer_url
                         )
-        except Exception:
+        except Exception as e:
             pass
 
         return X402VerificationResult(
@@ -277,7 +277,7 @@ class X402Manager:
                             "amount_microalgos": microalgos,
                             "round": data.get("round", 0)
                         }
-            except Exception:
+            except Exception as e:
                 continue
 
         return {"address": clean_addr, "algo": 0.0, "usdc": 0.0, "amount_microalgos": 0}
@@ -295,7 +295,7 @@ class X402Manager:
                         data["min-fee"] = min_fee
                         data["fee"] = max(min_fee, data.get("fee", 0))
                         return data
-            except Exception:
+            except Exception as e:
                 continue
         return {
             "consensus-version": "https://github.com/algorandfoundation/specs/tree/abc630e20e8b832b83446006f157ff250e3034ce",
@@ -323,7 +323,7 @@ class X402Manager:
                         if res.status_code == 200:
                             data = res.json()
                             return {"success": True, "txId": data.get("txId"), "error": None}
-                except Exception:
+                except Exception as e:
                     continue
             return {"success": False, "error": "Unable to broadcast transaction to Algorand Testnet nodes."}
         except Exception as e:
