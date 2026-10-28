@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/siddhartha/Desktop/aad/projects/cyberAI/.archify/architecture-cyberguard-system-20261028-210400/candidate.json",
+    "sha256": "8a3c119aa6971530948644afabb36126dfbeb4ce82a89804bb636e0ddcbf90c4",
+    "bytes": 6045
+  },
+  "artifact": {
+    "path": "/Users/siddhartha/Desktop/aad/projects/cyberAI/.archify/architecture-cyberguard-system-20261028-210400/cyberguard-system.html",
+    "sha256": "0fe5041a80eaebc93873ca7e746bf6338e0af0d0507e8b80b90ea858d3f74424",
+    "bytes": 855850
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/siddhartha/Desktop/aad/projects/cyberAI/.archify/architecture-cyberguard-system-20261028-210400/review-2/cyberguard-system.finalize.json",
+    "summaryReceipt": "/Users/siddhartha/Desktop/aad/projects/cyberAI/.archify/architecture-cyberguard-system-20261028-210400/review-2/cyberguard-system.finalize-summary.json",
+    "browserCheckReceipt": "/Users/siddhartha/Desktop/aad/projects/cyberAI/.archify/architecture-cyberguard-system-20261028-210400/review-2/cyberguard-system.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-28T15:26:42.461Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2515,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

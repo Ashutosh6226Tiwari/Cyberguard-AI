@@ -1,0 +1,245 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "CyberGuard AI System Architecture",
+    "subtitle": "End-to-End Multi-Signal Phishing & Threat Intelligence Pipeline",
+    "output": ".archify/architecture-cyberguard-system-20261028-210400/cyberguard-system.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "SOC Analyst / User",
+      "sublabel": "Browser Session",
+      "icon": "person",
+      "pos": [40, 240],
+      "size": [130, 64]
+    },
+    {
+      "id": "extension",
+      "type": "security",
+      "label": "Chrome Extension",
+      "sublabel": "Manifest V3 Edge Sensor",
+      "icon": "security",
+      "tag": "Passive Sensor",
+      "pos": [40, 80],
+      "size": [140, 64]
+    },
+    {
+      "id": "web",
+      "type": "frontend",
+      "label": "Web UI Console",
+      "sublabel": "React 19 + Vite + Tailwind",
+      "icon": "frontend",
+      "tag": "Neo-Brutalist",
+      "pos": [220, 240],
+      "size": [140, 64]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "FastAPI Gateway",
+      "sublabel": "REST API :8000",
+      "icon": "backend",
+      "tag": "Uvicorn Async",
+      "pos": [420, 240],
+      "size": [140, 64]
+    },
+    {
+      "id": "triage",
+      "type": "security",
+      "label": "Lexical Triage Model",
+      "sublabel": "RandomForest (25 Features)",
+      "icon": "security",
+      "tag": "Stage 1 (<10ms)",
+      "pos": [640, 70],
+      "size": [150, 64]
+    },
+    {
+      "id": "domain_intel",
+      "type": "security",
+      "label": "DNS & SSL Inspector",
+      "sublabel": "DoH + Public CA + RDAP",
+      "icon": "security",
+      "tag": "Stage 2 Network & TLS",
+      "pos": [640, 210],
+      "size": [150, 64]
+    },
+    {
+      "id": "crawler",
+      "type": "backend",
+      "label": "Playwright Sandbox",
+      "sublabel": "DOM, Forms & Screenshots",
+      "icon": "backend",
+      "tag": "Chromium Sandbox",
+      "pos": [640, 350],
+      "size": [150, 64]
+    },
+    {
+      "id": "vision",
+      "type": "security",
+      "label": "Brand Contradiction",
+      "sublabel": "pHash Vision & Trademark",
+      "icon": "security",
+      "tag": "Logo Matcher",
+      "pos": [640, 490],
+      "size": [150, 64]
+    },
+    {
+      "id": "fusion",
+      "type": "backend",
+      "label": "Risk Fusion Engine",
+      "sublabel": "Bayesian Multi-Signal",
+      "icon": "backend",
+      "tag": "Stage 3 Engine",
+      "pos": [880, 240],
+      "size": [140, 76]
+    },
+    {
+      "id": "gemini",
+      "type": "cloud",
+      "label": "Cyber Copilot",
+      "sublabel": "AI Threat & SOC Analyst",
+      "icon": "cloud",
+      "tag": "Neural Explainer",
+      "pos": [880, 70],
+      "size": [140, 64]
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "Threat Intel Store",
+      "sublabel": "SQLite (phishing_intel.db)",
+      "icon": "database",
+      "pos": [880, 410],
+      "size": [160, 64]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "CyberGuard AI Backend Core",
+      "wraps": ["api", "triage", "domain_intel", "crawler", "vision", "fusion", "gemini", "db"]
+    },
+    {
+      "kind": "security-group",
+      "label": "Multi-Modal Inspection Pipeline",
+      "wraps": ["domain_intel", "crawler", "vision"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "user-to-web",
+      "from": "user",
+      "to": "web",
+      "label": "HTTPS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "extension-to-api",
+      "from": "extension",
+      "to": "api",
+      "label": "Telemetry",
+      "variant": "security"
+    },
+    {
+      "id": "web-to-api",
+      "from": "web",
+      "to": "api",
+      "label": "POST /scan",
+      "variant": "emphasis"
+    },
+    {
+      "id": "api-to-triage",
+      "from": "api",
+      "to": "triage",
+      "label": "URL Triage"
+    },
+    {
+      "id": "api-to-domain-intel",
+      "from": "api",
+      "to": "domain_intel",
+      "label": "Audit DNS & TLS"
+    },
+    {
+      "id": "api-to-crawler",
+      "from": "api",
+      "to": "crawler",
+      "label": "Sandbox Crawl"
+    },
+    {
+      "id": "crawler-to-vision",
+      "from": "crawler",
+      "to": "vision",
+      "label": "Screenshots"
+    },
+    {
+      "id": "triage-to-fusion",
+      "from": "triage",
+      "to": "fusion",
+      "label": "Lexical Risk"
+    },
+    {
+      "id": "domain-intel-to-fusion",
+      "from": "domain_intel",
+      "to": "fusion",
+      "label": "TLS & Domain Age"
+    },
+    {
+      "id": "crawler-to-fusion",
+      "from": "crawler",
+      "to": "fusion",
+      "label": "DOM Artifacts"
+    },
+    {
+      "id": "vision-to-fusion",
+      "from": "vision",
+      "to": "fusion",
+      "label": "Contradiction"
+    },
+    {
+      "id": "fusion-to-gemini",
+      "from": "fusion",
+      "to": "gemini",
+      "label": "Risk Summary",
+      "variant": "security"
+    },
+    {
+      "id": "fusion-to-db",
+      "from": "fusion",
+      "to": "db",
+      "label": "Store Audit"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Multi-Modal Forensics",
+      "items": [
+        "Real-time DoH DNS querying and strict Public CA TLS certificate validation",
+        "Chromium sandbox DOM parsing, interactive password input & credential harvesting detection",
+        "Perceptual pHash logo matching against authorized brand infrastructure catalog"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Multi-Signal Fusion & AI",
+      "items": [
+        "Weighted Bayesian risk score aggregation resolving overall threat verdict (0-100)",
+        "End-to-end cyber attack kill-chain reconstruction",
+        "Deep forensic threat intelligence, attack chain reasoning, and interactive SOC Cyber Copilot"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Zero-Day Edge Defense",
+      "items": [
+        "Chrome Manifest V3 autonomous extension monitoring active browser navigation tabs",
+        "Sub-10ms lexical triage classifying URL length, entropy, and typosquatting",
+        "Newly Registered Domain (NRD <= 90 days) incubation tracking and reputation monitoring"
+      ]
+    }
+  ]
+}

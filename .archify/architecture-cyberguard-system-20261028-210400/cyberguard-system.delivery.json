@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "881c72c0-faa2-4148-b29a-a88e37c37451",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/siddhartha/Desktop/aad/projects/cyberAI/.archify/architecture-cyberguard-system-20261028-210400/candidate.json",
+  "output": "/Users/siddhartha/Desktop/aad/projects/cyberAI/.archify/architecture-cyberguard-system-20261028-210400/cyberguard-system.html",
+  "specification": {
+    "sha256": "2b106a3d02fa325ebd6fbc13690805e507ffa452f79ce5286f11a1423046d78e",
+    "bytes": 6172
+  },
+  "artifact": {
+    "sha256": "ee1b07cdf2e4626d8bf97657cdd6336ee54c6282b3de5a067079a4805204d621",
+    "bytes": 857323
+  }
+}

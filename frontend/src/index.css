@@ -1,0 +1,1360 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@500;700;800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500;700;800&family=Inter:wght@400;600;700;900&display=swap');
+
+:root {
+  /* Neo-brutalism Definitive Palette (Default Light Canvas) */
+  --neo-bg: #FFFDF5;
+  --neo-ink: #000000;
+  --neo-accent: #FF6B6B;     /* Hot Red */
+  --neo-secondary: #38BDF8;  /* Sky Blue */
+  --neo-muted: #C4B5FD;      /* Soft Violet */
+  --neo-blue: #4D96FF;       /* Electric Blue */
+  --neo-green: #6BCB77;      /* Vivid Green */
+  --neo-white: #FFFFFF;
+  --neo-border-width: 4px;
+  --neo-border: 4px solid #000000;
+  --neo-shadow-sm: 4px 4px 0px 0px #000000;
+  --neo-shadow-md: 8px 8px 0px 0px #000000;
+  --neo-shadow-lg: 12px 12px 0px 0px #000000;
+  --neo-shadow-xl: 16px 16px 0px 0px #000000;
+
+  /* Global System Variable Aliases */
+  --bg-primary: #FFFDF5;
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FFFFFF;
+  --border-color: #000000;
+  --border-focus: #000000;
+
+  --accent-cyan: #000000;
+  --accent-green: #38BDF8;
+  --accent-blue: #C4B5FD;
+  --threat-critical: #FF6B6B;
+  --threat-high: #FF6B6B;
+  --threat-medium: #38BDF8;
+  --threat-safe: #C4B5FD;
+
+  --text-primary: #000000;
+  --text-secondary: #000000;
+  --text-muted: #000000;
+
+  --panel-shadow: 8px 8px 0px 0px #000000;
+  --panel-shadow-hover: 12px 12px 0px 0px #000000;
+  --hero-bg: #FFFDF5;
+  --code-box-bg: #FFFFFF;
+  --nav-bar-bg: #FFFDF5;
+
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Light Theme Explicit Target */
+[data-theme="light"], body.light-theme {
+  --bg-primary: #FFFDF5;
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FFFFFF;
+  --border-color: #000000;
+  --border-focus: #000000;
+
+  --accent-cyan: #000000;
+  --accent-green: #38BDF8;
+  --accent-blue: #C4B5FD;
+  --threat-critical: #FF6B6B;
+  --threat-high: #FF6B6B;
+  --threat-medium: #38BDF8;
+  --threat-safe: #C4B5FD;
+
+  --text-primary: #000000;
+  --text-secondary: #000000;
+  --text-muted: #000000;
+
+  --panel-shadow: 8px 8px 0px 0px #000000;
+  --panel-shadow-hover: 12px 12px 0px 0px #000000;
+  --hero-bg: #FFFDF5;
+  --code-box-bg: #FFFFFF;
+  --nav-bar-bg: #FFFDF5;
+}
+
+/* Dark Theme (High-Contrast Inverted Neo-Brutalism) */
+[data-theme="dark"]:not(.light-theme), body:not(.light-theme) {
+  --neo-bg: #121212;
+  --neo-ink: #FFFFFF;
+  --neo-accent: #FF6B6B;
+  --neo-secondary: #38BDF8;
+  --neo-muted: #C4B5FD;
+  --neo-white: #1A1A1A;
+  --neo-border: 4px solid #FFFFFF;
+  --neo-shadow-sm: 4px 4px 0px 0px #38BDF8;
+  --neo-shadow-md: 8px 8px 0px 0px #38BDF8;
+  --neo-shadow-lg: 12px 12px 0px 0px #38BDF8;
+
+  --bg-primary: #121212;
+  --bg-secondary: #1E1E1E;
+  --bg-card: #1A1A1A;
+  --bg-card-hover: #222222;
+  --border-color: #FFFFFF;
+  --border-focus: #38BDF8;
+
+  --accent-cyan: #38BDF8;
+  --accent-green: #38BDF8;
+  --accent-blue: #C4B5FD;
+  --threat-critical: #FF6B6B;
+  --threat-high: #FF6B6B;
+  --threat-medium: #38BDF8;
+  --threat-safe: #C4B5FD;
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #F3F4F6;
+  --text-muted: #E5E7EB;
+
+  --panel-shadow: 8px 8px 0px 0px #38BDF8;
+  --panel-shadow-hover: 12px 12px 0px 0px #FFFFFF;
+  --hero-bg: #121212;
+  --code-box-bg: #1A1A1A;
+  --nav-bar-bg: #121212;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.cyber-font {
+  font-family: 'Orbitron', sans-serif;
+}
+
+/* Glass card styling -> Neo-Brutalist Solid Structure */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 4px solid #000000 !important;
+  border-radius: 0px !important;
+  box-shadow: 8px 8px 0px 0px #000000 !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.glass-panel:hover {
+  transform: translateY(-2px);
+  box-shadow: 12px 12px 0px 0px #000000 !important;
+}
+
+/* Hard Mechanical Click Feedback for all buttons */
+button:active {
+  transform: translate(2px, 2px) !important;
+}
+
+/* Neo-brutalist High-Contrast Typography */
+.neon-cyan-glow,
+.neon-green-glow,
+.neon-red-glow {
+  color: #000000;
+  text-shadow: none !important;
+}
+
+/* Cyber Glitch Effect */
+@keyframes glitch {
+  0% { transform: translate(0) }
+  20% { transform: translate(-2px, 2px) }
+  40% { transform: translate(-2px, -2px) }
+  60% { transform: translate(2px, 2px) }
+  80% { transform: translate(2px, -2px) }
+  100% { transform: translate(0) }
+}
+
+.cyber-glitch:hover {
+  animation: glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+}
+
+/* CRT Scanlines Overlay */
+.cyber-scanlines {
+  display: none !important;
+}
+
+/* Tech Grid Background Overlay -> Neo-Brutalist Graph Paper Pattern */
+.tech-grid-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  background-size: 32px 32px;
+  background-position: center;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+}
+
+/* Modern Display Typography */
+.hero-gradient-text {
+  color: #000000 !important;
+  background: none !important;
+  -webkit-text-fill-color: initial !important;
+  font-weight: 900 !important;
+  text-transform: uppercase;
+}
+
+/* Neo-Brutalist Physical Push Buttons */
+.hero-pill-btn-primary {
+  background: #FF6B6B !important;
+  color: #000000 !important;
+  border: 4px solid #000000 !important;
+  border-radius: 0px !important;
+  padding: 14px 32px !important;
+  font-weight: 900 !important;
+  font-size: 1rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  box-shadow: 6px 6px 0px 0px #000000 !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+  text-decoration: none !important;
+}
+
+.hero-pill-btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 8px 8px 0px 0px #000000 !important;
+  background: #ff5252 !important;
+}
+
+.hero-pill-btn-primary:active {
+  transform: translate(3px, 3px) !important;
+  box-shadow: 2px 2px 0px 0px #000000 !important;
+}
+
+.hero-pill-btn-secondary {
+  background: #C4B5FD !important;
+  color: #000000 !important;
+  border: 4px solid #000000 !important;
+  border-radius: 0px !important;
+  padding: 14px 30px !important;
+  font-weight: 900 !important;
+  font-size: 1rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  box-shadow: 6px 6px 0px 0px #000000 !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+  text-decoration: none !important;
+}
+
+.hero-pill-btn-secondary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 8px 8px 0px 0px #000000 !important;
+  background: #b4a0fb !important;
+}
+
+.hero-pill-btn-secondary:active {
+  transform: translate(3px, 3px) !important;
+  box-shadow: 2px 2px 0px 0px #000000 !important;
+}
+
+.glow-danger {
+  box-shadow: 8px 8px 0px 0px #000000 !important;
+  border: 4px solid #000000 !important;
+}
+
+.glow-warning {
+  box-shadow: 8px 8px 0px 0px #000000 !important;
+  border: 4px solid #000000 !important;
+}
+
+.glow-safe {
+  box-shadow: 8px 8px 0px 0px #000000 !important;
+  border: 4px solid #000000 !important;
+}
+
+/* Neo-Brutalist Badges - Thick 3px Borders & Hard Shadows */
+.badge-critical {
+  background: #FF6B6B !important;
+  color: #000000 !important;
+  border: 3px solid #000000 !important;
+  border-radius: 0px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  box-shadow: 3px 3px 0px 0px #000000 !important;
+}
+
+.badge-high {
+  background: #FF6B6B !important;
+  color: #000000 !important;
+  border: 3px solid #000000 !important;
+  border-radius: 0px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  box-shadow: 3px 3px 0px 0px #000000 !important;
+}
+
+.badge-medium {
+  background: #38BDF8 !important;
+  color: #000000 !important;
+  border: 3px solid #000000 !important;
+  border-radius: 0px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  box-shadow: 3px 3px 0px 0px #000000 !important;
+}
+
+.badge-safe {
+  background: #C4B5FD !important;
+  color: #000000 !important;
+  border: 3px solid #000000 !important;
+  border-radius: 0px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  box-shadow: 3px 3px 0px 0px #000000 !important;
+}
+
+.badge-info {
+  background: #38BDF8 !important;
+  color: #000000 !important;
+  border: 3px solid #000000 !important;
+  border-radius: 0px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  box-shadow: 3px 3px 0px 0px #000000 !important;
+}
+
+/* Light Theme Badge Overrides */
+[data-theme="light"] .badge-critical,
+body.light-theme .badge-critical {
+  background: #FF6B6B !important;
+  color: #000000 !important;
+  border: 3px solid #000000 !important;
+}
+
+[data-theme="light"] .badge-high,
+body.light-theme .badge-high {
+  background: #FF6B6B !important;
+  color: #000000 !important;
+  border: 3px solid #000000 !important;
+}
+
+[data-theme="light"] .badge-medium,
+body.light-theme .badge-medium {
+  background: #38BDF8 !important;
+  color: #000000 !important;
+  border: 3px solid #000000 !important;
+}
+
+[data-theme="light"] .badge-safe,
+body.light-theme .badge-safe {
+  background: #C4B5FD !important;
+  color: #000000 !important;
+  border: 3px solid #000000 !important;
+}
+
+[data-theme="light"] .badge-info,
+body.light-theme .badge-info {
+  background: #38BDF8 !important;
+  color: #000000 !important;
+  border: 3px solid #000000 !important;
+}
+
+/* Radar pulse animation */
+@keyframes radar-sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.radar-spinner {
+  animation: radar-sweep 2s linear infinite;
+}
+
+/* Cyber Animations & Interactive FX */
+@keyframes cyber-pulse-beacon {
+  0%, 100% { transform: scale(1); opacity: 0.9; box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.7); }
+  50% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 12px 4px rgba(0, 240, 255, 0.4); }
+}
+
+.cyber-beacon {
+  animation: cyber-pulse-beacon 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes cyber-gradient-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.cyber-gradient-text {
+  background: linear-gradient(90deg, #00f0ff 0%, #38bdf8 30%, #a855f7 70%, #00ff88 100%);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: cyber-gradient-flow 6s ease infinite;
+}
+
+[data-theme="light"] .cyber-gradient-text,
+body.light-theme .cyber-gradient-text {
+  background: linear-gradient(90deg, #0284c7 0%, #2563eb 50%, #0d9488 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes cyber-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+.cyber-float {
+  animation: cyber-float 4s ease-in-out infinite;
+}
+
+@keyframes cyber-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.cyber-shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.cyber-shimmer-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 70%
+  );
+  transform: rotate(30deg);
+  animation: cyber-shimmer 3.5s infinite;
+  pointer-events: none;
+}
+
+.cyber-card-hover {
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cyber-card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(56, 189, 248, 0.6) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 20px rgba(6, 182, 212, 0.22);
+}
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll 28s linear infinite;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+/* Ambient Cyber Orbs Suppressed for Clean Neo-Brutalist Sharp Aesthetic */
+.ambient-orb-cyan,
+.ambient-orb-purple {
+  display: none !important;
+}
+
+/* Capability Module Card Styles -> Neo-Brutalism Sharp Cards */
+.card-stack-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.card-stack-item {
+  position: sticky;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: #FFFFFF !important;
+  border: 4px solid #000000 !important;
+  border-radius: 0px !important;
+  box-shadow: 8px 8px 0px 0px #000000 !important;
+}
+
+.card-stack-item:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 12px 12px 0px 0px #000000 !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .card-stack-item {
+  background: rgba(18, 24, 38, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 3px solid rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.1) !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .card-stack-item:hover {
+  transform: translateY(-4px) !important;
+  border-color: #38BDF8 !important;
+  box-shadow: 12px 12px 0px 0px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.25) !important;
+}
+
+[data-theme="light"] .card-stack-item,
+body.light-theme .card-stack-item {
+  background: #ffffff !important;
+  border: 4px solid #000000 !important;
+  border-radius: 0px !important;
+  box-shadow: 8px 8px 0px 0px #000000 !important;
+}
+
+[data-theme="light"] .card-stack-item:hover,
+body.light-theme .card-stack-item:hover {
+  transform: translateY(-4px) !important;
+  border-color: #000000 !important;
+  box-shadow: 12px 12px 0px 0px #000000 !important;
+}
+
+/* Custom Scrollbar - Neo-brutalist Solid Ink */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FFFDF5;
+  border-left: 2px solid #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: #000000;
+  border-radius: 0px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FF6B6B;
+}
+
+/* Neo-Brutalist Component Tokens & Primitives */
+.neo-box {
+  background: #FFFFFF;
+  border: 4px solid #000000;
+  box-shadow: 8px 8px 0px 0px #000000;
+  border-radius: 0px;
+}
+
+.neo-card {
+  background: #FFFFFF;
+  border: 4px solid #000000;
+  box-shadow: 8px 8px 0px 0px #000000;
+  border-radius: 0px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.neo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 12px 12px 0px 0px #000000;
+}
+
+.neo-btn,
+.neo-btn-primary,
+.neo-btn-secondary,
+.neo-btn-violet,
+.neo-btn-white {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 4px solid #000000;
+  border-radius: 0px;
+  padding: 12px 24px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0px 0px #000000;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.neo-btn-primary {
+  background: #FF6B6B;
+  color: #000000;
+}
+.neo-btn-primary:hover {
+  background: #ff5252;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+.neo-btn-primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #000000;
+}
+
+.neo-btn-secondary {
+  background: #38BDF8;
+  color: #000000;
+}
+.neo-btn-secondary:hover {
+  background: #fcd329;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+.neo-btn-secondary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #000000;
+}
+
+.neo-btn-violet {
+  background: #C4B5FD;
+  color: #000000;
+}
+.neo-btn-violet:hover {
+  background: #b5a3fb;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+.neo-btn-violet:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #000000;
+}
+
+.neo-btn-white {
+  background: #FFFFFF;
+  color: #000000;
+}
+.neo-btn-white:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+.neo-btn-white:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #000000;
+}
+
+.neo-input {
+  background: #FFFFFF;
+  border: 4px solid #000000;
+  border-radius: 0px;
+  color: #000000;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  padding: 12px 16px;
+  outline: none;
+  box-shadow: 4px 4px 0px 0px #000000;
+  transition: background 0.1s ease, box-shadow 0.1s ease;
+}
+.neo-input:focus {
+  background: #38BDF8;
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+
+.neo-sticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 3px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  font-weight: 900;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 0px;
+}
+
+.neo-sticker-left {
+  transform: rotate(-2deg);
+}
+
+.neo-sticker-right {
+  transform: rotate(2deg);
+}
+
+.neo-stroke-text {
+  -webkit-text-stroke: 2.5px #000000;
+  color: transparent !important;
+}
+
+
+/* Mobile & Tablet Responsive Optimizations */
+@media (max-width: 768px) {
+  .glass-panel {
+    margin-left: 12px !important;
+    margin-right: 12px !important;
+    padding: 16px 14px !important;
+    border-radius: 10px !important;
+  }
+
+  .nav-tabs-container {
+    width: 100% !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 6px !important;
+    justify-content: flex-start !important;
+  }
+
+  .nav-tabs-container button {
+    padding: 6px 10px !important;
+    font-size: 0.75rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  .scanner-input-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .scanner-submit-btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .hacker-terminal-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .attack-chain-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .hero-action-buttons {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .hero-action-buttons button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .feature-cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Additional Light Theme Overrides -> Neo-Brutalism */
+[data-theme="light"], body.light-theme {
+  --bg-tertiary: #FFFDF5;
+  --bg-input: #ffffff;
+  --shadow-card: 8px 8px 0px 0px #000000;
+  --shadow-card-hover: 12px 12px 0px 0px #000000;
+  --tag-bg: #FFFDF5;
+  --tag-border: #000000;
+  --gradient-hero: #FFFDF5;
+}
+
+[data-theme="light"] .glass-panel,
+body.light-theme .glass-panel {
+  background: #FFFFFF !important;
+  border: 4px solid #000000 !important;
+  border-radius: 0px !important;
+  box-shadow: 8px 8px 0px 0px #000000 !important;
+}
+
+[data-theme="light"] .ambient-orb-cyan,
+body.light-theme .ambient-orb-cyan {
+  background: radial-gradient(circle, rgba(2, 132, 199, 0.05) 0%, transparent 70%);
+}
+[data-theme="light"] .ambient-orb-purple,
+body.light-theme .ambient-orb-purple {
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+}
+[data-theme="light"] .cyber-card-hover:hover,
+body.light-theme .cyber-card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(2, 132, 199, 0.5) !important;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.1), 0 0 20px rgba(2, 132, 199, 0.15);
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb,
+body.light-theme ::-webkit-scrollbar-thumb {
+  background: rgba(2, 132, 199, 0.4);
+}
+
+/* ==========================================================================
+   CYBER COPILOT CHATBOT: FULL NEO-BRUTALISM SYSTEM
+   ========================================================================== */
+
+/* Chatbot Floating Launcher */
+.copilot-launcher-btn {
+  background: #38BDF8 !important;
+  color: #000000 !important;
+  border: 4px solid #000000 !important;
+  border-radius: 0px !important;
+  box-shadow: 6px 6px 0px 0px #000000 !important;
+  animation: none !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+  overflow: visible !important;
+}
+
+.copilot-launcher-btn::before {
+  display: none !important;
+}
+
+.copilot-launcher-btn:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 8px 8px 0px 0px #000000 !important;
+}
+
+.copilot-launcher-btn:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0px 0px #000000 !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-launcher-btn,
+body:not(.light-theme) .copilot-launcher-btn {
+  background: #38BDF8 !important;
+  color: #000000 !important;
+  border: 4px solid #FFFFFF !important;
+  box-shadow: 6px 6px 0px 0px #38BDF8 !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-launcher-btn:hover,
+body:not(.light-theme) .copilot-launcher-btn:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 8px 8px 0px 0px #38BDF8 !important;
+}
+
+/* Chatbot Window */
+.copilot-chat-window {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: #FFFFFF !important;
+  border: 4px solid #000000 !important;
+  border-radius: 0px !important;
+  box-shadow: 12px 12px 0px 0px #000000 !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-chat-window,
+body:not(.light-theme) .copilot-chat-window {
+  background: #181818 !important;
+  border: 4px solid #FFFFFF !important;
+  box-shadow: 12px 12px 0px 0px #38BDF8 !important;
+}
+
+/* Top Hazard / Neo-Brutalist Border Bar */
+.copilot-top-prismatic-bar {
+  height: 6px !important;
+  width: 100% !important;
+  flex-shrink: 0 !important;
+  background: repeating-linear-gradient(45deg, #000000, #000000 8px, #38BDF8 8px, #38BDF8 16px) !important;
+  border-bottom: 2px solid #000000 !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-top-prismatic-bar,
+body:not(.light-theme) .copilot-top-prismatic-bar {
+  background: repeating-linear-gradient(45deg, #FFFFFF, #FFFFFF 8px, #38BDF8 8px, #38BDF8 16px) !important;
+  border-bottom: 2px solid #FFFFFF !important;
+}
+
+/* Chatbot Header */
+.copilot-header-bar {
+  background: #38BDF8 !important;
+  border-bottom: 3.5px solid #000000 !important;
+  color: #000000 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-header-bar,
+body:not(.light-theme) .copilot-header-bar {
+  background: #38BDF8 !important;
+  border-bottom: 3.5px solid #FFFFFF !important;
+  color: #000000 !important;
+}
+
+/* Chatbot Messages Scroll Area */
+.copilot-messages-container {
+  background: #FFFDF5 !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-messages-container,
+body:not(.light-theme) .copilot-messages-container {
+  background: #121212 !important;
+}
+
+/* Message Bubbles: User */
+.copilot-user-bubble {
+  background: #4D96FF !important;
+  color: #000000 !important;
+  border: 3px solid #000000 !important;
+  border-radius: 0px !important;
+  box-shadow: 4px 4px 0px 0px #000000 !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-user-bubble,
+body:not(.light-theme) .copilot-user-bubble {
+  background: #4D96FF !important;
+  color: #000000 !important;
+  border: 3px solid #FFFFFF !important;
+  box-shadow: 4px 4px 0px 0px #38BDF8 !important;
+}
+
+/* Message Bubbles: Assistant (Copilot) */
+.copilot-assistant-bubble {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  border: 3px solid #000000 !important;
+  border-radius: 0px !important;
+  box-shadow: 4px 4px 0px 0px #000000 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-assistant-bubble,
+body:not(.light-theme) .copilot-assistant-bubble {
+  background: #1E1E1E !important;
+  color: #FFFFFF !important;
+  border: 3px solid #FFFFFF !important;
+  box-shadow: 4px 4px 0px 0px #38BDF8 !important;
+}
+
+/* ChatGPT-Style Streaming Cursor */
+@keyframes copilotCursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.copilot-stream-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 15px;
+  background: #000000;
+  margin-left: 4px;
+  vertical-align: -2px;
+  animation: copilotCursorBlink 0.65s infinite;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-stream-cursor,
+body:not(.light-theme) .copilot-stream-cursor {
+  background: #38BDF8;
+}
+
+/* Quick Prompt Chip Pills */
+.copilot-prompt-chip {
+  border-radius: 0px !important;
+  padding: 5px 12px !important;
+  font-size: 0.74rem !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  border: 2.5px solid #000000 !important;
+  box-shadow: 3px 3px 0px 0px #000000 !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+}
+
+.copilot-prompt-chip:hover {
+  transform: translate(-1px, -1px) !important;
+  box-shadow: 4px 4px 0px 0px #000000 !important;
+}
+
+.copilot-prompt-chip:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 1px 1px 0px 0px #000000 !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-prompt-chip,
+body:not(.light-theme) .copilot-prompt-chip {
+  border: 2.5px solid #FFFFFF !important;
+  box-shadow: 3px 3px 0px 0px #38BDF8 !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-prompt-chip:hover,
+body:not(.light-theme) .copilot-prompt-chip:hover {
+  box-shadow: 4px 4px 0px 0px #38BDF8 !important;
+}
+
+/* Color variations for chips (Neo-Brutalism palette) */
+.copilot-chip-cyan {
+  background: #C4B5FD !important;
+  color: #000000 !important;
+}
+.copilot-chip-emerald {
+  background: #6BCB77 !important;
+  color: #000000 !important;
+}
+.copilot-chip-amber {
+  background: #38BDF8 !important;
+  color: #000000 !important;
+}
+.copilot-chip-purple {
+  background: #D8B4FE !important;
+  color: #000000 !important;
+}
+.copilot-chip-rose {
+  background: #FF6B6B !important;
+  color: #000000 !important;
+}
+.copilot-chip-sky {
+  background: #4D96FF !important;
+  color: #000000 !important;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+.copilot-chips-carousel {
+  background: #FFFDF5 !important;
+  border-top: 3px solid #000000 !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-chips-carousel,
+body:not(.light-theme) .copilot-chips-carousel {
+  background: #181818 !important;
+  border-top: 3px solid #FFFFFF !important;
+}
+
+/* Chat Input Container */
+.copilot-input-area {
+  background: #FFFDF5 !important;
+  border-top: 3.5px solid #000000 !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-input-area,
+body:not(.light-theme) .copilot-input-area {
+  background: #141414 !important;
+  border-top: 3.5px solid #FFFFFF !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-input-area textarea::placeholder,
+body:not(.light-theme) .copilot-input-area textarea::placeholder {
+  color: #94A3B8 !important;
+}
+
+/* Copilot Sidebar Styles */
+.copilot-sidebar {
+  background: #FFFDF5 !important;
+  border-right: 3.5px solid #000000 !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-sidebar,
+body:not(.light-theme) .copilot-sidebar {
+  background: #141414 !important;
+  border-right: 3.5px solid #FFFFFF !important;
+}
+
+/* Copilot History Items */
+.copilot-history-item {
+  color: #000000 !important;
+  border: 2px solid transparent !important;
+  border-radius: 0px !important;
+  background: transparent !important;
+  transition: all 0.1s ease !important;
+}
+
+.copilot-history-item:hover {
+  background: #F0EDE0 !important;
+  border: 2px solid #000000 !important;
+  color: #000000 !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-history-item,
+body:not(.light-theme) .copilot-history-item {
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-history-item:hover,
+body:not(.light-theme) .copilot-history-item:hover {
+  background: #252525 !important;
+  border: 2px solid #FFFFFF !important;
+  color: #FFFFFF !important;
+}
+
+.copilot-history-item.active {
+  background: #38BDF8 !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 3px 3px 0px 0px #000000 !important;
+  color: #000000 !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="dark"]:not(.light-theme) .copilot-history-item.active,
+body:not(.light-theme) .copilot-history-item.active {
+  background: #38BDF8 !important;
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 3px 3px 0px 0px #38BDF8 !important;
+  color: #000000 !important;
+}
+
+/* =========================================================================
+   PRINT / PDF EXPORT MEDIA OVERRIDES
+   Prevents duplicate fixed background layers, hides non-printable elements
+========================================================================= */
+@media print {
+  /* Hide non-printable app background elements */
+  body > #root > div > header,
+  body > #root > div > footer,
+  .matrix-canvas-container,
+  .ambient-orb-cyan,
+  .ambient-orb-purple,
+  .scanner-submit-btn,
+  .copilot-floating-pill,
+  .cyber-copilot-container,
+  button,
+  select,
+  input {
+    display: none !important;
+  }
+
+  /* Make sure background is white and text is sharp for clean PDF generation */
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Reset fixed modal containers so they don't repeat on multiple pages */
+  .report-export-modal-backdrop {
+    position: static !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .report-export-modal-dialog {
+    position: static !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .report-export-modal-content {
+    overflow: visible !important;
+    max-height: none !important;
+    padding: 0 !important;
+  }
+
+  .report-export-modal-header {
+    display: none !important;
+  }
+
+  .report-printable-area {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  .print-avoid-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+}
+
+/* =========================================================================
+   NEO-BRUTALIST SCANNER ZONE
+   Sharp 4px solid borders, hard drop shadows, and high-contrast styling
+========================================================================= */
+.neomorphic-scanner-zone,
+.neo-scanner-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin: 0 20px 40px 20px;
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+.neomorphic-scanner-zone *,
+.neo-scanner-zone * {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.neomorphic-scanner-zone .mono,
+.neo-scanner-zone .mono {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.neomorphic-scanner-zone .glass-panel,
+.neo-scanner-zone .glass-panel {
+  background: var(--bg-card, #FFFFFF) !important;
+  border: 4px solid #000000 !important;
+  border-radius: 0px !important;
+  box-shadow: 8px 8px 0px 0px #000000 !important;
+  color: var(--text-primary, #000000) !important;
+}
+
+[data-theme="dark"] .neomorphic-scanner-zone .glass-panel,
+[data-theme="dark"] .neo-scanner-zone .glass-panel,
+body:not(.light-theme) .neomorphic-scanner-zone .glass-panel,
+body:not(.light-theme) .neo-scanner-zone .glass-panel {
+  background: rgba(18, 24, 38, 0.85) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 3px solid rgba(56, 189, 248, 0.4) !important;
+  box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.12) !important;
+  color: #FFFFFF !important;
+}
+
+.neomorphic-scanner-zone pre,
+.neomorphic-scanner-zone code,
+.neo-scanner-zone pre,
+.neo-scanner-zone code {
+  background: #1A1A1A !important;
+  border: 2px solid #000000 !important;
+  border-radius: 0px !important;
+  box-shadow: 3px 3px 0px 0px #000000 !important;
+  color: #00F0FF !important;
+}
+
+[data-theme="dark"] .neomorphic-scanner-zone pre,
+[data-theme="dark"] .neomorphic-scanner-zone code,
+[data-theme="dark"] .neo-scanner-zone pre,
+[data-theme="dark"] .neo-scanner-zone code,
+body:not(.light-theme) .neomorphic-scanner-zone pre,
+body:not(.light-theme) .neomorphic-scanner-zone code,
+body:not(.light-theme) .neo-scanner-zone pre,
+body:not(.light-theme) .neo-scanner-zone code {
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 3px 3px 0px 0px #38BDF8 !important;
+}
+
+/* ==========================================================================
+   LIQUID GLASS SYSTEM (Fluid Refraction, Caustics & Prismatic Sheen)
+   ========================================================================== */
+
+.liquid-glass-hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  contain: paint;
+  transform: translateZ(0);
+}
+
+/* Fluid Moving Caustic Glow for Liquid Glass - Highly Optimized (No GPU Filter/Blend Thrashing) */
+.liquid-glass-hero::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: -40%;
+  width: 180%;
+  height: 180%;
+  background: 
+    radial-gradient(ellipse 65% 55% at 20% 20%, rgba(56, 189, 248, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 65% at 80% 80%, rgba(192, 132, 252, 0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 45% 45% at 60% 30%, rgba(56, 189, 248, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 40% 70%, rgba(255, 255, 255, 0.08) 0%, transparent 35%);
+  pointer-events: none;
+  animation: liquidGlassCaustics 20s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+  z-index: 0;
+  opacity: 0.9;
+  transform: translateZ(0);
+}
+
+/* Prismatic Liquid Glass Top Highlight */
+.liquid-glass-hero::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.6) 20%, 
+    rgba(56, 189, 248, 0.95) 50%, 
+    rgba(192, 132, 252, 0.8) 75%, 
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Liquid Glass Moving Specular Sheen Glance */
+.liquid-glass-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 15%,
+    rgba(255, 255, 255, 0.04) 30%,
+    rgba(56, 189, 248, 0.14) 42%,
+    rgba(255, 255, 255, 0.22) 46%,
+    rgba(192, 132, 252, 0.12) 50%,
+    transparent 65%
+  );
+  background-size: 250% 100%;
+  animation: liquidGlassSheenGlance 14s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  z-index: 1;
+}
+
+@keyframes liquidGlassSheenGlance {
+  0% {
+    background-position: 220% 0;
+  }
+  35% {
+    background-position: -60% 0;
+  }
+  100% {
+    background-position: -60% 0;
+  }
+}
+
+@keyframes liquidGlassCaustics {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate3d(-4%, -3%, 0) scale(1.06) rotate(1.5deg);
+  }
+  66% {
+    transform: translate3d(3%, 4%, 0) scale(0.97) rotate(-1.5deg);
+  }
+  100% {
+    transform: translate3d(-2%, 2%, 0) scale(1.04) rotate(0.8deg);
+  }
+}
+
+
+
+
+

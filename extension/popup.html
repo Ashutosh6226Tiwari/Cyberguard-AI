@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CyberGuard AI - Threat Shield</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="brand">
+      <div class="brand-icon-box">
+        <img src="icons/icon48.png" alt="CyberGuard" width="22" height="22">
+      </div>
+      <div class="brand-info">
+        <span class="brand-title">CYBERGUARD AI</span>
+        <span class="brand-subtitle">REAL-TIME SHIELD</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span id="badge" class="badge badge-safe">🛡️ SAFE</span>
+      <button id="rescanBtn" class="action-icon-btn" title="Force Fresh Re-scan">🔄</button>
+      <button id="settingsToggleBtn" class="action-icon-btn" title="Engine Settings">⚙️</button>
+    </div>
+  </header>
+
+  <!-- Engine Status Pill -->
+  <div class="engine-status-bar">
+    <span id="engineStatusDot" class="status-dot online"></span>
+    <span id="engineStatusText">CyberGuard SOC Core Connected (:8000)</span>
+  </div>
+
+  <!-- Settings Drawer (Collapsible) -->
+  <div id="settingsDrawer" class="settings-drawer" style="display: none;">
+    <div class="settings-title">ENGINE CONFIGURATION</div>
+    <label class="settings-lbl" for="backendUrlInput">Backend API Endpoint:</label>
+    <div class="settings-row">
+      <input type="text" id="backendUrlInput" class="settings-input mono" value="http://localhost:8000" placeholder="http://localhost:8000">
+      <button id="saveSettingsBtn" class="btn-sm">Save</button>
+    </div>
+    <label class="settings-lbl" for="frontendUrlInput" style="margin-top:8px; display:block;">Frontend Web App URL:</label>
+    <div class="settings-row">
+      <input type="text" id="frontendUrlInput" class="settings-input mono" value="http://localhost:5173" placeholder="http://localhost:5173">
+    </div>
+    <div class="settings-note">
+      💡 <em>Works Offline & Anywhere:</em> If the local backend is offline, the extension automatically activates the <strong>Autonomous Edge DNS Engine</strong> with zero server required.
+    </div>
+  </div>
+
+  <!-- Active Target Card -->
+  <div class="target-card">
+    <div class="card-header">
+      <span class="section-label">CURRENT ACTIVE TARGET</span>
+      <span id="protocolBadge" class="proto-badge">HTTPS</span>
+    </div>
+    <div id="domainName" class="domain-text mono">Loading target...</div>
+  </div>
+
+  <!-- Risk Score & Security Grade -->
+  <div class="metrics-grid">
+    <div class="metric-box">
+      <div class="metric-val mono" id="riskScore">--</div>
+      <div class="metric-lbl">THREAT INDEX</div>
+      <div class="progress-track">
+        <div id="riskBar" class="progress-fill" style="width: 0%;"></div>
+      </div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-val mono" id="secGrade">--</div>
+      <div class="metric-lbl">SECURITY GRADE</div>
+      <div class="metric-sub" id="secGradeSub">Evaluating...</div>
+    </div>
+  </div>
+
+  <!-- Threat Warning Box (Conditional) -->
+  <div id="alertBox" class="alert-box" style="display: none;">
+    <div class="alert-icon">⚠️</div>
+    <div class="alert-content">
+      <strong id="alertTitle">High Risk Detected</strong>
+      <p id="alertDesc"></p>
+    </div>
+  </div>
+
+  <!-- Infrastructure Telemetry Grid (Structured 2x2 Tiles) -->
+  <div class="telemetry-card">
+    <div class="section-label">LIVE INFRASTRUCTURE TELEMETRY</div>
+    <div class="telemetry-grid">
+      <div class="tele-tile">
+        <div class="tele-header">
+          <span class="tele-icon">🌐</span>
+          <span class="tele-lbl">DNS Routing</span>
+        </div>
+        <div id="teleDns" class="tele-val mono">Resolving...</div>
+      </div>
+      <div class="tele-tile">
+        <div class="tele-header">
+          <span class="tele-icon">🔒</span>
+          <span class="tele-lbl">TLS Protocol</span>
+        </div>
+        <div id="teleTls" class="tele-val mono">Checking...</div>
+      </div>
+      <div class="tele-tile">
+        <div class="tele-header">
+          <span class="tele-icon">✉️</span>
+          <span class="tele-lbl">Mail Security</span>
+        </div>
+        <div id="teleMail" class="tele-val mono">Auditing...</div>
+      </div>
+      <div class="tele-tile">
+        <div class="tele-header">
+          <span class="tele-icon">🏛️</span>
+          <span class="tele-lbl">Domain Age</span>
+        </div>
+        <div id="teleAge" class="tele-val mono">Querying...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audited Defensive Vectors -->
+  <div class="vectors-card">
+    <div class="section-label">AUDITED DEFENSIVE VECTORS</div>
+    <div id="vectorTags" class="vector-tags">
+      <span class="vector-tag pass">✓ Lexical Entropy</span>
+      <span class="vector-tag pass">✓ Zero Contradiction</span>
+      <span class="vector-tag pass">✓ TLS Encryption</span>
+      <span class="vector-tag pass">✓ DNS Routing</span>
+    </div>
+  </div>
+
+  <!-- AI Forensic Brief -->
+  <div class="recs-card">
+    <div class="section-label">AI FORENSIC BRIEF</div>
+    <div id="aiSummary" class="brief-text">Evaluating target threat signals...</div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="actions">
+    <button id="deepScanBtn" class="btn btn-primary">
+      <span class="btn-emoji">🔬</span>
+      <span>Open SOC Deep Audit</span>
+    </button>
+    <button id="copyBriefBtn" class="btn btn-secondary">
+      <span class="btn-emoji">📋</span>
+      <span>Copy Forensic Brief</span>
+    </button>
+  </div>
+
+  <div id="copyToast" class="toast" style="display: none;">Copied to clipboard!</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+name: Sync to Copilot Repo
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  sync-to-copilot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Push to Copilot Repository
+        env:
+          COPILOT_TOKEN: ${{ secrets.COPILOT_SYNC_TOKEN }}
+        run: |
+          if [ -z "$COPILOT_TOKEN" ]; then
+            echo "COPILOT_SYNC_TOKEN secret is not set, skipping remote sync"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote add copilot "https://x-access-token:${COPILOT_TOKEN}@github.com/Siddhartha39/Copilot.git"
+          git push copilot main --force
